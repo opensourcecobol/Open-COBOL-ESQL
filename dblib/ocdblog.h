@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2013 Tokyo System House Co.,Ltd.
+﻿/*
+ * Copyright (C) 2015 Tokyo System House Co.,Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -20,27 +20,20 @@
 #ifndef OCDBLOG_H /* OCDBLOG_H */
 #define OCDBLOG_H
 
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
+#define LOG_OUTPUT_NOTSET 0
+#define LOG_OUTPUT_NOTHING 1
+#define LOG_OUTPUT_ERR 2
+#define LOG_OUTPUT_DEBUG 3
 
-#define NDEBUG
-#define LOG_OUTPUTFILE
+#define LOGBUFSIZE 26
 
-#ifndef LOG_OUTPUTFILE /* LOG_OUTPUTFILE */
-#ifdef NDEBUG /* NODEBUG */
-#define LOG(args...) /*none*/
-#else /* NODEBUG */
-#define LOG(args...) {time_t clock; time(&clock); fprintf(stderr, "[%s]#DEBUG# %s:%s(): ", strtok(ctime(&clock), "\r\n"), __FILE__,  __func__); fprintf(stderr, args);}
-#endif /* NODEBUG */
-#define ERRLOG(args...) {time_t clock; time(&clock); fprintf(stderr, "[%s] #ERROR# %s:%s(): ", strtok(ctime(&clock), "\r\n"), __FILE__, __func__); fprintf(stderr, args);}
-#else /* LOG_OUTPUTFILE */
-#ifdef NDEBUG /* NODEBUG */
-#define LOG(args...) /*none*/
-#else /* NODEBUG */
-#define LOG(args...) {time_t clock; FILE *fp; time(&clock); fp = fopen("/tmp/ocesql.log", "a"); if(fp != NULL){fprintf(fp, "[%s]#DEBUG# %s:%s(): ", strtok(ctime(&clock), "\r\n"), __FILE__, __func__); fprintf(fp, args); fclose(fp);}}
-#endif /* NODEBUG */
-#define ERRLOG(args...) {time_t clock; FILE *fp; time(&clock); fp = fopen("/tmp/ocesql.log", "a"); if(fp != NULL){fprintf(fp, "[%s]#ERROR# %s:%s(): ", strtok(ctime(&clock), "\r\n"), __FILE__, __func__); fprintf(fp, args); fclose(fp);}}
-#endif /* LOG_OUTPUTFILE */
+static int loglevel = LOG_OUTPUT_NOTSET;
+static char* logfile = NULL;
 
-#endif /* OCDBLOG_H */
+#define LOG(...) {OCLOG(__FILE__, __FUNCTION__,__VA_ARGS__);}
+#define ERRLOG(...) {OCERRLOG(__FILE__, __FUNCTION__,__VA_ARGS__);}
+
+void OCLOG(const char *, const char *, const char *, ...);
+void OCERRLOG(const char *, const char *, const char *, ...);
+
+#endif

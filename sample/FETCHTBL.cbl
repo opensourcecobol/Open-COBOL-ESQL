@@ -52,13 +52,12 @@
            EXEC SQL
                CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
            END-EXEC.
-           IF  SQLSTATE NOT = ZERO PERFORM ERROR-RTN STOP RUN.
+           IF  SQLCODE NOT = ZERO PERFORM ERROR-RTN STOP RUN.
            
       *    SELECT COUNT(*) INTO HOST-VARIABLE
            EXEC SQL 
                SELECT COUNT(*) INTO :EMP-CNT FROM EMP
            END-EXEC.
-           IF  SQLSTATE NOT = ZERO PERFORM ERROR-RTN.
            DISPLAY "TOTAL RECORD: " EMP-CNT.
            
       *    DECLARE CURSOR
@@ -71,7 +70,6 @@
            EXEC SQL
                OPEN C1
            END-EXEC.
-           IF  SQLSTATE NOT = ZERO PERFORM ERROR-RTN STOP RUN.
            
       *    FETCH
            DISPLAY "---- -------------------- ------".
@@ -80,7 +78,7 @@
            EXEC SQL 
                FETCH C1 INTO :EMP-NO, :EMP-NAME, :EMP-SALARY
            END-EXEC.
-           PERFORM UNTIL SQLSTATE NOT = ZERO
+           PERFORM UNTIL SQLCODE NOT = ZERO
               MOVE  EMP-NO        TO    D-EMP-NO
               MOVE  EMP-NAME      TO    D-EMP-NAME
               MOVE  EMP-SALARY    TO    D-EMP-SALARY
@@ -89,7 +87,6 @@
                   FETCH C1 INTO :EMP-NO, :EMP-NAME, :EMP-SALARY
               END-EXEC
            END-PERFORM.
-           IF  SQLSTATE NOT = "02000" PERFORM ERROR-RTN STOP RUN.
            
       *    CLOSE CURSOR
            EXEC SQL 
@@ -114,22 +111,26 @@
        ERROR-RTN.
       ******************************************************************
            DISPLAY "*** SQL ERROR ***".
-           DISPLAY "SQLSTATE: " SQLSTATE.
-           EVALUATE SQLSTATE
-              WHEN  "02000"
+           DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING.
+           EVALUATE SQLCODE
+              WHEN  +10
                  DISPLAY "Record not found"
-              WHEN  "08003"
-              WHEN  "08001"
+              WHEN  -01
                  DISPLAY "Connection falied"
-              WHEN  SPACE
-                 DISPLAY "Undefined error"
-              WHEN  OTHER
-                 DISPLAY "SQLCODE: "   SQLCODE
-                 DISPLAY "SQLERRMC: "  SQLERRMC
+              WHEN  -20
+                 DISPLAY "Internal error"
+              WHEN  -30
+                 DISPLAY "PostgreSQL error"
+                 DISPLAY "ERRCODE: "  SQLSTATE
+                 DISPLAY SQLERRMC
               *> TO RESTART TRANSACTION, DO ROLLBACK.
                  EXEC SQL
                      ROLLBACK
                  END-EXEC
+              WHEN  OTHER
+                 DISPLAY "Undefined error"
+                 DISPLAY "ERRCODE: "  SQLSTATE
+                 DISPLAY SQLERRMC
            END-EVALUATE.
       ******************************************************************
 

@@ -73,13 +73,13 @@
            EXEC SQL
                CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
            END-EXEC.
-           IF  SQLSTATE NOT = ZERO PERFORM ERROR-RTN STOP RUN.
+           IF  SQLCODE NOT = ZERO PERFORM ERROR-RTN STOP RUN.
            
       *    DROP TABLE
            EXEC SQL
-               DROP TABLE EMP
+               DROP TABLE IF EXISTS EMP
            END-EXEC.
-           IF  SQLSTATE NOT = ZERO PERFORM ERROR-RTN.
+           IF  SQLCODE NOT = ZERO PERFORM ERROR-RTN.
            
       *    CREATE TABLE 
            EXEC SQL
@@ -91,20 +91,20 @@
                     CONSTRAINT IEMP_0 PRIMARY KEY (EMP_NO)
                 )
            END-EXEC.
-           IF  SQLSTATE NOT = ZERO PERFORM ERROR-RTN STOP RUN.
+           IF  SQLCODE NOT = ZERO PERFORM ERROR-RTN STOP RUN.
            
       *    INSERT ROWS USING LITERAL
            EXEC SQL
       *         INSERT INTO EMP VALUES (46, 'KAGOSHIMA ROKURO', -320)
                INSERT INTO EMP VALUES (46, '鹿児島　六郎', -320)
            END-EXEC.
-           IF  SQLSTATE NOT = ZERO PERFORM ERROR-RTN.
+           IF  SQLCODE NOT = ZERO PERFORM ERROR-RTN.
 
            EXEC SQL
       *         INSERT INTO EMP VALUES (47, 'OKINAWA SHICHIRO', 480)
                INSERT INTO EMP VALUES (47, '沖縄　七郎', 480)
            END-EXEC.
-           IF  SQLSTATE NOT = ZERO PERFORM ERROR-RTN.
+           IF  SQLCODE NOT = ZERO PERFORM ERROR-RTN.
 
       *    INSERT ROWS USING HOST VARIABLE
            PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
@@ -115,7 +115,7 @@
                  INSERT INTO EMP VALUES
                         (:EMP-NO,:EMP-NAME,:EMP-SALARY)
               END-EXEC
-              IF  SQLSTATE NOT = ZERO
+              IF  SQLCODE NOT = ZERO 
                   PERFORM ERROR-RTN
                   EXIT PERFORM
               END-IF
@@ -137,21 +137,25 @@
        ERROR-RTN.
       ******************************************************************
            DISPLAY "*** SQL ERROR ***".
-           DISPLAY "SQLSTATE: " SQLSTATE.
-           EVALUATE SQLSTATE
-              WHEN  "02000"
+           DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING.
+           EVALUATE SQLCODE
+              WHEN  +10
                  DISPLAY "Record not found"
-              WHEN  "08003"
-              WHEN  "08001"
+              WHEN  -01
                  DISPLAY "Connection falied"
-              WHEN  SPACE
-                 DISPLAY "Undefined error"
-              WHEN  OTHER
-                 DISPLAY "SQLCODE: "   SQLCODE
-                 DISPLAY "SQLERRMC: "  SQLERRMC
+              WHEN  -20
+                 DISPLAY "Internal error"
+              WHEN  -30
+                 DISPLAY "PostgreSQL error"
+                 DISPLAY "ERRCODE: "  SQLSTATE
+                 DISPLAY SQLERRMC
               *> TO RESTART TRANSACTION, DO ROLLBACK.
                  EXEC SQL
                      ROLLBACK
                  END-EXEC
+              WHEN  OTHER
+                 DISPLAY "Undefined error"
+                 DISPLAY "ERRCODE: "  SQLSTATE
+                 DISPLAY SQLERRMC
            END-EVALUATE.
       ******************************************************************  

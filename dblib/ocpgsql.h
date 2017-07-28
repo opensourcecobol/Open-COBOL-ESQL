@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2013 Tokyo System House Co.,Ltd.
+﻿/*
+ * Copyright (C) 2015 Tokyo System House Co.,Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,6 +19,7 @@
 
 #ifndef OCPGSQL_H
 #define OCPGSQL_H
+#include <libpq-fe.h>
 
 /* define sqlca for PostgreSQL */
 #define SQLERRMC_LEN	70
@@ -37,8 +38,10 @@ struct sqlca_t
 	char		sqlerrp[8];
 	int		sqlerrd[6];
 	char		sqlwarn[8];
-	char		sqlstate[5]; //err status
-} sqlca;
+	char		sqlstate[SQLSTATE_LEN]; //err status
+};
+
+#include "ocdb.h"
 
 static struct sqlca_t sqlca_init =
 {
@@ -107,6 +110,8 @@ static struct sqlca_t sqlca_init =
 #define OCPG_WARNING_IN_TRANSACTION -603
 #define OCPG_WARNING_NO_TRANSACTION -604
 #define OCPG_WARNING_PORTAL_EXISTS -605
+#define OCPG_LOCK_ERROR -606
+#define OCPG_JDD_ERROR -607
 
 /* method */
 unsigned long OCDB_PGConnect(char *, int, char *);
@@ -123,17 +128,26 @@ unsigned long OCDB_PGCursorDeclareParams(unsigned long, char *, char *, int,
                     const int *, const char * const *,
      	  	    const int *, const int *, int, int);
 unsigned long OCDB_PGCursorFetchOne(unsigned long, char *, int);
+unsigned long OCDB_PGCursorFetchOccurs(unsigned long, char *, int, int);
 unsigned long OCDB_PGCursorClose(unsigned long, char *);
-int OCDB_PGResultStatus(unsigned long);
-int OCDB_PGcmdtuples(unsigned long);
-int OCDB_PGntuples(unsigned long);
 char *OCDB_PGResultErrorMessage(unsigned long);
 char *OCDB_PGResultErrorField(unsigned long);
+int OCDB_PGcmdtuples(unsigned long);
+int OCDB_PGntuples(unsigned long);
 int OCDB_PGnfields(unsigned long);
 char *OCDB_PGfname(unsigned long, int);
 int OCDB_PGfnumber(unsigned long, const char *);
 char *OCDB_PGgetvalue(unsigned long, int, int);
+unsigned long OCDB_PGDropTable(unsigned long, char *);
 void OCDB_PGFinish(unsigned long);
+
+unsigned long OCDB_PGDeleteTable(unsigned long, char *);
+//void OCDB_PGsqlca_initialize(struct sqlca_t * sqlca);
+
+static char errmsg_buf[SQLERRMC_LEN];
+static char state_buf[] = "     ";
+
 int OCDB_PGSetResultStatus(unsigned long, struct sqlca_t *);
 int OCDB_PGSetLibErrorStatus(struct sqlca_t *, int);
+
 #endif

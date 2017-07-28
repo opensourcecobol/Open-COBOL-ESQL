@@ -1,4 +1,35 @@
 NEWS
 ****
 
-* Open Cobol ESQL (Ocesql) 1.0 released
+2015-03-31
+===========
+	Open Cobol ESQL (Ocesql) 1.1 released
+
+	<< New features >>
+	* The following new functions now work on Open Cobol ESQL
+		- Designation of the database connection by the AT clause
+		- PREPARE command
+		- WHERE CURRENT OF clause
+		- Variable-length string
+	* Added new function that avoids a transaction abort when the SQL execution was failed.
+	* Open Cobol ESQL now works on Windows.
+	
+	<< Bug fixes >>
+	* Fixed memory access violation during FETCH command runnning.
+	* Fixed bug not to generate the precompilation error when using 
+	  not-supported clause such as USAGE COMP-5.
+	* Fixed bug to fail in precompilation when using multi-part searches 
+	  in a SELECT command (such as subquery,UNION).
+	* Fixed possible memory leak
+	* Fixed some of bugs not to make Open Cobol ESQL work.
+	
+    << Changes >>
+    * When connecting to the Database, you can specify the character set 
+      using an environment variable.
+    * The database connection parameter of a CONNECT command, the argument of 
+      the command takes precedence over an environment variable.
+    * Improved performance for the Batch fetches with OCCURS.
+
+2013-06-28
+===========
+	Open Cobol ESQL (Ocesql) 1.0 released

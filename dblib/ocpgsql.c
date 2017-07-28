@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2013 Tokyo System House Co.,Ltd.
+﻿/*
+ * Copyright (C) 2015 Tokyo System House Co.,Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -20,19 +20,28 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
-#include <unistd.h>
-#include <libpq-fe.h>
 
 #include "ocpgsql.h"
 #include "ocdblog.h"
-#include "ocdb.h"
 #include "ocdbutil.h"
 
-#define SET_SQLSTATE(ststate,sqlstate) strncpy((ststate), (sqlstate), SQLSTATE_LEN)
+#define SET_SQLSTATE(ststate,sqlstate) memcpy((ststate),(sqlstate), SQLSTATE_LEN)
+
+static char sql_savepoint[]          = "SAVEPOINT oc_save";
+static char sql_release_savepoint[]  = "RELEASE SAVEPOINT oc_save";
+static char sql_rollback_savepoint[] = "ROLLBACK TO oc_save";
+
+static unsigned long PGLockConnId = OCDB_CONN_FAIL_CONNECT;
+
+//単文ロールバックフラグ
+static int rollback_one_mode = 0;
 
 unsigned long
 OCDB_PGConnect(char *conninfo, int autocommit, char *cencoding){
 	PGconn *conn;
+	PGresult *res = NULL;
+	char *env_rollback_mode;
+
 	conn = PQconnectdb(conninfo);
 
 	if(conn == NULL){
@@ -46,9 +55,18 @@ OCDB_PGConnect(char *conninfo, int autocommit, char *cencoding){
 	PQsetClientEncoding(conn, cencoding);
 
 	if(autocommit == OCDB_AUTOCOMMIT_ON){
-		PQexec(conn, "SET AUTOCOMMIT TO ON");
+		res = PQexec(conn, "SET AUTOCOMMIT TO ON");
 	} else {
-		PQexec(conn, "SET AUTOCOMMIT TO OFF");
+		res = PQexec(conn, "SET AUTOCOMMIT TO OFF");
+	}
+	if(res != NULL){
+		PQclear(res);
+	}
+	env_rollback_mode = com_getenv("OCDB_PG_IGNORE_ERROR", NULL);
+	if(env_rollback_mode != NULL && strcmp(env_rollback_mode, "Y")==0){
+		rollback_one_mode = 1;
+	}else{
+		rollback_one_mode = 0;
 	}
 
 	return (unsigned long)conn;
@@ -88,11 +106,31 @@ OCDB_PGExec(unsigned long connadr, char *query){
 	PGconn *conn;
 	PGresult *res;
 	int status;
+	int tmp_rollback_one_mode=0;
 
 	LOG("CONNADDR: %d, EXEC SQL: %s\n", connadr, query);
 	conn = (PGconn *)connadr;
+	if(rollback_one_mode){
+		if(strcmp(query, "BEGIN") == 0 ||
+				strcmp(query, "COMMIT") == 0 ||
+				strcmp(query, "ROLLBACK") == 0){
+			tmp_rollback_one_mode = 0;
+		}
+		if(tmp_rollback_one_mode){
+			PQexec(conn, sql_savepoint);
+		}
+	}
 	res = PQexec(conn, query);
-
+	if(tmp_rollback_one_mode){
+		status = PQresultStatus(res);
+		if(status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ||
+				status == PGRES_COPY_OUT || status == PGRES_COPY_IN){
+			PQexec(conn, sql_release_savepoint);
+		} else {
+			PQexec(conn, sql_rollback_savepoint);
+			PQexec(conn, sql_release_savepoint);
+		}
+	}
 	return (unsigned long)res;
 }
 
@@ -107,9 +145,22 @@ OCDB_PGExecParams(unsigned long connadr, char *query, int nParams,
 
 	LOG("CONNADDR: %d, EXEC SQL: %s\n", connadr, query);
 	conn = (PGconn *)connadr;
+	if(rollback_one_mode){
+		PQexec(conn, sql_savepoint);
+	}
 	res = PQexecParams(conn, query, nParams, (const Oid *)paramsTypes, paramValues,
 			paramLengths, paramFormats, resultFormat);
-
+	conn = (PGconn *)connadr;
+	if(rollback_one_mode){
+		status = PQresultStatus(res);
+		if(status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ||
+				status == PGRES_COPY_OUT || status == PGRES_COPY_IN){
+			PQexec(conn, sql_release_savepoint);
+		} else {
+			PQexec(conn, sql_rollback_savepoint);
+			PQexec(conn, sql_release_savepoint);
+		}
+	}
 	return (unsigned long)res;
 }
 
@@ -117,41 +168,35 @@ unsigned long
 OCDB_PGCursorDeclare(unsigned long connadr, char *cname, char *query, int with_hold){
 	const char *query_part_with_hold_on[] = {"DECLARE ", " CURSOR WITH HOLD FOR "};
 	const char *query_part[] = {"DECLARE ", " CURSOR FOR "};
+	int true_query_size;
 	char *true_query;
 	unsigned long res;
 
 	if(with_hold == OCDB_CURSOR_WITH_HOLD_ON){
-		true_query = (char *)malloc((strlen(query_part_with_hold_on[0]) +
-				strlen(cname) +
-				strlen(query_part_with_hold_on[1]) +
-				strlen(query) + 1) * sizeof(char));
+		true_query_size = strlen(query_part_with_hold_on[0]) + strlen(cname) +
+			strlen(query_part_with_hold_on[1]) + strlen(query) + 1;
+		true_query = (char *)malloc(true_query_size * sizeof(char));
 		if(true_query == NULL){
 			return OCDB_RES_DEFAULT_ADDRESS;
 		}
 
 		// build query
-		sprintf(true_query, "%s%s%s%s",  query_part_with_hold_on[0], cname,
+		com_sprintf(true_query, true_query_size, "%s%s%s%s",  query_part_with_hold_on[0], cname,
 				query_part_with_hold_on[1], query);
 	} else {
-		true_query = (char *)malloc((strlen(query_part[0]) +
-				strlen(cname) +
-				strlen(query_part[1]) +
-				strlen(query) + 1) * sizeof(char));
+		true_query_size = strlen(query_part[0]) + strlen(cname) +
+			strlen(query_part[1]) + strlen(query) + 1;
+		true_query = (char *)malloc(true_query_size * sizeof(char));
 		if(true_query == NULL){
 			return OCDB_RES_DEFAULT_ADDRESS;
 		}
 
 		// build query
-		sprintf(true_query, "%s%s%s%s",  query_part[0], cname, query_part[1], query);
+		com_sprintf(true_query, true_query_size, "%s%s%s%s",  query_part[0], cname, query_part[1], query);
 	}
 
 	res = (unsigned long)OCDB_PGExec(connadr, true_query);
-	if(res){
-		// カーソルを確定させるためにCOMMITを入れる
-		//OCDB_PGExec(connadr, "COMMIT");
-		//OCDB_PGExec(connadr, "BEGIN");
-	}
-
+	free(true_query);
 	return res;
 }
 
@@ -163,39 +208,36 @@ OCDB_PGCursorDeclareParams(unsigned long connadr, char *cname, char *query, int 
 	const char *query_part_with_hold_on[] = {"DECLARE ", " CURSOR WITH HOLD FOR "};
 	const char *query_part[] = {"DECLARE ", " CURSOR FOR "};
 	char *true_query;
+	int true_query_size;
 	unsigned long res;
 
 	if(with_hold == OCDB_CURSOR_WITH_HOLD_ON){
-		true_query = (char *)malloc((strlen(query_part_with_hold_on[0]) +
-				strlen(cname) +
-				strlen(query_part_with_hold_on[1]) +
-				strlen(query) + 1) * sizeof(char));
+		true_query_size = strlen(query_part_with_hold_on[0]) + strlen(cname) +
+			strlen(query_part_with_hold_on[1]) + strlen(query) + 1;
+		true_query = (char *)malloc(true_query_size * sizeof(char));
 		if(true_query == NULL){
 			return OCDB_RES_DEFAULT_ADDRESS;
 		}
 
 		// build query
-		sprintf(true_query, "%s%s%s%s",  query_part_with_hold_on[0], cname,
+		com_sprintf(true_query, true_query_size, "%s%s%s%s",  query_part_with_hold_on[0], cname,
 				query_part_with_hold_on[1], query);
 	} else {
-		true_query = (char *)malloc((strlen(query_part[0]) +
-				strlen(cname) +
-				strlen(query_part[1]) +
-				strlen(query) + 1) * sizeof(char));
+		true_query_size = strlen(query_part[0]) + strlen(cname) +
+			strlen(query_part[1]) + strlen(query) + 1;
+		true_query = (char *)malloc(true_query_size * sizeof(char));
 		if(true_query == NULL){
 			return OCDB_RES_DEFAULT_ADDRESS;
 		}
 
 		// build query
-		sprintf(true_query, "%s%s%s%s",  query_part[0], cname, query_part[1], query);
+		com_sprintf(true_query, true_query_size, "%s%s%s%s",  query_part[0], cname, query_part[1], query);
 	}
 
 	res = (unsigned long)OCDB_PGExecParams(connadr, true_query, nParams,
 			paramsTypes, paramValues,
 			paramLengths, paramFormats, resultFormat);
-	if(res){
-	}
-
+	free(true_query);
 	return res;
 }
 
@@ -206,48 +248,96 @@ OCDB_PGCursorFetchOne(unsigned long connadr, char *cname, int fetchmode){
 	const char current[] = "0";
 	const char previous[] = "-1";
 	char *true_query;
+	int true_query_size;
+	unsigned long res;
 
-	true_query = (char *)malloc((strlen(query_part[0]) + strlen(query_part[1]) + 1 +
-			strlen(query_part[2]) + strlen(cname) + 1) * sizeof(char));
+	true_query_size = strlen(query_part[0]) + strlen(query_part[1]) + 1 +
+		strlen(query_part[2]) + strlen(cname) + 1;
+	true_query = (char *)malloc(true_query_size * sizeof(char));
 	if(true_query == NULL){
 		return OCDB_RES_DEFAULT_ADDRESS;
 	}
 	// build query
 	if(fetchmode == OCDB_READ_CURRENT){
-		sprintf(true_query, "%s%s%s%s%s",
+		com_sprintf(true_query, true_query_size, "%s%s%s%s%s",
 				query_part[0], query_part[1], current, query_part[2], cname);
 	} else if(fetchmode == OCDB_READ_PREVIOUS){
-		sprintf(true_query, "%s%s%s%s%s",
+		com_sprintf(true_query, true_query_size, "%s%s%s%s%s",
 				query_part[0], query_part[1], previous, query_part[2], cname);
 	} else { // NEXT
-		sprintf(true_query, "%s%s%s%s%s",
+		com_sprintf(true_query, true_query_size, "%s%s%s%s%s",
 				query_part[0], query_part[1], next, query_part[2], cname);
 	}
+	res = (unsigned long)OCDB_PGExec(connadr, true_query);
+	free(true_query);
+	return res;
+}
 
-	return (unsigned long)OCDB_PGExec(connadr, true_query);
+unsigned long
+OCDB_PGCursorFetchOccurs(unsigned long connadr, char *cname, int fetchmode, int fetchcount){
+
+	const char *query_part[] = {"FETCH ", " FORWARD ", " BACKWARD " , " FROM "};
+	char *true_query;
+	int true_query_size;
+	char *str_fetchcount;
+	int str_fetchcount_size;
+	const char *str_read_mode;
+	unsigned long res;
+
+	//カレントはエラーとする
+	if(fetchmode == OCDB_READ_CURRENT){
+		return OCDB_RES_DEFAULT_ADDRESS;
+	}
+
+	//読み込み件数文字列を作成
+	str_fetchcount_size = (int)log10(fetchcount) + 1 + 1;
+	str_fetchcount = (char *)calloc(str_fetchcount_size, sizeof(char));
+	if(str_fetchcount == NULL){
+		return OCDB_RES_DEFAULT_ADDRESS;
+	}
+	com_sprintf(str_fetchcount, str_fetchcount_size * sizeof(char),
+		    "%d",fetchcount); 
+
+	if(fetchmode == OCDB_READ_PREVIOUS){
+		str_read_mode = query_part[2];
+	}else{
+		str_read_mode = query_part[1];
+	}
+
+	true_query_size = strlen(query_part[0]) + strlen(str_read_mode) + strlen(str_fetchcount) +
+		strlen(query_part[3]) + strlen(cname) + 1;
+	true_query = (char *)malloc(true_query_size * sizeof(char));
+	if(true_query == NULL){
+		return OCDB_RES_DEFAULT_ADDRESS;
+	}
+	// build query
+	com_sprintf(true_query, true_query_size * sizeof(char), "%s%s%s%s%s",
+			query_part[0], str_read_mode, str_fetchcount, query_part[3], cname);
+
+	res = (unsigned long)OCDB_PGExec(connadr, true_query);
+	free(true_query);
+	free(str_fetchcount);
+	return res;
 }
 
 unsigned long
 OCDB_PGCursorClose(unsigned long connadr, char *cname){
 	const char *query_part[] = {"CLOSE "};
 	char *true_query;
+	int true_query_size;
+	unsigned long res;
 
-	true_query = (char *)malloc((strlen(query_part[0]) +
-			strlen(cname) + 1) * sizeof(char));
+	true_query_size = strlen(query_part[0]) + strlen(cname) + 1;
+	true_query = (char *)malloc(true_query_size * sizeof(char));
 	if(true_query == NULL){
 		return OCDB_RES_DEFAULT_ADDRESS;
 	}
 
 	// build query
-	sprintf(true_query, "%s%s",  query_part[0], cname);
-
-	return (unsigned long)OCDB_PGExec(connadr, true_query);
-}
-
-int
-OCDB_PGResultStatus(unsigned long connres){
-	PGresult *res = (PGresult *)connres;
-	return PQresultStatus(res);
+	com_sprintf(true_query, true_query_size, "%s%s",  query_part[0], cname);
+	res = (unsigned long)OCDB_PGExec(connadr, true_query);
+	free(true_query);
+	return res;
 }
 
 char *
@@ -302,12 +392,58 @@ OCDB_PGgetvalue(unsigned long connres, int row, int cnum){
 	return  PQgetvalue(res, row, cnum);
 }
 
+unsigned long
+OCDB_PGDropTable(unsigned long connaddr, char *tname){
+	PGconn *conn;
+	char *query;
+	int query_size;
+	unsigned long retval;
+	const char *constr[] = {"DROP TABLE IF EXISTS "};
+
+	query_size = strlen(constr[0]) + strlen(tname) + TERMINAL_LENGTH;
+	query = (char *)calloc(query_size, sizeof(char));
+	if(query == NULL){
+		ERRLOG("memory allocation failed.\n");
+		return OCDB_RES_DEFAULT_ADDRESS;
+	}
+	com_sprintf(query, query_size, "%s%s", constr[0], tname);
+	conn = (PGconn *)connaddr;
+	retval = (unsigned long)OCDB_PGExec(connaddr, query);
+	free(query);
+	return retval;
+};
+
+unsigned long
+OCDB_PGDeleteTable(unsigned long connaddr, char *tname){
+	PGconn *conn;
+	char *query;
+	int query_size;
+	unsigned long retval;
+	const char *constr[] = {"DELETE FROM "};
+
+	query_size = strlen(constr[0]) + strlen(tname) + TERMINAL_LENGTH;
+	query = (char *)calloc(query_size, sizeof(char));
+	if(query == NULL){
+		ERRLOG("memory allocation failed.\n");
+		return OCDB_RES_DEFAULT_ADDRESS;
+	}
+	com_sprintf(query, query_size, "%s%s", constr[0], tname);
+	conn = (PGconn *)connaddr;
+	retval = (unsigned long)OCDB_PGExec(connaddr, query);
+	free(query);
+	return retval;
+};
+
 void
 OCDB_PGFinish(unsigned long connaddr){
 	PGconn *conn;
 
 	conn = (PGconn *)connaddr;
 	PQfinish(conn);
+	if(PGLockConnId != OCDB_CONN_FAIL_CONNECT){
+		PQfinish((PGconn *)PGLockConnId);
+		PGLockConnId = OCDB_CONN_FAIL_CONNECT;
+	}
 };
 
 int
@@ -371,6 +507,8 @@ OCDB_PGSetResultStatus(unsigned long connaddr, struct sqlca_t *st){
 				st->sqlcode = OCPG_DATA_FORMAT_ERROR;
 			}else if(strcmp(state,"42P03")==0){
 				st->sqlcode = OCPG_WARNING_PORTAL_EXISTS;
+			}else if(strcmp(state,"55P03")==0){
+				st->sqlcode = OCPG_PGSQL;
 			}else{
 				st->sqlcode = OCPG_PGSQL;
 			}
@@ -392,7 +530,7 @@ OCDB_PGSetResultStatus(unsigned long connaddr, struct sqlca_t *st){
 			LOG("MESSAGE:%s\n",errmsg);
 			errlen = strlen(errmsg);
 			if(errlen > SQLERRMC_LEN) errlen = SQLERRMC_LEN;
-			strncpy(st->sqlerrm.sqlerrmc, errmsg, errlen);
+			com_strncpy(st->sqlerrm.sqlerrmc, SQLERRMC_LEN, errmsg, errlen);
 			st->sqlerrm.sqlerrml = errlen;
 		}
 
@@ -523,6 +661,14 @@ OCDB_PGSetLibErrorStatus(struct sqlca_t *st, int errno){
 		st->sqlcode = OCPG_WARNING_PORTAL_EXISTS;
 		SET_SQLSTATE(st->sqlstate,"42P03");
 		break;
+	case OCDB_LOCK_ERROR:
+		st->sqlcode = OCPG_LOCK_ERROR;
+		SET_SQLSTATE(st->sqlstate,"57033");
+		break;
+	case OCDB_JDD_ERROR:
+		st->sqlcode = OCPG_JDD_ERROR;
+		SET_SQLSTATE(st->sqlstate,"     ");
+		break;
 	default:
 		st->sqlcode = OCDB_UNDEFINED_ERROR;
 		SET_SQLSTATE(st->sqlstate,"     ");
@@ -534,3 +680,4 @@ OCDB_PGSetLibErrorStatus(struct sqlca_t *st, int errno){
 	}
 	return RESULT_SUCCESS;
 }
+

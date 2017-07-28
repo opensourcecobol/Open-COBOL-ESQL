@@ -1,6 +1,6 @@
 Open Cobol ESQL (Ocesql) TODO
 
-Version 1.0.0 (June 28, 2013)
+Version 1.1.0 (March 31, 2015)
 
 1 Features to be implemented
 ============================
@@ -8,8 +8,17 @@ Version 1.0.0 (June 28, 2013)
 1.1 WHENEVER directive
 1.2 SQL Communication Area (SQLCA) enhancement
 1.3 DECLARE CURSOR in the Data Division
-1.4 Provide a simple way to change the trae file name and trace level
-1.5 Host-variable data types: PIC X VARYING, COMP, COMP-5 are not yet supported
+1.4 WITH HOLD clause in the DECLARE CURSOR statement
+1.5 Host-variable data types: COMP, COMP-5 are not yet supported
+1.6 64-bit Windows
+1.7 SOURCE FORMAT "FREE" directive for free format in a precompilation
+1.8 Increase various syntax that is possible to precompile
+1.9 Undefined cursor name and dynamic SQL name are detected in a precompilation
+1.10 New option to consider that variables between BEGIN DECLARE SECTION and 
+     END DECLARE SECTION only as the host variables
+1.11 Host variables with OCCURS clause when executing dynamic SQL after preparation
+1.12 To correctly precompile a PICTURE clause that contains a character-string
+     specified by lower-case character, such as PIC x(10)
 
 2 Known issues
 ==============
@@ -17,4 +26,4 @@ Version 1.0.0 (June 28, 2013)
 2.1 Give us your feedback!  opencobol@tsh-world.co.jp
 
 ----------------------------------------------------------------------
-Copyright 2013 Tokyo System House Co., Ltd.
+Copyright 2015 Tokyo System House Co., Ltd.
