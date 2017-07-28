@@ -1,0 +1,195 @@
+
+                   Open Cobol ESQL (Ocesql)
+                       Version 1.0.0
+
+                         2013/06/28
+
+                 東京システムハウス株式会社
+                  opencobol@tsh-world.co.jp
+
+1. はじめに
+===========
+
+Open Cobol ESQL (ocesql) は OSS の埋め込み SQL (ESQL)プリコンパイラと実行時
+ライブラリです。OSS データベースにアクセスする COBOL アプリケーションを
+サポートします。COBOLプログラム内の EXEC SQL 文を、実行時ライブラリを呼び出す
+COBOL 標準の CALL 文に変換します。
+
+2. パッケージ概要
+=================
+
+このパッケージには下記のサブディレクトリが含まれます:
+
+    - copy          プリコンパイル後の COBOL プログラム用のコピーブック
+    - dblib         DB アクセスライブラリ(実行時ライブラリ)
+    - ocesql        ESQL プリコンパイラ
+    - sample        COBOL サンプルプログラム
+
+このパッケージのビルドにより、主に下記の ocesql の実行ファイルと実行時
+ライブラリがインストールされます:
+
+    - ocesql        ESQL プリコンパイラ
+    - libocesql.so  実行時ライブラリ
+
+3. ライセンス
+=============
+
+dblib サブディレクトリ以外のすべてのプログラムは、GNU General Public 
+License の下で提供されます。詳細は COPYING をご覧ください。
+
+dblib サブディレクトリのプログラムは、GNU Lesser General Public License
+の下で提供されます。詳細は COPYING.LIB をご覧ください。
+
+著者と貢献者については、AUTHORSをご覧ください。
+
+4. 必要要件
+===========
+
+  1) OSS データベース
+
+    Ocesql は現在のところ PostgreSQL のみをサポートしています。
+
+    o PostgreSQL C Library (libpq) 8.4 以降
+      http://www.postgresql.org/
+      http://www.postgresql.jp/
+
+  2) COBOL 開発システム
+  
+    Ocesql は下記の COBOL コンパイラで動作確認をしています:
+
+    o OpenCOBOL 1.1
+      http://www.opencobol.org/
+
+    o opensource COBOL 1.3J
+      http://www.osscons.jp/osscobol/download/
+
+    o Micro Focus Server Express 5.1
+      Micro Focus Visual COBOL 2.1 for x64/x86 Linux
+      http://www.microfocus.com/
+      http://www.microfocus.co.jp/
+
+5. インストール
+===============
+
+Ocesql をインストールするには下記のコマンドを実行します:
+
+    ./configure
+    make
+    make install
+
+PostgreSQL 9.0 以降の場合は次のとおりです:
+
+    export CPPFLAGS="-I/usr/pgsql-9.x/include"
+    export LDFLAGS="-L/usr/pgsql-9.x/lib"
+    ./configure
+    make
+    make install
+
+"make install"を実行すると、"/usr/local"がインストールパスとなります。
+"./configure"コマンドに"--prefix=<your install path>" を指定することで、
+これを変更することができます。
+
+6. サンプルプログラム
+=====================
+
+Ocesql は COBOL アプリケーション内の埋め込み SQL の具体例を示す
+2つのサンプルプログラムを提供しています。"sample"ディレクトリに
+下記が含まれています:
+
+  o INSERTTBL.cbl ---- CONNECT, DROP TABLE, CREATE TABLE, 
+                       INSERT, COMMIT, ROLLBACK, DISCONNECT
+
+  o FETCHTBL.cbl ----- CONNECT, SELECT COUNT(*), DECLARE cursor, 
+                       FETCH cursor, COMMIT, ROLLBACK, DISCONNECT
+
+* サンプルプログラムは日本語の Shift-JIS 文字を含んでいます。
+  日本語環境以外で実行する場合は、まずは文字を修正してください。
+
+サンプルプログラムは次の手順で実行します: 
+
+  1) サンプルデータベース"testdb"を作成
+
+     PostgreSQLの場合:
+
+       createdb -T template0 testdb
+
+       日本語環境の場合は、エンコーディングは UTF-8 とします。
+
+       createdb -E UTF8 -T template0 --lc-collate=ja_JP.UTF-8 --lc-ctype=ja_JP.UTF-8 testdb
+
+  2) サンプルグログラムをプリコンパイル
+
+       cd <your install path>/ocesql-1.0.0/sample
+       ocesql INSERTTBL.cbl INSERTTBL.cob
+       ocesql FETCHTBL.cbl FETCHTBL.cob
+
+   * Usage: ocesql [--inc=<include path>] SOURCE [DESTFILE] [LOGFILE]
+
+  3) COBOL コンパイラでサンプルプログラムをコンパイルし、
+     実行ファイルを生成
+
+     Micro Focus Server Express または Visual COBOL の場合:
+
+       export COBCPY=<your install path>/ocesql-1.0.0/copy
+       cob -ze "" /usr/local/lib/libocesql.so -o mfocesql.so
+       cob -x INSERTTBL.cob -C"INITCALL(mfocesql)"
+       cob -x FETCHTBL.cob -C"INITCALL(mfocesql)"
+
+     OpenCOBOL または opensource COBOL の場合:
+
+       export COBCPY=<your install path>/ocesql-1.0.0/copy
+       cobc -x -locesql INSERTTBL.cob
+       cobc -x -locesql FETCHTBL.cob
+
+  4) サンプルプログラムの実行:
+  
+       ./INSERTTBL
+       ./FETCHTBL
+
+   * サンプルテーブルを生成するため、INSERTTBL を先に実行します。
+
+7. PostgreSQLでの利用
+=====================
+
+7-1. SQL 動詞
+-------------
+Ocesqlは、PostgreSQL の libpq がサポートするほとんどの SQL に対応します。
+
+プリコンパイラは、各埋め込み SQL 文を実行時ライブラリを呼び出すCOBOL
+標準の CALL 文に変換します。CALL 文が実行されると、元の SQL 文は libpq の
+PQexec や PQexecParams 等の関数に渡され、そしてデータベースにサブミット
+されます。
+
+この規則には例外があります。プリコンパイラは下記の SQL 動詞を見つけると、
+構文チェックを実行し、動詞を解析して、一連の特別な SQL コマンドの生成を
+行います:
+
+  o CONNECT username IDENTIFIED BY passwd USING dbname
+  o DISCONNECT
+  o SELECT ... INTO :host-variable ...
+  o DECLARE CURSOR cursor FOR SELECT ...
+  o OPEN cursor
+  o CLOSE cursor
+  o FETCH cursor INTO :host-variable
+
+これらの動詞の使い方はサンプルプログラムをご参照下さい。
+
+7-2. エラー操作
+---------------
+SQLCA の SQLCODE または SQLSTATE がゼロ以外の値となった場合、
+これは PostgreSQL のエラーが内部で発生したことを意味しています。
+SQLSTATE には 下記 URL の一覧に示される PostgreSQL のエラーコードが
+設定されます:
+
+  http://www.postgresql.org/docs/8.4/static/errcodes-appendix.html
+  http://www.postgresql.jp/document/8.4/html/errcodes-appendix.html
+
+SQLSTATE の使い方はサンプルプログラムをご参照下さい。
+
+8. 他のデータベースでの利用
+===========================
+Ocesql は複数の OSS データベースで利用できるように設計されていますが、
+現在のところ PostgreSQL のみをサポートしています。
+
+----------------------------------------------------------------------
+Copyright 2013 Tokyo System House Co., Ltd.

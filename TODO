@@ -1,0 +1,20 @@
+Open Cobol ESQL (Ocesql) TODO
+
+Version 1.0.0 (June 28, 2013)
+
+1 Features to be implemented
+============================
+
+1.1 WHENEVER directive
+1.2 SQL Communication Area (SQLCA) enhancement
+1.3 DECLARE CURSOR in the Data Division
+1.4 Provide a simple way to change the trae file name and trace level
+1.5 Host-variable data types: PIC X VARYING, COMP, COMP-5 are not yet supported
+
+2 Known issues
+==============
+
+2.1 Give us your feedback!  opencobol@tsh-world.co.jp
+
+----------------------------------------------------------------------
+Copyright 2013 Tokyo System House Co., Ltd.
