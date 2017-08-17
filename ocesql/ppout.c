@@ -415,7 +415,19 @@ void ppoutputconnect(struct cb_exec_list *list){
 		list_count++;
 		host_list = host_list->next;
 	}
-	if(list_count == 1){
+	if(list_count == 0){
+		if(list->conn_use_other_db){
+			memset(buff, 0, sizeof(buff));
+			com_sprintf(buff,sizeof(buff), "OCESQL%5sCALL \"OCESQLIDConnectShort\" USING\n"," ");
+			fputs(buff, outfile);
+			_printlog("Generate:OCESQLIDConnectShort");
+		} else {
+			memset(buff, 0, sizeof(buff));
+			com_sprintf(buff,sizeof(buff), "OCESQL%5sCALL \"OCESQLConnectShort\" USING\n"," ");
+			fputs(buff, outfile);
+			_printlog("Generate:OCESQLConnectShort");
+		}
+	}else if(list_count == 1){
 		if(list->conn_use_other_db){
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "OCESQL%5sCALL \"OCESQLIDConnectInformal\" USING\n"," ");
