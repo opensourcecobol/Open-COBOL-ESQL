@@ -314,7 +314,14 @@ void print_version(void){
 void print_usage(void){
 	version();
 	printf("\n");
-	printf("Usage: ocesql [--inc=include_dir] SOURCE [DESTFILE] [LOGFILE]\n");
+	printf("Usage: ocesql [options] SOURCE [DESTFILE] [LOGFILE]\n");
+	printf("\n");
+	printf("options\n");
+	printf("      --inc=include_dir      set INCLUDE FILE directory path.\n");
+	printf("\n");
+	printf("usage\n");
+	printf("  -v, --version              show version.\n");
+	printf("  -h, --help                 show this usage.\n");
 	exit(-1);
 }
 
@@ -346,17 +353,25 @@ int main (int argc, char *argv[])
 			char *p;
 			opthead = argv[optind] + sizeof(char) * preloptlen;
 			p = strchr(opthead, '=');
-			optval = p + sizeof(char);
-			*p = '\0';
+			if(p != NULL){
+				optval = p + sizeof(char);
+				*p = '\0';
+			} else {
+				optval = NULL;
+			}
 			if(strcmp("inc", opthead) == 0){
-				include_path = com_strdup(optval);
+				if(optval != NULL){
+					include_path = com_strdup(optval);
+				} else {
+					printf("invalid option: --inc is get directory path parameter.\n");
+				}
 			} else if(strcmp("version", opthead) == 0){
 				print_version();
 				break;
 			} else if(strcmp("help", opthead) == 0){
 				print_usage();
 				break;
-			} else if(strcmp("help", opthead) == 0){
+			} else {
 				printf("invalid option: %s\n", argv[optind]);
 				print_usage();
 				break;
