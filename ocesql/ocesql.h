@@ -259,7 +259,12 @@ void
 parameter_split(struct cb_field *vp_parent);
 
 extern int
-printerrormsg(char *name, int line, char * code, char *filename);
-
+openerrorfile(char *filename);
+extern int
+closeerrorfile();
+extern int
+printerrormsg(char *name, int line, char * code);
+extern int
+printmsg(char *format, ...);
 #endif
 

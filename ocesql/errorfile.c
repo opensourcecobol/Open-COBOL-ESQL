@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "ocesqlutil.h"
 
 #define MAXBUFFSIZE  1024
@@ -36,7 +37,28 @@ static char errormsg[ERRORMSGNUM][128] = {
 	{"E990: usage error"},
 	{"E999: unexpected error"}
 };
+static FILE *pfile;
 
+int openerrorfile(char *filename){
+	if( filename != NULL){
+		com_fopen(&pfile, filename, "a+");
+		if(pfile == NULL){
+			printf("errormsgshow: could not open %s.\n", filename);
+		}
+	}
+
+	if(pfile == NULL){
+		pfile = stdout;
+	}
+	return 1;
+}
+
+int closeerrorfile(){
+	if(pfile != NULL && pfile != stdout){
+		fclose(pfile);
+	}
+	return 1;
+}
 
 int spreadchar(char * code , char* msg, char *ret){
 	char *p ;
@@ -77,34 +99,7 @@ int geterrormsg(char *code , char *msg, int len){
 	 return 0;
 }
 
-int errormsgshow( char *filename, char *msg ){
-	FILE *pfile;
-
-	if(msg == NULL){
-		printf("errormsgshow: message is empty.\n");
-		return 0;
-	}
-
-	if( filename == NULL)
-		pfile = stdout;
-	else
-		com_fopen(&pfile,filename, "a+");
-
-	if(pfile == NULL){
-		printf("errormsgshow: could not open %s.\n", filename);
-		return 0;
-	}
-
-	fputs(msg, pfile);
-	printf("\n");
-
-	if(filename != NULL)
-		fclose(pfile);
-
-	return 1;
-}
-
-int printerrormsg(char *name, int line, char * code, char *filename){
+int printerrormsg(char *name, int line, char * code){
 	char buff[MAXBUFFSIZE];
 	int ilen ;
 	char *p;
@@ -124,11 +119,16 @@ int printerrormsg(char *name, int line, char * code, char *filename){
 		return 0;
 	}
 
-	if( errormsgshow ( filename , buff) == 0){
-		return 0;
-	}
+	fputs(buff, pfile);
+	fputs("\n", pfile);
 
 	return 1;
 }
 
-
+int printmsg(char *format, ...){
+	va_list list;
+	va_start(list, format);
+	vfprintf(pfile, format, list);
+	va_end(list);
+	return 1;
+}
