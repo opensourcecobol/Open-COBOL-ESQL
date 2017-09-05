@@ -93,6 +93,9 @@ enum oc_usage{
 #define incfolder     "INC"
 #define copypath      "sqlca.cbl"
 
+#define INC_START_MARK  ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+#define INC__END__MARK  "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+
 struct filename {
 	char  *source;
 	char  *translate;
