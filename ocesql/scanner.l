@@ -774,7 +774,7 @@ yyinput(char *buff,int max_size)
     				return strlen(buff);
 
 			default:
-	                        printf("EOF:%s\n", buff);
+				printmsg("EOF:%s\n", buff);
 				return YY_NULL;
 			}
 			if(strlen(buff) > 72){

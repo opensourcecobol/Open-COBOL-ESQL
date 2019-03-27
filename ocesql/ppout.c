@@ -462,7 +462,7 @@ void ppoutputconnect(struct cb_exec_list *list){
 		if(iret != 0){
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",iret);
-			printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+			printerrormsg(list->dbName, lineNUM, buff);
 			return;
 		}
 		memset(buff, 0, sizeof(buff));
@@ -481,7 +481,7 @@ void ppoutputconnect(struct cb_exec_list *list){
 		{
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",iret);
-			printerrormsg(host_list->hostreference, host_list->lineno, buff, errorfilename);
+			printerrormsg(host_list->hostreference, host_list->lineno, buff);
 			return;
 		}
 		memset(buff, 0, sizeof(buff));
@@ -543,7 +543,7 @@ int ppoutputparam(struct cb_hostreference_list *host_list, int iteration){
 	{
 		memset(buff, 0, sizeof(buff));
 		com_sprintf(buff,sizeof(buff), "E%03d",iret);
-		printerrormsg(host_list->hostreference, host_list->lineno, buff, errorfilename);
+		printerrormsg(host_list->hostreference, host_list->lineno, buff);
 		return 0;
 	}
 
@@ -552,11 +552,11 @@ int ppoutputparam(struct cb_hostreference_list *host_list, int iteration){
 
 		f = getfieldbyname(host_list->hostreference);
 		if(f == NULL){
-			printf("%s:%d\n", host_list->hostreference, ERR_NOTDEF_WORKING);
+			printmsg("%s:%d\n", host_list->hostreference, ERR_NOTDEF_WORKING);
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",ERR_NOTDEF_WORKING);
 			printerrormsg(host_list->hostreference, host_list->lineno,
-					buff, errorfilename);
+					buff);
 			return count;
 		}
 
@@ -568,7 +568,7 @@ int ppoutputparam(struct cb_hostreference_list *host_list, int iteration){
 			{
 				memset(buff, 0, sizeof(buff));
 				com_sprintf(buff,sizeof(buff), "E%03d",iret);
-				printerrormsg(f->sname, host_list->lineno, buff, errorfilename);
+				printerrormsg(f->sname, host_list->lineno, buff);
 				return count;
 			}
 			_ppoutputparam(f->sname, type, digits, scale, iteration);
@@ -626,10 +626,10 @@ void ppoutputresgroup(struct cb_field *cf, int lineno, int iteration){
 
 	iret = gethostvarianttype(cf->sname, &type, &digits, &scale);
 	if(iret != 0){
-		printf("%s:%d\n", cf->sname, iret);
+		printmsg("%s:%d\n", cf->sname, iret);
 		memset(buff, 0, sizeof(buff));
 		com_sprintf(buff,sizeof(buff), "E%03d",iret);
-		printerrormsg(cf->sname, lineno, buff, errorfilename);
+		printerrormsg(cf->sname, lineno, buff);
 		return;
 	}
 
@@ -662,11 +662,11 @@ void ppoutputexecprepare(struct cb_exec_list *list){
 	if(host_list){
 		iret = gethostvarianttype(host_list->hostreference, &type, &digits, &scale);
 		if(iret != 0){
-			printf("%s:%d\n", host_list->hostreference,iret);
+			printmsg("%s:%d\n", host_list->hostreference,iret);
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",iret);
 			printerrormsg(host_list->hostreference, host_list->lineno,
-					buff, errorfilename);
+					buff);
 			return;
 		}
 
@@ -700,7 +700,7 @@ void ppoutputexecprepare(struct cb_exec_list *list){
 		{
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",iret);
-			printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+			printerrormsg(list->dbName, lineNUM, buff);
 			return;
 		}
 
@@ -754,11 +754,11 @@ void ppoutputfetch(struct cb_exec_list *list){
 
 	iret = gethostvarianttype(res_host_list->hostreference, &type, &digits, &scale);
 	if(iret != 0){
-		printf("%s:%d\n", res_host_list->hostreference,iret);
+		printmsg("%s:%d\n", res_host_list->hostreference,iret);
 		memset(buff, 0, sizeof(buff));
 		com_sprintf(buff,sizeof(buff), "E%03d",iret);
 		printerrormsg(res_host_list->hostreference, res_host_list->lineno,
-					  buff, errorfilename);
+					  buff);
 		return;
 	}
 
@@ -767,11 +767,11 @@ void ppoutputfetch(struct cb_exec_list *list){
 
 		parent = getfieldbyname(res_host_list->hostreference);
 		if(parent == NULL){
-			printf("%s:%d\n", res_host_list->hostreference, ERR_NOTDEF_WORKING);
+			printmsg("%s:%d\n", res_host_list->hostreference, ERR_NOTDEF_WORKING);
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",ERR_NOTDEF_WORKING);
 			printerrormsg(res_host_list->hostreference, res_host_list->lineno,
-						  buff, errorfilename);
+						  buff);
 			return;
 		}
 
@@ -784,7 +784,7 @@ void ppoutputfetch(struct cb_exec_list *list){
 			if(iret != 0){
 				memset(buff, 0, sizeof(buff));
 				com_sprintf(buff,sizeof(buff), "E%03d",iret);
-				printerrormsg(res_host_list->hostreference, res_host_list->lineno, buff, errorfilename);
+				printerrormsg(res_host_list->hostreference, res_host_list->lineno, buff);
 				return;
 			}
 		} else {
@@ -796,7 +796,7 @@ void ppoutputfetch(struct cb_exec_list *list){
 			if(iret != 0){
 				memset(buff, 0, sizeof(buff));
 				com_sprintf(buff,sizeof(buff), "E%03d",iret);
-				printerrormsg(res_host_list->hostreference, res_host_list->lineno, buff, errorfilename);
+				printerrormsg(res_host_list->hostreference, res_host_list->lineno, buff);
 				return;
 			}
 		}
@@ -808,7 +808,7 @@ void ppoutputfetch(struct cb_exec_list *list){
 				memset(buff, 0, sizeof(buff));
 				com_sprintf(buff,sizeof(buff), "E%03d",iret);
 				printerrormsg(res_host_list->hostreference, res_host_list->lineno,
-							  buff, errorfilename);
+							  buff);
 				return;
 			}
 			ppoutputresparam(res_host_list->hostreference, type, digits, scale,iteration);
@@ -907,7 +907,7 @@ void ppoutputcommit(struct cb_exec_list *list){
 		{
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",iret);
-			printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+			printerrormsg(list->dbName, lineNUM, buff);
 			return;
 		}
 
@@ -972,7 +972,7 @@ void ppoutputrollback(struct cb_exec_list *list){
 		{
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",iret);
-			printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+			printerrormsg(list->dbName, lineNUM, buff);
 			return;
 		}
 
@@ -1028,22 +1028,22 @@ void ppoutputprepare(struct cb_exec_list *list){
 	{
 		memset(buff, 0, sizeof(buff));
 		com_sprintf(buff,sizeof(buff), "E%03d",iret);
-		printerrormsg(list->host_list->hostreference, list->host_list->lineno, buff, errorfilename);
+		printerrormsg(list->host_list->hostreference, list->host_list->lineno, buff);
 		return;
 	} else if(l != HVARTYPE_GROUP){
 		memset(buff, 0, sizeof(buff));
 		com_sprintf(buff,sizeof(buff), "E%03d",ERR_PREPARE_ISNT_GROUP);
-		printerrormsg(list->host_list->hostreference, list->host_list->lineno, buff, errorfilename);
+		printerrormsg(list->host_list->hostreference, list->host_list->lineno, buff);
 		return;
 	}
 
 	parent = getfieldbyname(list->host_list->hostreference);
 	if(parent == NULL){
-	     printf("%s:%d\n", list->host_list->hostreference, ERR_NOTDEF_WORKING);
+	     printmsg("%s:%d\n", list->host_list->hostreference, ERR_NOTDEF_WORKING);
 	     memset(buff, 0, sizeof(buff));
 	     com_sprintf(buff,sizeof(buff), "E%03d",ERR_NOTDEF_WORKING);
 	     printerrormsg(list->host_list->hostreference, list->host_list->lineno,
-			   buff, errorfilename);
+			   buff);
 	     return;
 	}
 
@@ -1061,7 +1061,7 @@ void ppoutputprepare(struct cb_exec_list *list){
 	     memset(buff, 0, sizeof(buff));
 	     com_sprintf(buff,sizeof(buff), "E%03d",ERR_PREPARE_INVALID_PARAM);
 	     printerrormsg(list->host_list->hostreference, list->host_list->lineno,
-			   buff, errorfilename);
+			   buff);
 	     free(comp_varname);
 	     return;
 	}
@@ -1072,7 +1072,7 @@ void ppoutputprepare(struct cb_exec_list *list){
 	     memset(buff, 0, sizeof(buff));
 	     com_sprintf(buff,sizeof(buff), "E%03d",ERR_PREPARE_INVALID_PARAM);
 	     printerrormsg(list->host_list->hostreference, list->host_list->lineno,
-			   buff, errorfilename);
+			   buff);
 	     free(comp_varname);
 	     return;
 	}
@@ -1115,7 +1115,7 @@ void ppoutputdisconnect(struct cb_exec_list *list){
 		{
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",iret);
-			printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+			printerrormsg(list->dbName, lineNUM, buff);
 			return;
 		}
 
@@ -1162,7 +1162,7 @@ void ppoutputother(struct cb_exec_list *list){
 			{
 				memset(buff, 0, sizeof(buff));
 				com_sprintf(buff,sizeof(buff), "E%03d",iret);
-				printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+				printerrormsg(list->dbName, lineNUM, buff);
 				return;
 			}
 
@@ -1288,7 +1288,7 @@ exit_occurs_check:
 		{
 			memset(buff, 0, sizeof(buff));
 			com_sprintf(buff,sizeof(buff), "E%03d",iret);
-			printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+			printerrormsg(list->dbName, lineNUM, buff);
 			return;
 		}
 
@@ -1583,7 +1583,7 @@ void ppbuff(struct cb_exec_list *list){
 				{
 					memset(buff, 0, sizeof(buff));
 					com_sprintf(buff,sizeof(buff), "E%03d",iret);
-					printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+					printerrormsg(list->dbName, lineNUM, buff);
 					return;
 				}
 
@@ -1663,7 +1663,7 @@ void ppbuff(struct cb_exec_list *list){
 				memset(buff, 0, sizeof(buff));
 				com_sprintf(buff,sizeof(buff), "E%03d",iret);
 				printerrormsg(wk_res_host->hostreference, wk_res_host->lineno,
-							  buff, errorfilename);
+							  buff);
 				return;
 			}
 
@@ -1672,11 +1672,11 @@ void ppbuff(struct cb_exec_list *list){
 
 				parent = getfieldbyname(wk_res_host->hostreference);
 				if(parent == NULL){
-					printf("%s:%d\n", wk_res_host->hostreference, ERR_NOTDEF_WORKING);
+					printmsg("%s:%d\n", wk_res_host->hostreference, ERR_NOTDEF_WORKING);
 					memset(buff, 0, sizeof(buff));
 					com_sprintf(buff,sizeof(buff), "E%03d",ERR_NOTDEF_WORKING);
 					printerrormsg(wk_res_host->hostreference, wk_res_host->lineno,
-								  buff, errorfilename);
+								  buff);
 					return;
 				}
 
@@ -1690,7 +1690,7 @@ void ppbuff(struct cb_exec_list *list){
 						memset(buff, 0, sizeof(buff));
 						com_sprintf(buff,sizeof(buff), "E%03d",iret);
 						printerrormsg(wk_res_host->hostreference, wk_res_host->lineno,
-									  buff, errorfilename);
+									  buff);
 						return;
 					}
 				} else {
@@ -1702,7 +1702,7 @@ void ppbuff(struct cb_exec_list *list){
 						memset(buff, 0, sizeof(buff));
 						com_sprintf(buff,sizeof(buff), "E%03d",iret);
 						printerrormsg(wk_res_host->hostreference, wk_res_host->lineno,
-									  buff, errorfilename);
+									  buff);
 						return;
 					}
 				}
@@ -1712,7 +1712,7 @@ void ppbuff(struct cb_exec_list *list){
 					if(iret != 0){
 						memset(buff, 0, sizeof(buff));
 						com_sprintf(buff,sizeof(buff), "E%03d",iret);
-						printerrormsg(child->sname, wk_res_host->lineno, buff, errorfilename);
+						printerrormsg(child->sname, wk_res_host->lineno, buff);
 						return;
 					}
 					ppoutputresparam(child->sname, var_type, var_len, var_scale,iteration);
@@ -1728,7 +1728,7 @@ void ppbuff(struct cb_exec_list *list){
 						memset(buff, 0, sizeof(buff));
 						com_sprintf(buff,sizeof(buff), "E%03d",iret);
 						printerrormsg(wk_res_host->hostreference, wk_res_host->lineno,
-									  buff, errorfilename);
+									  buff);
 						return;
 					}
 
@@ -1796,7 +1796,7 @@ void ppbuff(struct cb_exec_list *list){
 				{
 					memset(buff, 0, sizeof(buff));
 					com_sprintf(buff,sizeof(buff), "E%03d",iret);
-					printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+					printerrormsg(list->dbName, lineNUM, buff);
 					return;
 				}
 
@@ -1867,7 +1867,7 @@ void ppbuff(struct cb_exec_list *list){
 			{
 				memset(buff, 0, sizeof(buff));
 				com_sprintf(buff,sizeof(buff), "E%03d",iret);
-				printerrormsg(list->dbName, lineNUM, buff, errorfilename);
+				printerrormsg(list->dbName, lineNUM, buff);
 				return;
 			}
 
@@ -1976,7 +1976,7 @@ void ppbuff_incfile(struct cb_exec_list *list){
 			if(strlen(incf_buff) > MAX_LINESIZE){
 				memset(buff, 0, sizeof(buff));
 				com_sprintf(buff,sizeof(buff), "E%03d",ERR_EXCEED_LIMIT_LINE_LENGTH);
-				printerrormsg("", lineNUM, buff, errorfilename);
+				printerrormsg("", lineNUM, buff);
 			}
 
 			com_strcpy(out,sizeof(out),"OCESQL");
@@ -2214,7 +2214,7 @@ void parameter_split(struct cb_field *vp_parent){
 	vp_len = malloc(sizeof(struct cb_field));
 	vp_arr = malloc(sizeof(struct cb_field));
 	if( vp_len == NULL || vp_arr == NULL){
-	     printf("parameter_split: memory allocation for cb_field failed.\n");
+	     printmsg("parameter_split: memory allocation for cb_field failed.\n");
 	     goto die_parameter_split;
 	     return;
 	}
@@ -2229,7 +2229,7 @@ void parameter_split(struct cb_field *vp_parent){
 	// vp_len
 	vp_len->sname = (char *)malloc((strlen(basename) + strlen("-LEN") + TERMINAL_LENGTH) * sizeof(char));
 	if(vp_len->sname == NULL){
-	     printf("parameter_split: memory allocation for vp_len->sname failed.\n");
+	     printmsg("parameter_split: memory allocation for vp_len->sname failed.\n");
 	     goto die_parameter_split;
 	     return;
 	}
@@ -2245,7 +2245,7 @@ void parameter_split(struct cb_field *vp_parent){
 	// vp_arr
 	vp_arr->sname = (char *)malloc((strlen(basename) + strlen("-ARR") + TERMINAL_LENGTH) * sizeof(char));
 	if(vp_arr->sname == NULL){
-	     printf("parameter_split: memory allocation for vp_arr->sname failed.\n");
+	     printmsg("parameter_split: memory allocation for vp_arr->sname failed.\n");
 	     goto die_parameter_split;
 	     return;
 	}
@@ -2293,5 +2293,5 @@ FILE* fopen_or_die(char *filename, const char *mode){
 }
 
 void _printlog(char *msg){
-	printf("%s\n", msg);
+	printmsg("%s\n", msg);
 }

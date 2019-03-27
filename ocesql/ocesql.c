@@ -419,11 +419,11 @@ int main (int argc, char *argv[])
 		}
 		filenameID = com_strdup(tempid);
 	}
-
-	printf("precompile start: %s\n",transfile.source);
-	printf("=======================================================\n");
-	printf("              LIST OF CALLED DB Library API            \n");
-	printf("=======================================================\n");
+	openerrorfile(errorfilename);
+	printmsg("precompile start: %s\n",transfile.source);
+	printmsg("=======================================================\n");
+	printmsg("              LIST OF CALLED DB Library API            \n");
+	printmsg("=======================================================\n");
 
 	processid = com_getpid();
 
@@ -442,15 +442,15 @@ int main (int argc, char *argv[])
 		flag_external=0;
 
 	iret = translate(&transfile);
-	printf("=======================================================\n");
+	printmsg("=======================================================\n");
 
 	free(filenameID);
 
-	if(iret != 0){
-		printf("translate error\n");
-		return 1;
-	}
 
-	return 0;
+	if(iret != 0){
+		printmsg("translate error\n");
+	}
+	closeerrorfile();
+	return iret;
 
 }
