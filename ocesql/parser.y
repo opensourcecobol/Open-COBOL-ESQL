@@ -244,7 +244,8 @@ HOSTTOKEN {
 }
 
 connectsql:
-EXECSQL connect identified otherdb using END_EXEC { put_exec_list(); }
+EXECSQL CONNECT otherdb END_EXEC { put_exec_list(); }
+| EXECSQL connect identified otherdb using END_EXEC { put_exec_list(); }
 | EXECSQL AT dbid connect END_EXEC { put_exec_list(); }
 | EXECSQL connect otherdb END_EXEC { put_exec_list(); }
 

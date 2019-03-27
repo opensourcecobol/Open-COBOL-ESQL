@@ -39,8 +39,10 @@
 
 #ifdef _WIN32
 __declspec(dllexport) int OCESQLConnect(struct sqlca_t *, char *, int, char *, int, char *, int);
+__declspec(dllexport) int OCESQLConnectShort(struct sqlca_t *);
 __declspec(dllexport) int OCESQLConnectInformal(struct sqlca_t *, char *, int);
 __declspec(dllexport) int OCESQLIDConnect(struct sqlca_t *, char *, int, char *, int, char *, int, char *, int);
+__declspec(dllexport) int OCESQLIDConnectShort(struct sqlca_t *, char *, int);
 __declspec(dllexport) int OCESQLIDConnectInformal(struct sqlca_t *, char *, int, char *, int);
 __declspec(dllexport) int OCESQLDisconnect(struct sqlca_t *);
 __declspec(dllexport) int OCESQLIDDisconnect(struct sqlca_t *, char*, int);
