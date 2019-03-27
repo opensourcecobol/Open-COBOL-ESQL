@@ -38,6 +38,8 @@
 int startlineno = 0;
 int endlineno = 0;
 int hostlineno = 0;
+int includelinenum = 0;
+int includeflag = 0;
 int period = 0;
 int conn_use_other_db = 0;
 int command_putother = 0;
@@ -321,7 +323,7 @@ INT_CONSTANT {digit}+
 <ESQL_DBNAME_STATE>{
 	{HOSTWORD} {
 		yylval.s = com_strdup (yytext + 1);
-		hostlineno = yylineno;
+		hostlineno = yylineno - includelinenum;
 
 		yy_pop_state();
 		return HOSTTOKEN;
@@ -434,7 +436,7 @@ INT_CONSTANT {digit}+
 
 	{HOSTWORD} {
 			yylval.s = com_strdup (yytext + 1);
-			hostlineno = yylineno;
+			hostlineno = yylineno - includelinenum;
 
 			return HOSTTOKEN;
 	}
@@ -735,6 +737,25 @@ yyinput(char *buff,int max_size)
 	{
 		if(strlen(buff) > 7)
 		{
+			if(strstr(buff, INC_START_MARK) != NULL){
+				includeflag = 1;
+				includelinenum++;
+				/* ignore line */
+				com_strcpy(buff,max_size,"\n");
+	    		return strlen(buff);
+			}
+			if(includeflag){
+				includelinenum++;
+			}
+			if(strstr(buff, INC__END__MARK) != NULL){
+				includeflag = 0;
+				/* ignore line */
+				com_strcpy(buff,max_size,"\n");
+	    		return strlen(buff);
+			}
+			
+			
+		
 			bp = buff + 7;
 
 			switch (buff[6]) {

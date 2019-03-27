@@ -1953,6 +1953,7 @@ void ppbuff(struct cb_exec_list *list){
 void ppbuff_incfile(struct cb_exec_list *list){
 	struct cb_exec_list *l;
 	char buff[10];
+	char incmsg[256];
 	int len2;
 
 	l = list;
@@ -1971,6 +1972,11 @@ void ppbuff_incfile(struct cb_exec_list *list){
 		com_strcat(filename,sizeof(filename), l->incfileName);
  
  		incf = fopen_or_die(filename, "r");
+
+		memset(incmsg, 0, 256);
+		sprintf(incmsg, "%s incfile start:%s", INC_START_MARK, filename);
+		com_strcpy(out,sizeof(out),incmsg);
+		outwrite();
 
 		while(1){
 			memset(incf_buff, 0, BUFFSIZE + 1);
@@ -1992,6 +1998,12 @@ void ppbuff_incfile(struct cb_exec_list *list){
 			}
 			outwrite();
 		}
+
+		memset(incmsg, 0, 256);
+		sprintf(incmsg, "%s incfile end:%s",INC__END__MARK , filename);
+		com_strcpy(out,sizeof(out),incmsg);
+		outwrite();
+
 		return;
 	}
 	return;
@@ -2022,6 +2034,10 @@ void ppoutput(char *ppin,char *ppout,struct cb_exec_list *head){
 	if (readfile && outfile){
 		for(;EOFflg != 1;){
 			com_readline(readfile, inbuff, &lineNUM, &EOFflg);
+			if(strstr(inbuff, INC_START_MARK) != NULL ||
+			strstr(inbuff, INC__END__MARK) != NULL){
+				continue;
+			}
 			if(head){
 				if (l->startLine<= lineNUM && l->endLine>=lineNUM){
 					if(strcmp(l->commandName,"WORKING_END")==0){
@@ -2123,7 +2139,6 @@ void ppoutput_incfile(char *ppin,char *ppout,struct cb_exec_list *head){
 
 					if (EOFflg == 1){
 						fputc('\n',outfile);
-
 					}
 				}
 				else{
