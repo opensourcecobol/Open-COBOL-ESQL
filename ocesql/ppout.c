@@ -1199,9 +1199,13 @@ void ppoutputother(struct cb_exec_list *list){
 		int iret;
 
 		res_host_list = list->host_list;
-		struct cb_field *parent, *child;
+		struct cb_field *parent, *child, *f;
+		f = getfieldbyname(res_host_list->hostreference);
+		if (f == NULL){
+			goto exit_occurs_check;
+		}
 
-		parent = getfieldbyname(res_host_list->hostreference)->parent;
+		parent = f->parent;
 		if(parent == NULL){
 			goto exit_occurs_check;
 		}
