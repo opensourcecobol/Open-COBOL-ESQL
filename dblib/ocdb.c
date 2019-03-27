@@ -297,7 +297,8 @@ OCDBCursorOpen(int id, char *cname){
 	p_conn->result = RESULT_SUCCESS;
 
 #ifdef PGSQL_MODE_ON
-	// nothing to do
+	// dummy
+	p_conn->result = RESULT_FLAG1_PGSQL_DUMMYOPEN;
 	return;
 #endif
 
@@ -417,14 +418,20 @@ OCDBSetResultStatus(int id, struct sqlca_t *st){
 		return RESULT_ERROR;
 	}
 
-	if(p_conn->resaddr == OCDB_RES_DEFAULT_ADDRESS){
+	if(p_conn->resaddr == OCDB_RES_DEFAULT_ADDRESS &&
+		p_conn->result <= RESULT_FLAGBASE){
 		// 結果リソースが無いため成功で返す
 	  //return OCDB_RES_COMMAND_OK;
 		return RESULT_ERROR;
 	}
 
 #ifdef PGSQL_MODE_ON
-	retval = OCDB_PGSetResultStatus(p_conn->resaddr,st);
+	if(p_conn->result == RESULT_FLAG1_PGSQL_DUMMYOPEN){
+		// DUMMY OPENの対応
+		retval = RESULT_SUCCESS;
+	} else {
+		retval = OCDB_PGSetResultStatus(p_conn->resaddr,st);
+	}
 #endif
 	return retval;
 }
