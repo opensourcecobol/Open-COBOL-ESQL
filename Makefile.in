@@ -57,7 +57,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-html-recursive install-info-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
-	ps-recursive uninstall-recursive
+	ps-recursive uninstall-recursive \
+	dblib-recursive install-dblib-recursive
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -224,8 +225,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = dblib ocesql
+SUBDIRS_DBLIB = dblib
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
+dblib: config.h
+	$(MAKE) $(AM_MAKEFLAGS) dblib-recursive
 
 .SUFFIXES:
 am--refresh:
@@ -305,7 +309,17 @@ $(RECURSIVE_TARGETS):
 	done; \
 	dot_seen=no; \
 	target=`echo $@ | sed s/-recursive//`; \
-	list='$(SUBDIRS)'; for subdir in $$list; do \
+	list='$(SUBDIRS)'; \
+	if test $$target = "dblib"; then \
+            list='$(SUBDIRS_DBLIB)'; \
+            target="all" ; \
+        elif test $$target = "install-dblib"; then \
+            list='$(SUBDIRS_DBLIB)'; \
+            target="install" ; \
+        else \
+            list='$(SUBDIRS)'; \
+        fi; \
+	for subdir in $$list; do \
 	  echo "Making $$target in $$subdir"; \
 	  if test "$$subdir" = "."; then \
 	    dot_seen=yes; \
@@ -605,6 +619,7 @@ all-am: Makefile config.h
 installdirs: installdirs-recursive
 installdirs-am:
 install: install-recursive
+install-dblib: install-dblib-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
 uninstall: uninstall-recursive
@@ -716,7 +731,8 @@ uninstall-am:
 	install-strip installcheck installcheck-am installdirs \
 	installdirs-am maintainer-clean maintainer-clean-generic \
 	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
-	ps ps-am tags tags-recursive uninstall uninstall-am
+	ps ps-am tags tags-recursive uninstall uninstall-am \
+        dblib install-dblib
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
