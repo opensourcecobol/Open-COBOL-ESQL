@@ -21,6 +21,20 @@ AC_PROG_CC
 AC_PROG_LEX
 AC_PROG_LIBTOOL
 
+# Configure options.
+GEN_DEBUG_OPT="no"
+AC_ARG_ENABLE(debug,
+  [  --enable-debug          (OCESQL) enable -g C compiler debug option],
+  [if test "$enable_debug" = "yes"
+   then
+        GEN_DEBUG_OPT="yes"
+   fi])
+
+if test "$GEN_DEBUG_OPT" = "no"
+then
+        CFLAGS=`echo "$CFLAGS" | sed -e 's/^-g//' -e 's/-g$//' -e 's/-g / /'`
+fi
+
 # Checks for libraries.
 AC_CHECK_LIB([pq], [PQconnectdb])
 
