@@ -198,7 +198,7 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
-CFLAGS = -g -lpq
+CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -314,6 +314,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libocesql.la
 libocesql_la_SOURCES = ocesql.c ocdb.c ocpgsql.c ocdbutil.c ocdblog.c
+AM_CFLAGS = -lpq
 all: all-am
 
 .SUFFIXES:
