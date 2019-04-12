@@ -637,6 +637,8 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 ALLOCA
+DISABLE_OCESQL_FALSE
+DISABLE_OCESQL_TRUE
 CXXCPP
 OTOOL64
 OTOOL
@@ -774,6 +776,7 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_debug
+enable_precompiler
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1421,6 +1424,7 @@ Optional Features:
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-debug          (OCESQL) enable -g C compiler debug option
+  --disable-precompiler   (OCESQL) disable OCESQL precompiler install
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -16311,6 +16315,25 @@ then
         CFLAGS=`echo "$CFLAGS" | sed -e 's/^-g//' -e 's/-g$//' -e 's/-g / /'`
 fi
 
+DISABLE_COMPILER=no
+# Check whether --enable-precompiler was given.
+if test "${enable_precompiler+set}" = set; then :
+  enableval=$enable_precompiler; if test "$enable_precompiler" = "no"
+   then
+        DISABLE_COMPILER=yes
+   fi
+fi
+
+
+ if test $DISABLE_COMPILER = yes; then
+  DISABLE_OCESQL_TRUE=
+  DISABLE_OCESQL_FALSE='#'
+else
+  DISABLE_OCESQL_TRUE='#'
+  DISABLE_OCESQL_FALSE=
+fi
+
+
 # Checks for libraries.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PQconnectdb in -lpq" >&5
 $as_echo_n "checking for PQconnectdb in -lpq... " >&6; }
@@ -17043,6 +17066,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${DISABLE_OCESQL_TRUE}" && test -z "${DISABLE_OCESQL_FALSE}"; then
+  as_fn_error $? "conditional \"DISABLE_OCESQL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

@@ -35,6 +35,16 @@ then
         CFLAGS=`echo "$CFLAGS" | sed -e 's/^-g//' -e 's/-g$//' -e 's/-g / /'`
 fi
 
+DISABLE_COMPILER=no
+AC_ARG_ENABLE(precompiler,
+  [  --disable-precompiler   (OCESQL) disable OCESQL precompiler install],
+  [if test "$enable_precompiler" = "no"
+   then
+        DISABLE_COMPILER=yes
+   fi])
+
+AM_CONDITIONAL(DISABLE_OCESQL, test $DISABLE_COMPILER = yes)
+
 # Checks for libraries.
 AC_CHECK_LIB([pq], [PQconnectdb])
 
