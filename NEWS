@@ -1,6 +1,25 @@
 NEWS
 ****
 
+2019-04-19
+===========
+	Open Cobol ESQL (Ocesql) 1.2 released
+
+	<< New features >>
+	* Add new configure options.
+		- --enable-debug        : enable C compiler debug option(-g).
+		- --disable-precompiler : If you want only install library.
+	* The following new functions now work on Open Cobol ESQL,
+		- CONNECT without arguments.
+
+	<< Bug fixes >>
+	* Fixed memory access violation during INSERT with undecleared valiable.
+	* Fixed log feature, Enable output to file.
+	* Fixed problem that row number in error message
+	  after using "INCLUDE" is different.
+	* Fixed cursor reopen error.
+	* link libpq to libocesql at run makecommand.
+
 2015-03-31
 ===========
 	Open Cobol ESQL (Ocesql) 1.1 released
