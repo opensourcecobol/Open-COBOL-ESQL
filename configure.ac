@@ -1,10 +1,10 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.63)
-AC_INIT(ocesql, 1.0, opencobol@tsh-world.co.jp)
+AC_PREREQ([2.69])
+AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
 AC_CONFIG_SRCDIR([config.h.in])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE
 
 # Checks for programs.
@@ -19,18 +19,45 @@ AC_PROG_RANLIB
 AC_PROG_YACC
 AC_PROG_CC
 AC_PROG_LEX
+AC_PROG_LIBTOOL
+
+# Configure options.
+GEN_DEBUG_OPT="no"
+AC_ARG_ENABLE(debug,
+  [  --enable-debug          (OCESQL) enable -g C compiler debug option],
+  [if test "$enable_debug" = "yes"
+   then
+        GEN_DEBUG_OPT="yes"
+   fi])
+
+if test "$GEN_DEBUG_OPT" = "no"
+then
+        CFLAGS=`echo "$CFLAGS" | sed -e 's/^-g//' -e 's/-g$//' -e 's/-g / /'`
+fi
+
+DISABLE_COMPILER=no
+AC_ARG_ENABLE(precompiler,
+  [  --disable-precompiler   (OCESQL) disable OCESQL precompiler install],
+  [if test "$enable_precompiler" = "no"
+   then
+        DISABLE_COMPILER=yes
+   fi])
+
+AM_CONDITIONAL(DISABLE_OCESQL, test $DISABLE_COMPILER = yes)
 
 # Checks for libraries.
+AC_CHECK_LIB([pq], [PQconnectdb])
 
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_CHECK_HEADERS([inttypes.h libintl.h locale.h malloc.h stddef.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
+AC_CHECK_HEADER_STDBOOL
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT8_T
+AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
@@ -39,11 +66,9 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_FUNC_MEMCMP
 AC_CHECK_FUNCS([memmove memset setenv strcasecmp strchr strdup strrchr strstr])
 
 AC_CONFIG_FILES([Makefile
                  dblib/Makefile
                  ocesql/Makefile])
-AC_PROG_LIBTOOL
 AC_OUTPUT
