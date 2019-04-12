@@ -1,8 +1,8 @@
 
                    Open Cobol ESQL (Ocesql)
-                       Version 1.1.0
+                       Version 1.2.0
 
-                       March 31, 2015
+                       April 19, 2019
 
                  Tokyo System House Co., Ltd.
                   opencobol@tsh-world.co.jp
@@ -54,19 +54,22 @@ See also AUTHORS for the author and contributors.
       http://www.postgresql.jp/
 
   2) COBOL Development System
-  
+
     Ocesql is tested with the following COBOL compilers:
 
     o OpenCOBOL 1.1
       http://www.opencobol.org/
 
-    o opensource COBOL 1.3J
+    o opensource COBOL 1.5.2J
       http://www.osscons.jp/osscobol/download/
 
     o Micro Focus Server Express 5.1
       Micro Focus Visual COBOL 2.1 for x64/x86 Linux
       http://www.microfocus.com/
       http://www.microfocus.co.jp/
+
+    o GnuCOBOL 2.2
+      https://sourceforge.net/projects/open-cobol/
 
 5. Installation
 ===============
@@ -119,7 +122,7 @@ To run the sample programs:
 
   2) Pre-compile the sample programs
 
-       cd <your install path>/ocesql-1.1.0/sample
+       cd <your install path>/ocesql-1.2.0/sample
        ocesql INSERTTBL.cbl INSERTTBL.cob
        ocesql FETCHTBL.cbl FETCHTBL.cob
 
@@ -130,14 +133,14 @@ To run the sample programs:
 
      Working with Micro Focus Server Express or Visual COBOL:
 
-       export COBCPY=<your install path>/ocesql-1.1.0/copy
+       export COBCPY=<your install path>/ocesql-1.2.0/copy
        cob -ze "" /usr/local/lib/libocesql.so -o mfocesql.so
        cob -x INSERTTBL.cob -C"INITCALL(mfocesql)"
        cob -x FETCHTBL.cob -C"INITCALL(mfocesql)"
 
      Working with OpenCOBOL or opensource COBOL:
 
-       export COBCPY=<your install path>/ocesql-1.1.0/copy
+       export COBCPY=<your install path>/ocesql-1.2.0/copy
        cobc -x -locesql INSERTTBL.cob
        cobc -x -locesql FETCHTBL.cob
 
@@ -192,4 +195,4 @@ Ocesql is currently supports PostgreSQL only, although it is designed
 to work with several open-source databases, 
 
 ----------------------------------------------------------------------
-Copyright 2015 Tokyo System House Co., Ltd.
+Copyright 2019 Tokyo System House Co., Ltd.
