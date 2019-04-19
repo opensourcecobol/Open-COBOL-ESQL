@@ -41,7 +41,7 @@
 
 	int yyerror(const char *msg)
 	{
-	  	printf("%06d:%s\n", yylineno,msg);
+	  	printmsg("%06d:%s\n", yylineno,msg);
 		return 0;
 	}
 
@@ -244,7 +244,8 @@ HOSTTOKEN {
 }
 
 connectsql:
-EXECSQL connect identified otherdb using END_EXEC { put_exec_list(); }
+EXECSQL CONNECT otherdb END_EXEC { put_exec_list(); }
+| EXECSQL connect identified otherdb using END_EXEC { put_exec_list(); }
 | EXECSQL AT dbid connect END_EXEC { put_exec_list(); }
 | EXECSQL connect otherdb END_EXEC { put_exec_list(); }
 
@@ -433,7 +434,7 @@ VARYING
 {
 	if(current_field->pictype != PIC_ALPHANUMERIC &&
 		current_field->pictype != PIC_NATIONAL){
-		printf("parse error: %s specified the data types are not available to VARYING\n",
+		printmsg("parse error: %s specified the data types are not available to VARYING\n",
 		       current_field->sname);
 		exit(-1);
 	}
@@ -744,7 +745,7 @@ struct cb_field * cb_build_field_tree(int level, char *name , struct cb_field *l
 		}
 	} else {
 		if(last_field == NULL){
-			printf("parse error: %s level should start from 01 or 66 or 77 or 88\n", name);
+			printmsg("parse error: %s level should start from 01 or 66 or 77 or 88\n", name);
 			exit(-1);
 			return NULL;
 		}
@@ -903,7 +904,7 @@ check_has_occurs_children(struct cb_field *field){
 	if(field == NULL)
 		return 0;
 
-	printf("CHILDR:sname=%s, level=%d, occurs=%d, children=%d",
+	printmsg("CHILDR:sname=%s, level=%d, occurs=%d, children=%d",
 	       field->sname, field->level, field->occurs, field->children);
 
 	if(field->occurs != 0){

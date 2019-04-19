@@ -1,8 +1,8 @@
 
                    Open Cobol ESQL (Ocesql)
-                       Version 1.1.0
+                       Version 1.2.0
 
-                         2015/03/31
+                         2019/04/19
 
                  東京システムハウス株式会社
                   opencobol@tsh-world.co.jp
@@ -60,13 +60,16 @@ dblib サブディレクトリのプログラムは、GNU Lesser General Public 
     o OpenCOBOL 1.1
       http://www.opencobol.org/
 
-    o opensource COBOL 1.3J
+    o opensource COBOL 1.5.2J
       http://www.osscons.jp/osscobol/download/
 
     o Micro Focus Server Express 5.1
       Micro Focus Visual COBOL 2.1 for x64/x86 Linux
       http://www.microfocus.com/
       http://www.microfocus.co.jp/
+
+    o GnuCOBOL 2.2
+      https://sourceforge.net/projects/open-cobol/
 
 5. インストール
 ===============
@@ -119,7 +122,7 @@ Ocesql は COBOL アプリケーション内の埋め込み SQL の具体例を�
 
   2) サンプルグログラムをプリコンパイル
 
-       cd <your install path>/ocesql-1.1.0/sample
+       cd <your install path>/ocesql-1.2.0/sample
        ocesql INSERTTBL.cbl INSERTTBL.cob
        ocesql FETCHTBL.cbl FETCHTBL.cob
 
@@ -130,14 +133,14 @@ Ocesql は COBOL アプリケーション内の埋め込み SQL の具体例を�
 
      Micro Focus Server Express または Visual COBOL の場合:
 
-       export COBCPY=<your install path>/ocesql-1.1.0/copy
+       export COBCPY=<your install path>/ocesql-1.2.0/copy
        cob -ze "" /usr/local/lib/libocesql.so -o mfocesql.so
        cob -x INSERTTBL.cob -C"INITCALL(mfocesql)"
        cob -x FETCHTBL.cob -C"INITCALL(mfocesql)"
 
      OpenCOBOL または opensource COBOL の場合:
 
-       export COBCPY=<your install path>/ocesql-1.1.0/copy
+       export COBCPY=<your install path>/ocesql-1.2.0/copy
        cobc -x -locesql INSERTTBL.cob
        cobc -x -locesql FETCHTBL.cob
 
@@ -192,4 +195,4 @@ Ocesql は複数の OSS データベースで利用できるように設計さ�
 現在のところ PostgreSQL のみをサポートしています。
 
 ----------------------------------------------------------------------
-Copyright 2015 Tokyo System House Co., Ltd.
+Copyright 2019 Tokyo System House Co., Ltd.

@@ -195,6 +195,89 @@ OCESQLIDConnect(struct sqlca_t *st, char *atdb, int atdblen, char *user, int use
 	return 0;
 }
 
+/*
+ * <Function name>
+ *   OCESQLConnectShort
+ *
+ * <Outline>
+ *   データベース接続を試みる。成功したらコネクションIDを発行して返す
+ *   return する前に st.sqlcode に値をセットすること。
+ *
+ * <Input>
+ *   @st: SQLCA pointer
+ *   //@name: database name
+ *   //@user: user name
+ *   //@passwd: password
+ *
+ * <Output>
+ *   success : ConnectionId
+ *   failure ; OCESQL_NO_CONNECTION
+ */
+int
+OCESQLConnectShort(struct sqlca_t *st){
+	char	user[256];
+	int		userlen;
+	char	passwd[256];
+	int		passwdlen;
+	char	name[256];
+	int		namelen;
+
+	LOG("OCESQLConnectShort start\n");
+	(void)memset(user, 0x00, sizeof(user));
+	userlen = 0;
+	(void)memset(passwd, 0x00, sizeof(passwd));
+	passwdlen = 0;
+	(void)memset(name, 0x00, sizeof(name));
+	namelen = 0;
+	return _ocesqlConnect(st, user, userlen, passwd, passwdlen, name, namelen, NULL);
+}
+
+/*
+ * <Function name>
+ *   OCESQLIDConnectShort
+ *
+ * <Outline>
+ *   データベース接続を試みる。成功したらコネクションIDを発行して返す
+ *   return する前に st.sqlcode に値をセットすること。
+ *
+ * <Input>
+ *   @st: SQLCA pointer
+ *   @atdb: Connection Identifier
+ *   @atdblen: length of atdb
+ *   //@name: database name
+ *   //@user: user name
+ *   //@passwd: password
+ *
+ * <Output>
+ *   success : ConnectionId
+ *   failure ; OCESQL_NO_CONNECTION
+ */
+int
+OCESQLIDConnectShort(struct sqlca_t *st, char *atdb, int atdblen){
+	char *atdbbuf;
+	LOG("OCESQLIDConnect start\n");
+	atdbbuf = get_str_without_after_space(oc_strndup(atdb, atdblen));
+	if((!atdbbuf) || (*atdbbuf == '\0')){
+		OCDBSetLibErrorStatus(st,OCPG_VAR_NOT_CHAR);
+		return 1;
+	}
+	char	user[256];
+	int		userlen;
+	char	passwd[256];
+	int		passwdlen;
+	char	name[256];
+	int		namelen;
+
+	LOG("OCESQLConnectShort start\n");
+	(void)memset(user, 0x00, sizeof(user));
+	userlen = 0;
+	(void)memset(passwd, 0x00, sizeof(passwd));
+	passwdlen = 0;
+	(void)memset(name, 0x00, sizeof(name));
+	namelen = 0;
+	return _ocesqlConnect(st, user, userlen, passwd, passwdlen, name, namelen, atdbbuf);
+}
+
 static int
 _ocesqlConnect(struct sqlca_t *st, char *user, int userlen, char *passwd, int passwdlen, char *name, int namelen, char *atdb){
 	char *dbuser, *dbpasswd, *dbname;

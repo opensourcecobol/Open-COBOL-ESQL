@@ -38,6 +38,8 @@ typedef struct lock_conn {
 #define RESULT_FAILED -1
 #define RESULT_SUCCESS 0
 #define RESULT_ERROR -2
+#define RESULT_FLAGBASE 10
+#define RESULT_FLAG1_PGSQL_DUMMYOPEN 11
 
 // default resource address
 #define OCDB_RES_DEFAULT_ADDRESS 0

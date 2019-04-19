@@ -150,7 +150,7 @@ com_readline(FILE *readfile, char *inbuff, int *lineno, int *eofflg){
 	} else if(feof(readfile)){
 		*eofflg = 1;
 	} else {
-		printf("com_readline: although EOF wasn't detected, fgets() returned NULL ");
+		printmsg("com_readline: although EOF wasn't detected, fgets() returned NULL ");
 		*eofflg = 1;
 	}
 	*lineno = *lineno + 1;
