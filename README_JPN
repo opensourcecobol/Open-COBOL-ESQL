@@ -50,26 +50,26 @@ dblib サブディレクトリのプログラムは、GNU Lesser General Public 
     Ocesql は現在のところ PostgreSQL のみをサポートしています。
 
     o PostgreSQL C Library (libpq) 8.4 以降
-      http://www.postgresql.org/
-      http://www.postgresql.jp/
+      https://www.postgresql.org/
+      https://www.postgresql.jp/
 
   2) COBOL 開発システム
   
     Ocesql は下記の COBOL コンパイラで動作確認をしています:
 
     o OpenCOBOL 1.1
-      http://www.opencobol.org/
+      https://sourceforge.net/projects/open-cobol/
 
     o opensource COBOL 1.5.2J
-      http://www.osscons.jp/osscobol/download/
+      https://www.osscons.jp/osscobol/download/
 
     o Micro Focus Server Express 5.1
       Micro Focus Visual COBOL 2.1 for x64/x86 Linux
-      http://www.microfocus.com/
-      http://www.microfocus.co.jp/
+      https://www.microfocus.com/
+      https://www.microfocus.co.jp/
 
     o GnuCOBOL 2.2
-      https://sourceforge.net/projects/open-cobol/
+      https://www.gnu.org/software/gnucobol/
 
 5. インストール
 ===============
@@ -184,8 +184,8 @@ SQLCA の SQLCODE または SQLSTATE がゼロ以外の値となった場合、
 SQLSTATE には 下記 URL の一覧に示される PostgreSQL のエラーコードが
 設定されます:
 
-  http://www.postgresql.org/docs/8.4/static/errcodes-appendix.html
-  http://www.postgresql.jp/document/8.4/html/errcodes-appendix.html
+  https://www.postgresql.org/docs/8.4/static/errcodes-appendix.html
+  https://www.postgresql.jp/document/8.4/html/errcodes-appendix.html
 
 SQLSTATE の使い方はサンプルプログラムをご参照下さい。
 
