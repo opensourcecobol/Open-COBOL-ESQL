@@ -1,5 +1,0 @@
-#! /bin/sh
-test "${ZSH_VERSION+set}" = set && alias -g '${1+"$@"}'='"$@"'
-cd '/root/share/opensourcecobol/Open-COBOL-ESQL/tests'
-exec ${CONFIG_SHELL-/bin/sh} "/root/share/opensourcecobol/Open-COBOL-ESQL/tests/./sqlca" -v -d  4 ${1+"$@"}
-exit 1
