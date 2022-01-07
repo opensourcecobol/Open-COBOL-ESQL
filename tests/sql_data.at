@@ -1,0 +1,5 @@
+AT_INIT(sql data test)
+
+AT_TESTED([ocesql])
+
+m4_include([sql_type.at])

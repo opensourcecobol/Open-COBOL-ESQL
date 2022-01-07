@@ -1,0 +1,12 @@
+#                             -*- compilation -*-
+10. prepare-execute.at:1: testing prepare and execute statement test ...
+/prepare-execute.at:193: ocesql prog.cbl prog.cob > /dev/null
+/prepare-execute.at:194: ${EMBED_DB_INFO} prog.cob
+/prepare-execute.at:195: ${COMPILE_MODULE} prog.cob
+/prepare-execute.at:205: ${RUN_MODULE} prog > result.txt
+/prepare-execute.at:206: echo 1 0 
+--- /dev/null	2022-01-06 06:10:48.614288000 +0000
++++ /root/share/opensourcecobol/Open-COBOL-ESQL/tests/basic.dir/at-groups/10/stdout	2022-01-06 06:20:59.159699700 +0000
+@@ -0,0 +1 @@
++1 0
+10. prepare-execute.at:1: 10. prepare and execute statement test (prepare-execute.at:1): FAILED (prepare-execute.at:206)
