@@ -1,0 +1,24 @@
+name: GitHub Actions Demo
+on: [push]
+         
+jobs:
+  pmd-code-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Run PMD
+        id: pmd
+        uses: pmd/pmd-github-action@7ed79622882840855e297f090460face22328ece
+        with:
+          rulesets: 'rulesets/java/quickstart.xml'
+          sourcePath: 'tests'
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: pmd-report.sarif
+          
