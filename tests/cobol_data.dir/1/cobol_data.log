@@ -1,0 +1,13 @@
+#                             -*- compilation -*-
+1. numeric_signed_v.at:1: testing numeric_signed_v ...
+/numeric_signed_v.at:227: ocesql prog.cbl prog.cob > /dev/null
+/numeric_signed_v.at:228: ${EMBED_DB_INFO} prog.cob
+/numeric_signed_v.at:229: ${COMPILE_MODULE} prog.cob
+/numeric_signed_v.at:230: ${RUN_MODULE} prog
+--- /dev/null	2022-01-05 05:25:40.422915000 +0000
++++ /root/share/opensourcecobol/Open-COBOL-ESQL/tests/cobol_data.dir/at-groups/1/stderr	2022-01-05 07:22:31.908691500 +0000
+@@ -0,0 +1,3 @@
++NOTICE:  table "testtablev" does not exist, skipping
++NOTICE:  table "testtablep" does not exist, skipping
++NOTICE:  table "testtable" does not exist, skipping
+1. numeric_signed_v.at:1: 1. numeric_signed_v (numeric_signed_v.at:1): FAILED (numeric_signed_v.at:230)
