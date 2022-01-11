@@ -12,9 +12,9 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Run tests
-        run: 
-          pwd,
-          cd tests,
+        run: |
+          pwd
+          cd tests
           echo hello world
 
           
