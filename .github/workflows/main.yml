@@ -28,15 +28,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-
-      - name: Connect to PostgreSQL
-        # Runs a script that creates a PostgreSQL table, populates
-        # the table with data, and then retrieves the data.
-        env:
-          # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: postgres
-          # The default PostgreSQL port
-          POSTGRES_PORT: 5432
           
       - name: Run tests
         run: |
