@@ -20,8 +20,20 @@ jobs:
           --health-timeout 5s
           --health-retries 5
           
-          
+
     steps:
+      - name: Connect to PostgreSQL
+         # Runs a script that creates a PostgreSQL table, populates
+         # the table with data, and then retrieves the data.
+        run: node client.js
+             # Environment variable used by the `client.js` script to create
+             # a new PostgreSQL client.
+        env:
+               # The hostname used to communicate with the PostgreSQL service container
+               POSTGRES_HOST: postgres
+               # The default PostgreSQL port
+               POSTGRES_PORT: 5432          
+          
       - uses: actions/checkout@v2
       - name: Set up JDK 11
         uses: actions/setup-java@v2
