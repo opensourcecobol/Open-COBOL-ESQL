@@ -14,6 +14,7 @@ jobs:
       - name: Run tests
         run: |
           cd tests
+          make clean
           make
           ./basic
           echo hello world
