@@ -13,8 +13,9 @@ jobs:
           distribution: 'adopt'
       - name: Run tests
         run: |
-          pwd
           cd tests
+          make
+          ./basic
           echo hello world
 
           
