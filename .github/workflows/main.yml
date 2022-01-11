@@ -13,8 +13,8 @@ jobs:
           distribution: 'adopt'
       - name: Run tests
         run: 
-          pwd
-          cd tests
+          pwd,
+          cd tests,
           echo hello world
 
           
