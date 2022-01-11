@@ -17,6 +17,6 @@ jobs:
           make clean
           make
           ./basic
-          echo hello world
+
 
           
