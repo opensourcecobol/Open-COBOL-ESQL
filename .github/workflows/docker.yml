@@ -1,0 +1,13 @@
+name: Container
+on: push
+
+jobs:
+  node-docker:
+    runs-on: ubuntu-latest
+    container: #起動するコンテナイメージを指定
+      image: node:13.5.0-alpine3.10 #指定のdockerイメージを使用
+    steps: #dockerコンテナ内でステップを実行
+      - name: Log node version
+        run: |
+          node -v #nodeバージョンの確認
+          cat /etc/os-release #Linuxバージョンの確認
