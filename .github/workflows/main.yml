@@ -11,6 +11,15 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
+          
+      - name: Install OCESQL
+        run: |
+          export CPPFLAGS="-I/usr/pgsql-9.x/include"
+          export LDFLAGS="-L/usr/pgsql-9.x/lib"
+          ./configure
+          make
+          make install
+          
       - name: Run tests
         run: |
           psql
