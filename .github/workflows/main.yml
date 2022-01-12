@@ -43,6 +43,7 @@ jobs:
           
       - name: Run tests
         run: |
+          psql
           cd tests
           make clean
           make
