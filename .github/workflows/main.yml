@@ -14,8 +14,6 @@ jobs:
           
       - name: Install OCESQL
         run: |
-          export CPPFLAGS="-I/usr/pgsql-9.x/include"
-          export LDFLAGS="-L/usr/pgsql-9.x/lib"
           ./configure
           make
           make install
