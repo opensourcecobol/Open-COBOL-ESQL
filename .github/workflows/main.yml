@@ -32,8 +32,9 @@ jobs:
       - name: Run tests
         run: |
           # install opensource COBOL
-          sudo apt-get install -y gcc build-essential make bison flex libgmp3-dev libncurses5-dev libncursesw5-dev gunzip
+          sudo apt-get install -y gcc build-essential make bison flex libgmp3-dev libncurses5-dev libncursesw5-dev
           sudo apt-get install -y autoconf diffutils
+          sudo apt-get install -y gzip         
           pwd
           cd 
           mkdir opt
