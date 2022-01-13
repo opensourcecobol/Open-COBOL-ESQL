@@ -36,6 +36,7 @@ jobs:
           # dnf install -y autoconf diffutils
           pwd
           cd 
+          mkdir opt
           cd opt
           ls -l
           chmod -R 777 opt/
