@@ -14,6 +14,7 @@ jobs:
           
       - name: Install OCESQL
         run: |
+          apt install libtool-bin automake makeinfo
           ./configure
           make
           make install
