@@ -12,11 +12,7 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           
-      - name: Install OCESQL
-        run: |
-          ./configure
-          make 
-          make install 
+
           
       - name: Run tests
         run: |
