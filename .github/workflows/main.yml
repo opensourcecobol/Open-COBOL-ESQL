@@ -32,8 +32,8 @@ jobs:
       - name: Run tests
         run: |
           # install opensource COBOL
-          apt install -y gcc gcc-c++ make bison flex gmp-devel ncurses-devel zulu-14 unzip
-          apt install -y autoconf diffutils
+          apt-get install -y gcc gcc-c++ make bison flex gmp-devel ncurses-devel zulu-14 unzip
+          apt-get install -y autoconf diffutils
           pwd
           cd 
           mkdir opt
