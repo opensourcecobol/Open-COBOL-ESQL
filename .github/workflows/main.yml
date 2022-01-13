@@ -15,8 +15,8 @@ jobs:
       - name: Install OCESQL
         run: |
           ./configure
-          make AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=:
-          make install AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=:
+          make 
+          make install 
           
       - name: Run tests
         run: |
