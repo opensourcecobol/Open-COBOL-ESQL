@@ -32,14 +32,14 @@ jobs:
       - name: Run tests
         run: |
           # install opensource COBOL
-          # dnf install -y gcc gcc-c++ make bison flex gmp-devel ncurses-devel zulu-14 unzip
-          # dnf install -y autoconf diffutils
+          dnf install -y gcc gcc-c++ make bison flex gmp-devel ncurses-devel zulu-14 unzip
+          dnf install -y autoconf diffutils
           pwd
           cd 
           mkdir opt
           chmod -R 777 opt/
           cd opt
-          ls -l
+
 
           curl -L -o opensourcecobol.tar.gz https://github.com/opensourcecobol/opensource-cobol/archive/v1.5.2J.tar.gz
           tar zxvf opensource-cobol-1.5.2J.tar.gz
