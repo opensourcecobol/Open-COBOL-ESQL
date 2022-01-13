@@ -4,6 +4,22 @@ on: [push]
 jobs:
   pmd-code-scan:
     runs-on: ubuntu-latest
+    
+        # `container-job` で実行するサービスコンテナ
+    services:
+      # サービスコンテナへのアクセスに使用されるラベル
+      postgres:
+        # Docker Hub のイメージ
+        image: postgres
+        # postgres のパスワードを入力する
+        env:
+          POSTGRES_PASSWORD: postgres
+        # postgres が起動するまで待機するようにヘルスチェックを設定する
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -12,7 +28,6 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           
-
           
       - name: Run tests
         run: |
