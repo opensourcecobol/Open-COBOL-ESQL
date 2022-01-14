@@ -56,10 +56,12 @@ jobs:
           rm -rf opensource-cobol-1.5.2J opensource-cobol-1.5.2J.tar.gz
           
           # install OCESQL
+          cd
           curl -L -o Open-COBOL-ESQL-1.2.tar.gz https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/v1.2.tar.gz
-          chmod -R 777 opt/
+          ls
           tar zxvf Open-COBOL-ESQL-1.2.tar.gz
-          cd /Open-COBOL-ESQL-1.2
+          ls
+          cd Open-COBOL-ESQL-1.2/
           ./configure --prefix=/usr/
           make install
           cd /
