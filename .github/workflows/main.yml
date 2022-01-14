@@ -49,7 +49,7 @@ jobs:
           cd opensource-cobol-1.5.2J/vbisam/
           ./configure --prefix=/usr/
           sudo make install
-          cd /opensource-cobol-1.5.2J
+          cd ../
           ./configure --prefix=/usr/ --with-vbisam
           sudo make install
           cd /
