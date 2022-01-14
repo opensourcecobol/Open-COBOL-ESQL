@@ -42,7 +42,7 @@ jobs:
           cd opt
 
 
-          curl -L -o opensourcecobol-1.5.2J.tar.gz https://github.com/opensourcecobol/opensource-cobol/archive/v1.5.2J.tar.gz
+          curl -L -o opensource-cobol-1.5.2J.tar.gz https://github.com/opensourcecobol/opensource-cobol/archive/v1.5.2J.tar.gz
           ls
           tar zxvf opensource-cobol-1.5.2J.tar.gz
           cd /opensource-cobol-1.5.2J/vbisam
