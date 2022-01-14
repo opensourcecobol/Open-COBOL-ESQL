@@ -46,7 +46,7 @@ jobs:
           ls
           tar zxvf opensource-cobol-1.5.2J.tar.gz
           ls
-          cd /opensource-cobol-1.5.2J/vbisam
+          cd opensource-cobol-1.5.2J/vbisam/
           ./configure --prefix=/usr/
           make install
           cd /opensource-cobol-1.5.2J
