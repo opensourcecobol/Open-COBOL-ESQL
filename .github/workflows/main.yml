@@ -34,7 +34,9 @@ jobs:
           # install opensource COBOL
           sudo apt-get install -y gcc build-essential make bison flex libgmp3-dev libncurses5-dev libncursesw5-dev
           sudo apt-get install -y autoconf diffutils
-          sudo apt-get install -y gzip         
+          sudo apt-get install -y gzip 
+          sudo rm /var/lib/apt/lists/lock
+          sudo rm /var/cache/apt/archives/lock
           pwd
           cd 
           mkdir opt
@@ -60,8 +62,7 @@ jobs:
           apt-get install -y postgresql-client-12
           apt-get install -y postgresql-contrib
           apt-get install -y libpq-dev
-          sudo rm /var/lib/apt/lists/lock
-          sudo rm /var/cache/apt/archives/lock
+
           cd
           curl -L -o Open-COBOL-ESQL-1.2.tar.gz https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/v1.2.tar.gz
           ls
