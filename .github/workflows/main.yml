@@ -56,7 +56,9 @@ jobs:
           rm -rf opensource-cobol-1.5.2J opensource-cobol-1.5.2J.tar.gz
           
           # install OCESQL
-          sudo apt-get install libpq-dev postgresql-devel
+          apt-get install postgresql-client-12
+          apt-get install postgresql-contrib
+          apt-get install libpq-dev
           cd
           curl -L -o Open-COBOL-ESQL-1.2.tar.gz https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/v1.2.tar.gz
           ls
