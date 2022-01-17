@@ -57,6 +57,7 @@ jobs:
           
           # install OCESQL
           sudo apt-get install libpq-dev
+          sudo apt-get install postgresql96 postgresql96-server postgresql96-libs postgresql96-contrib postgresql96-devel 
           cd
           curl -L -o Open-COBOL-ESQL-1.2.tar.gz https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/v1.2.tar.gz
           ls
