@@ -54,6 +54,6 @@ jobs:
           ls
           cd Open-COBOL-ESQL-1.2/
           ./configure --prefix=/usr/
-          sudo make install
+          # sudo make install
           
 
