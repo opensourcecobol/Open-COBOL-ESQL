@@ -43,4 +43,6 @@ jobs:
           # install OCESQL
           sudo apt-get install -y libpq-dev
           
+          curl -L -o Open-COBOL-ESQL-1.2.tar.gz https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/v1.2.tar.gz
+          
 
