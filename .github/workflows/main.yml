@@ -53,8 +53,6 @@ jobs:
           tar zxvf Open-COBOL-ESQL-1.2.tar.gz
           ls
           cd Open-COBOL-ESQL-1.2/
-          export CPPFLAGS="-I/usr/pgsql-9.x/include"
-          export LDFLAGS="-L/usr/pgsql-9.x/lib"
           ./configure --prefix=/usr/
           sudo make install
           
