@@ -42,3 +42,8 @@ jobs:
           cd /
           rm -rf opensource-cobol-1.5.2J opensource-cobol-1.5.2J.tar.gz
 
+          # install OCESQL
+          apt-get update
+          apt-get install -y postgresql-client-12
+          apt-get install -y postgresql-contrib
+          apt-get install -y libpq-dev
