@@ -5,21 +5,6 @@ jobs:
   pmd-code-scan:
     runs-on: ubuntu-latest
     
-        # `container-job` で実行するサービスコンテナ
-    services:
-      # サービスコンテナへのアクセスに使用されるラベル
-      postgres:
-        # Docker Hub のイメージ
-        image: postgres
-        # postgres のパスワードを入力する
-        env:
-          POSTGRES_PASSWORD: postgres
-        # postgres が起動するまで待機するようにヘルスチェックを設定する
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -56,28 +41,4 @@ jobs:
           sudo make install
           cd /
           rm -rf opensource-cobol-1.5.2J opensource-cobol-1.5.2J.tar.gz
-          
-          # install OCESQL
-          apt-get update
-          apt-get install -y postgresql-client-12
-          apt-get install -y postgresql-contrib
-          apt-get install -y libpq-dev
 
-          cd
-          curl -L -o Open-COBOL-ESQL-1.2.tar.gz https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/v1.2.tar.gz
-          ls
-          tar zxvf Open-COBOL-ESQL-1.2.tar.gz
-          ls
-          cd Open-COBOL-ESQL-1.2/
-          ./configure --prefix=/usr/
-          sudo make install
-          cd /
-          rm -rf Open-COBOL-ESQL-1.2 Open-COBOL-ESQL-1.2.tar.gz
-
-          
-          
-          psql
-          cd tests
-          make clean
-          make
-          ./basic
