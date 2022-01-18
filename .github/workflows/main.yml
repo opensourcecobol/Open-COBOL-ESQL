@@ -26,7 +26,6 @@ jobs:
           chmod -R 777 opt/
           cd opt
 
-
           curl -L -o opensource-cobol-1.5.2J.tar.gz https://github.com/opensourcecobol/opensource-cobol/archive/v1.5.2J.tar.gz
           ls
           tar zxvf opensource-cobol-1.5.2J.tar.gz
@@ -47,3 +46,7 @@ jobs:
           tar zxvf Open-COBOL-ESQL-1.2.tar.gz
           ls
           cd Open-COBOL-ESQL-1.2/
+          ./configure --prefix=/usr/
+          sudo make install
+          cd /
+          rm -rf Open-COBOL-ESQL-1.2 Open-COBOL-ESQL-1.2.tar.gz
