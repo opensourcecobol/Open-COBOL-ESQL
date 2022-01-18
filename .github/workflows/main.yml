@@ -48,4 +48,5 @@ jobs:
           tar zxvf Open-COBOL-ESQL-1.2.tar.gz
           ls
           cd Open-COBOL-ESQL-1.2/
+          ./configure --prefix=/usr/
 
