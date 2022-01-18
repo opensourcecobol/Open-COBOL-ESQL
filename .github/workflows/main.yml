@@ -41,7 +41,7 @@ jobs:
           rm -rf opensource-cobol-1.5.2J opensource-cobol-1.5.2J.tar.gz
 
           # install OCESQL
-          apt-get install -y libpq-dev
+          sudo apt-get install -y libpq-dev
           # sudo rm /var/lib/apt/lists/lock
           # sudo rm /var/cache/apt/archives/lock
           
