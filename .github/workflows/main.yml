@@ -37,6 +37,7 @@ jobs:
           cd ../
           ./configure --prefix=/usr/ --with-vbisam
           sudo make install
+          cd /
           cd opt
           rm -rf opensource-cobol-1.5.2J opensource-cobol-1.5.2J.tar.gz
 
