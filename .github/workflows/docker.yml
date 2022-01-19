@@ -5,7 +5,6 @@ jobs:
   node-docker:
     runs-on: ubuntu-latest
     steps:
-      - name: run Docker
       - uses: actions/checkout@v2
-      - run: |
-          docker compose up -d
+      - name: run Docker
+        run: docker compose up -d
