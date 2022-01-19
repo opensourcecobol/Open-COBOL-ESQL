@@ -41,7 +41,7 @@ jobs:
           rm -rf opensource-cobol-1.5.2J opensource-cobol-1.5.2J.tar.gz
 
           # install OCESQL
-          cd /
+          cd 
           pwd
           ls         
 
