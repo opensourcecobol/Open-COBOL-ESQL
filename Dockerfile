@@ -51,3 +51,4 @@ WORKDIR /oscobol
 ENTRYPOINT ["/bin/bash"]
 
 RUN ls
+    pwd
