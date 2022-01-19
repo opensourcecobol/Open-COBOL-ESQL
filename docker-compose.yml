@@ -9,3 +9,14 @@ services:
       - POSTGRES_DB=testdb
     ports:
       - "5432:5432"
+
+  ocesql:
+    build:
+      dockerfile: ./Dockerfile
+    stdin_open: true
+    tty: true
+    depends_on:
+      db_postgres:
+        condition: service_started
+    logging:
+      driver: none
