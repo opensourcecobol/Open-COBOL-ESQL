@@ -50,4 +50,4 @@ WORKDIR /oscobol
 
 ENTRYPOINT ["/bin/bash"]
 
-RUN pwd
+RUN docker attach open-cobol-esql-ocesql-1
