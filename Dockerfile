@@ -50,7 +50,7 @@ WORKDIR /oscobol
 
 ENTRYPOINT ["/bin/bash"]
 
-RUN ls
-    make clean
-    make
+RUN ls && \
+    make clean && \
+    make && \
     ./basic
