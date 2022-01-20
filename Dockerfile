@@ -50,6 +50,7 @@ WORKDIR /oscobol
 
 ENTRYPOINT ["/bin/bash"]
 
-RUN ls && \
+RUN cd tests && \
+    ls && \
     make && \
     ./basic
