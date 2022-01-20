@@ -50,7 +50,5 @@ WORKDIR /oscobol
 
 ENTRYPOINT ["/bin/bash"]
 
-RUN cd && \
-    cd root && \
-    ls && \
+RUN ls && \
     pwd 
