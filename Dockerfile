@@ -46,8 +46,6 @@ RUN tar zxvf Open-COBOL-ESQL-1.2.tar.gz &&\
     cd / &&\
     rm -rf Open-COBOL-ESQL-1.2 Open-COBOL-ESQL-1.2.tar.gz
     
-WORKDIR /oscobol
-
 ENTRYPOINT ["/bin/bash"]
 
 RUN ls && \
