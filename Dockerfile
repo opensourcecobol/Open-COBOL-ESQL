@@ -47,6 +47,7 @@ RUN tar zxvf Open-COBOL-ESQL-1.2.tar.gz &&\
     rm -rf Open-COBOL-ESQL-1.2 Open-COBOL-ESQL-1.2.tar.gz
     
 ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["psql"]
 
 RUN ls && \
     pwd && \
