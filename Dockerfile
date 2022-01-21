@@ -51,4 +51,4 @@ ENTRYPOINT ["/bin/bash"]
 RUN ls && \
     pwd && \
     cd opt/ &&\
-    psql
+    ls
