@@ -35,7 +35,7 @@ RUN tar zxvf opensource-cobol-1.5.2J.tar.gz &&\
     ./configure --prefix=/usr/ --with-vbisam &&\
     make install &&\
     cd / &&\
-    rm -rf opensource-cobol-1.5.2J opensource-cobol-1.5.2J.tar.gz
+    rm -rf opensource-cobol-1.5.2J.tar.gz
 
 # install OCESQL
 ADD https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/v1.2.tar.gz Open-COBOL-ESQL-1.2.tar.gz
@@ -44,12 +44,11 @@ RUN tar zxvf Open-COBOL-ESQL-1.2.tar.gz &&\
     ./configure --prefix=/usr/ &&\
     make install &&\
     cd / &&\
-    rm -rf Open-COBOL-ESQL-1.2 Open-COBOL-ESQL-1.2.tar.gz
+    rm -rf Open-COBOL-ESQL-1.2.tar.gz
     
 ENTRYPOINT ["/bin/bash"]
-ENTRYPOINT ["psql"]
 
 RUN ls && \
     pwd && \
-    cd /Open-COBOL-ESQL-1.2 &&\
+    cd /opensource-cobol-1.5.2J &&\
     ls
