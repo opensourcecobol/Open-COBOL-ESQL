@@ -45,7 +45,11 @@ RUN tar zxvf Open-COBOL-ESQL-develop.tar.gz &&\
     make install &&\
     cd / &&\
     rm -rf Open-COBOL-ESQL-1.2.tar.gz
-    
+
+WORKDIR /oscobol
+RUN yum install -y psql &&\
+    PGPASSWORD=password psql -h db_postgres -U main_user -d testdb
+
 ENTRYPOINT ["/bin/bash"]
 
 RUN ls && \
