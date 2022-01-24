@@ -1,0 +1,41 @@
+name: PostgreSQL service example
+on: push
+
+jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    # `container-job` が実行される Docker Hub イメージ
+    container: node:10.18-jessie
+
+    services:
+      postgres:
+        image: postgres
+        # postgres のパスワードを入力する
+        env:
+          POSTGRES_PASSWORD: postgres
+        # postgres が起動するまで待機するようにヘルスチェックを設定する
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      # `package.json` ファイル内のすべての依存関係のクリーンインストールを実行する
+      # 詳しい情報については https://docs.npmjs.com/cli/ci.html を参照
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Connect to PostgreSQL
+        # PostgreSQLテーブルを作成し、テーブルにデータを入力してから
+        # データを取得するスクリプトを実行する。
+        run: node client.js
+        # `client.js` スクリプトが新しいPostgreSQLクライアントの作成に使う環境変数。
+        env:
+          # PostgreSQLサービスコンテナとの通信に使われるホスト名
+          POSTGRES_HOST: postgres
+          # デフォルトのPostgreSQLポート
+          POSTGRES_PORT: 5432
