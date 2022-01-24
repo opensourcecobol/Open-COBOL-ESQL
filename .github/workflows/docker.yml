@@ -2,14 +2,6 @@ name: Container
 on: push
 
 jobs:
-  node-docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: run Docker
-        run: docker compose up -d
-
-
   container-job:
     runs-on: ubuntu-latest
 
@@ -36,4 +28,12 @@ jobs:
           DB_PORT: 5432
           DB_USER: main_user
           DB_PASSWORD: passward
-        run: echo HELLO WORLD
+        run: psql
+
+  node-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: run Docker
+        run: docker compose up -d
+
