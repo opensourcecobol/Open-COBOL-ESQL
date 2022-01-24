@@ -28,7 +28,7 @@ jobs:
           DB_PORT: 5432
           DB_USER: main_user
           DB_PASSWORD: passward
-        run: 
+        run: echo HELLO WORLD
 
   node-docker:
     runs-on: ubuntu-latest
