@@ -24,11 +24,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
-      # `package.json` ファイル内のすべての依存関係のクリーンインストールを実行する
-      # 詳しい情報については https://docs.npmjs.com/cli/ci.html を参照
-      - name: Install dependencies
-        run: npm ci
-
       - name: Connect to PostgreSQL
         # PostgreSQLテーブルを作成し、テーブルにデータを入力してから
         # データを取得するスクリプトを実行する。
