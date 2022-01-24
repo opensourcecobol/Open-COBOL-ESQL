@@ -29,6 +29,7 @@ RUN yum install -y gcc gcc-devel gcc-c++ make bison flex gmp-devel ncurses-devel
 ADD https://github.com/opensourcecobol/opensource-cobol/archive/v1.5.2J.tar.gz opensource-cobol-1.5.2J.tar.gz
 RUN tar zxvf opensource-cobol-1.5.2J.tar.gz &&\
     cd /opensource-cobol-1.5.2J/vbisam &&\
+    mkdir /usr/bin/file &&\
     ./configure --prefix=/usr/ &&\
     make install &&\
     cd /opensource-cobol-1.5.2J &&\
@@ -50,5 +51,5 @@ ENTRYPOINT ["/bin/bash"]
 
 RUN ls && \
     pwd && \
-    cd /opensource-cobol-1.5.2J &&\
+    cd /Open-COBOL-ESQL-1.2 &&\
     ls
