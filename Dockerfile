@@ -28,10 +28,10 @@ RUN yum install -y gcc gcc-devel gcc-c++ make bison flex gmp-devel ncurses-devel
 # install opensource COBOL
 ADD https://github.com/opensourcecobol/opensource-cobol/archive/v1.5.2J.tar.gz opensource-cobol-1.5.2J.tar.gz
 RUN tar zxvf opensource-cobol-1.5.2J.tar.gz &&\
-    cd /opensource-cobol-1.5.2J/vbisam &&\
+    cd opensource-cobol-1.5.2J/vbisam/ &&\
     ./configure --prefix=/usr/ &&\
     make install &&\
-    cd /opensource-cobol-1.5.2J &&\
+    cd opensource-cobol-1.5.2J/ &&\
     ./configure --prefix=/usr/ --with-vbisam &&\
     make install &&\
     cd / &&\
@@ -40,7 +40,7 @@ RUN tar zxvf opensource-cobol-1.5.2J.tar.gz &&\
 # install OCESQL
 ADD https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/v1.2.tar.gz Open-COBOL-ESQL-1.2.tar.gz
 RUN tar zxvf Open-COBOL-ESQL-1.2.tar.gz &&\
-    cd /Open-COBOL-ESQL-1.2 &&\
+    cd Open-COBOL-ESQL-1.2/ &&\
     ./configure --prefix=/usr/ &&\
     make install &&\
     cd / &&\
@@ -51,5 +51,5 @@ ENTRYPOINT ["psql"]
 
 RUN ls && \
     pwd && \
-    cd opt/ &&\
+    cd Open-COBOL-ESQL-1.2/ &&\
     ls
