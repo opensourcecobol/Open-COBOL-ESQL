@@ -39,12 +39,7 @@ RUN tar zxvf opensource-cobol-1.5.2J.tar.gz &&\
 
 # install OCESQL
 ADD https://github.com/n-izawa/Open-COBOL-ESQL.git Open-COBOL-ESQL-1.2.tar.gz
-RUN tar zxvf Open-COBOL-ESQL-1.2.tar.gz &&\
-    cd /Open-COBOL-ESQL-1.2 &&\
-    ./configure --prefix=/usr/ &&\
-    make install &&\
-    cd / &&\
-    rm -rf Open-COBOL-ESQL-1.2.tar.gz
+
     
 ENTRYPOINT ["/bin/bash"]
 
