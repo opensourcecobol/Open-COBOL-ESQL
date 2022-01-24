@@ -28,4 +28,5 @@ jobs:
           DB_HOST: db_postgres
           DB_PORT: 5432
           DB_USER: main_user
-          DB_PASSWORD: password
+          DB_PASSWORD: passward
+        run: echo HELLO WORLD
