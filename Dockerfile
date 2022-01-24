@@ -50,5 +50,7 @@ ENTRYPOINT ["/bin/bash"]
 
 RUN ls && \
     pwd && \
-    cd /Open-COBOL-ESQL-1.2 &&\
-    psql
+    cd /Open-COBOL-ESQL-1.2/tests &&\
+    make clean &&\
+    make &&\
+    ./basic
