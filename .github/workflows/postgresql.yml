@@ -4,8 +4,6 @@ on: push
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    # `container-job` が実行される Docker Hub イメージ
-    container: node:10.18-jessie
 
     services:
       postgres:
@@ -25,12 +23,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Connect to PostgreSQL
-        # PostgreSQLテーブルを作成し、テーブルにデータを入力してから
-        # データを取得するスクリプトを実行する。
-        run: node client.js
-        # `client.js` スクリプトが新しいPostgreSQLクライアントの作成に使う環境変数。
         env:
-          # PostgreSQLサービスコンテナとの通信に使われるホスト名
-          POSTGRES_HOST: postgres
-          # デフォルトのPostgreSQLポート
-          POSTGRES_PORT: 5432
+          DB_NAME: testdb
+          DB_HOST: db_postgres
+          DB_PORT: 5432
+          DB_USER: main_user
+          DB_PASSWORD: password
