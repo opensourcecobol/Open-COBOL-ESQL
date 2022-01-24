@@ -45,8 +45,6 @@ RUN tar zxvf Open-COBOL-ESQL-1.2.tar.gz &&\
     make install &&\
     cd / &&\
     rm -rf Open-COBOL-ESQL-1.2.tar.gz
-
-ADD https://github.com/n-izawa/Open-COBOL-ESQL/tree/develop/tests
     
 ENTRYPOINT ["/bin/bash"]
 
