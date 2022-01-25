@@ -8,6 +8,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: run Docker
         run: |
-         cd /tests 
          docker compose up -d
 
