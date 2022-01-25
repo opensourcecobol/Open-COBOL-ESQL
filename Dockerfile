@@ -49,4 +49,4 @@ RUN tar zxvf Open-COBOL-ESQL-develop.tar.gz &&\
 ENTRYPOINT ["/bin/bash"]
 
 RUN ls && \
-    sudo pg_lsclusters
+    pg_lsclusters
