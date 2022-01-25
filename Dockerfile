@@ -50,4 +50,5 @@ ENTRYPOINT ["/bin/bash"]
 
 RUN ls &&\
     ps -ef | grep postgres &&\
-    ls /usr/local/var/postgres
+    cd /usr/local &&\
+    ls
