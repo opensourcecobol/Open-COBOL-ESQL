@@ -48,7 +48,6 @@ RUN tar zxvf Open-COBOL-ESQL-develop.tar.gz &&\
 
 ENTRYPOINT ["/bin/bash"]
 
-RUN ls &&\
-    ps -ef | grep postgres &&\
+RUN ps -ef | grep postgres &&\
     cd /usr/local &&\
     ls
