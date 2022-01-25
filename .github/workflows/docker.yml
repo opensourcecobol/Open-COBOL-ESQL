@@ -10,4 +10,3 @@ jobs:
         run: |
          docker compose up -d
          docker ps
-         psql
