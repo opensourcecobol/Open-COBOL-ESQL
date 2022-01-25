@@ -9,11 +9,6 @@ services:
       - POSTGRES_DB=testdb
     ports:
       - "5432:5432"
-    development:
-      <<: *default
-      database: testdb
-      host: localhost
-      port: 5432
 
   ocesql:
     build:
