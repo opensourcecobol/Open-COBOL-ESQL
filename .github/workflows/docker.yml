@@ -9,4 +9,5 @@ jobs:
       - name: run Docker
         run: |
          docker compose up -d
+         docker ps
 
