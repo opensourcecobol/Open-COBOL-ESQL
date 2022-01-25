@@ -2,34 +2,6 @@ name: Container
 on: push
 
 jobs:
-  container-job:
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres
-        # postgres のパスワードを入力する
-        env:
-          POSTGRES_PASSWORD: postgres
-        # postgres が起動するまで待機するようにヘルスチェックを設定する
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v2
-
-      - name: Connect to PostgreSQL
-        env:
-          DB_NAME: testdb
-          DB_HOST: db_postgres
-          DB_PORT: 5432
-          DB_USER: main_user
-          DB_PASSWORD: passward
-        run: echo HELLO WORLD
-
   node-docker:
     runs-on: ubuntu-latest
     steps:
