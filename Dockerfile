@@ -23,7 +23,7 @@ FROM centos:centos7
 LABEL maintainer="n-isaka@tsh-world.co.jp"
 
 # install yum package
-RUN yum install -y gcc gcc-devel gcc-c++ make bison flex gmp-devel ncurses-devel postgresql-devel postgresql-server autoconf
+RUN yum install -y gcc gcc-devel gcc-c++ make bison flex gmp-devel ncurses-devel postgresql-devel postgresql-server autoconf psql
 
 # install opensource COBOL
 ADD https://github.com/opensourcecobol/opensource-cobol/archive/v1.5.2J.tar.gz opensource-cobol-1.5.2J.tar.gz
