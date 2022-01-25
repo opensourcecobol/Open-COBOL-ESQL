@@ -7,5 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: run Docker
-        run: docker compose up -d
+        run: |
+         cd /tests 
+         docker compose up -d
 
