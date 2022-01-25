@@ -8,5 +8,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: run Docker
         run: |
-         docker compose up -d
+         docker compose up
          docker ps
