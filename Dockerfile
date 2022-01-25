@@ -51,9 +51,4 @@ WORKDIR /oscobol
 ENTRYPOINT ["/bin/bash"]
 
 RUN ls && \
-    pwd && \
-    cd /Open-COBOL-ESQL-develop/tests &&\
-    ls &&\
-    make clean &&\
-    make &&\
-    ./basic
+    psql
