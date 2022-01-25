@@ -10,4 +10,6 @@ jobs:
         run: |
          docker compose up -d
          docker ps
+         docker attach open-cobol-esql-ocesql-1
+         ls
 
