@@ -52,10 +52,4 @@ RUN yum install -y psql &&\
 
 ENTRYPOINT ["/bin/bash"]
 
-RUN ls && \
-    pwd && \
-    cd /Open-COBOL-ESQL-develop/tests &&\
-    ls &&\
-    make clean &&\
-    make &&\
-    ./basic
+RUN ls
