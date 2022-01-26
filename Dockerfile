@@ -48,5 +48,5 @@ RUN tar zxvf Open-COBOL-ESQL-develop.tar.gz &&\
 
 ENTRYPOINT ["/bin/bash"]
 
-RUN PGPASSWORD=password psql -h db_postgres -U main_user -d testdb
+RUN ls
 
