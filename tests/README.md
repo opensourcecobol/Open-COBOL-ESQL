@@ -1,5 +1,14 @@
 # How to run test programs
 
+  1. Set up a PostgreSQL server.
+  2. Write configuration to embed_db_info.sh.
+  3. Run "./basic" to start test programs.
+
+
+
+
+# How to run test programs for Docker Compose
+
   1. Set up a PostgreSQL server.    
      Place docker-compose.yml and Dockerfile in the same directory.  
      Go to the directory, and run  ```docker-compose up -d ```.
@@ -50,6 +59,10 @@
           rm -rf opensource-cobol-1.5.2J.tar.gz
 
       # install OCESQL
+      
+      ### The ADD instruction copies new files, directories or remote file URLs from <src> and adds them to the filesystem of the image at the path <dest>. 
+      ### Therefore, if you want to run another version or your own test, rewrite it as needed.
+      
       ADD https://github.com/n-izawa/Open-COBOL-ESQL/archive/refs/heads/develop.tar.gz Open-COBOL-ESQL-develop.tar.gz
       RUN tar zxvf Open-COBOL-ESQL-develop.tar.gz &&\
           cd /Open-COBOL-ESQL-develop &&\
@@ -68,6 +81,26 @@
      ```PGPASSWORD=password psql -h db_postgres -U main_user -d testdb```
   
   3. Write configuration to embed_db_info.sh.    
-     Refer to embed_db_info.sh for the setting example.
+     Refer to embed_db_info.sh for the setting example. The settings should be the same as docker-compose.yml.
+     ```
+      #embed_db_info.sh                           (docker-compose.yml)
+      DB_NAME=testdb                              (environment:POSTGRES_DB)
+      DB_HOST=db_postgres                         (services name)
+      DB_PORT=5432                                (port)
+      DB_USER=main_user                           (environment:POSTGRES_USER)
+      DB_PASSWORD=password                        (environment:POSTGRES_PASSWORD)
+     ```
+     ```
+     # docker-compose.yml
+       services:
+        db_postgres:
+          image: postgres:10
+          environment:
+            - POSTGRES_USER=main_user
+            - POSTGRES_PASSWORD=password
+            - POSTGRES_DB=testdb
+          ports:
+            - "5432"
+     ```
   
   4. Run ```./basic``` to start test programs.
