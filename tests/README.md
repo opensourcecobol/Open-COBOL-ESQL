@@ -64,10 +64,10 @@
      
      ```
      
-  2. After attach to a running container, make sure you can connect to the PostgreSQL container.    
+  2. After attaching to the running container(e.g. xxxx_ocesql-1), make sure you can connect to the PostgreSQL container.    
      ```PGPASSWORD=password psql -h db_postgres -U main_user -d testdb```
   
   3. Write configuration to embed_db_info.sh.    
      Refer to embed_db_info.sh for the setting example.
   
-  4. Run "./basic" to start test programs.
+  4. Run ```./basic``` to start test programs.
