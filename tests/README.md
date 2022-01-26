@@ -2,7 +2,7 @@
 
   1. Set up a PostgreSQL server.    
      Place docker-compose.yml and Dockerfile in the same directory.  
-     Go to the directory, and run  ```bash docker-compose up -d ```
+     Go to the directory, and run  ```bash docker-compose up -d ```.
      
      ```
      # docker-compose.yml
