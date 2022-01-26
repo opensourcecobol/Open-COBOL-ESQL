@@ -2,7 +2,7 @@
 
   1. Set up a PostgreSQL server.    
      Place docker-compose.yml and Dockerfile in the same directory.  
-     Go to the directory, and run  ```bash docker-compose up -d ```.
+     Go to the directory, and run  ```docker-compose up -d ```.
      
      ```
      # docker-compose.yml
@@ -64,7 +64,10 @@
      
      ```
      
-  2. Write configuration to embed_db_info.sh.    
+  2. After attach to a running container, make sure you can connect to the PostgreSQL container.    
+     ```PGPASSWORD=password psql -h db_postgres -U main_user -d testdb```
+  
+  3. Write configuration to embed_db_info.sh.    
      Refer to embed_db_info.sh for the setting example.
-     
-  3. Run "./basic" to start test programs.
+  
+  4. Run "./basic" to start test programs.
