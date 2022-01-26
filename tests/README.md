@@ -83,12 +83,12 @@
   3. Write configuration to embed_db_info.sh.    
      Refer to embed_db_info.sh for the setting example. The settings should be the same as docker-compose.yml.
      ```
-      #embed_db_info.sh                           (docker-compose.yml)
-      DB_NAME=testdb                              (environment:POSTGRES_DB)
-      DB_HOST=db_postgres                         (services name)
-      DB_PORT=5432                                (port)
-      DB_USER=main_user                           (environment:POSTGRES_USER)
-      DB_PASSWORD=password                        (environment:POSTGRES_PASSWORD)
+      #embed_db_info.sh                           
+      DB_NAME=testdb                             
+      DB_HOST=db_postgres                     
+      DB_PORT=5432                               
+      DB_USER=main_user                           
+      DB_PASSWORD=password                        
      ```
      ```
      # docker-compose.yml
