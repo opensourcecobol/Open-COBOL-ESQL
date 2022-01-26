@@ -9,4 +9,6 @@ jobs:
       - name: run Docker
         run: |
          ls
+         cd tests
+         ls
 
