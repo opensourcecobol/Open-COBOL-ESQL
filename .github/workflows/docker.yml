@@ -10,3 +10,4 @@ jobs:
         run: |
          docker compose up -d
          docker ps
+         docker compose logs
