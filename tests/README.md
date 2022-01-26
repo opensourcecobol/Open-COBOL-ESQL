@@ -1,9 +1,11 @@
 # How to run test programs
 
   1. Set up a PostgreSQL server.    
-     Place docker-compose.yml and Dockerfile in the same directory.   
+     Place docker-compose.yml and Dockerfile in the same directory.  
+     Go to the directory, and run  ```bash docker-compose up -d ```
      
-     ```docker-compose.yml
+     ```
+     # docker-compose.yml
      version: '3'
 
       services:
@@ -28,7 +30,8 @@
             driver: none
      ```
      
-     ```Dockerfile
+     ```
+     # Dockerfile
       FROM centos:centos7
 
       # install yum package
@@ -60,7 +63,6 @@
       RUN ls
      
      ```
-     Write Docker Compose(Open-COBOL-ESQL/.github/workflows/docker.yml).
      
   2. Write configuration to embed_db_info.sh.    
      Refer to embed_db_info.sh for the setting example.
