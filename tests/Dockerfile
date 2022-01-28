@@ -38,6 +38,8 @@ RUN tar zxvf opensource-cobol-1.5.2J.tar.gz &&\
     rm -rf opensource-cobol-1.5.2J.tar.gz
 
 # install OCESQL
+  ### The ADD instruction copies new files, directories or remote file URLs from <src> and adds them to the filesystem of the image at the path <dest>. 
+  ### If you want to run another version or your own test, rewrite it as needed.
 ADD https://github.com/opensourcecobol/Open-COBOL-ESQL/archive/refs/heads/develop.tar.gz Open-COBOL-ESQL-develop.tar.gz
 RUN tar zxvf Open-COBOL-ESQL-develop.tar.gz &&\
     cd /Open-COBOL-ESQL-develop &&\
