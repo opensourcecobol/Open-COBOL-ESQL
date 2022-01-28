@@ -1,0 +1,7 @@
+AT_INIT(cobol data test)
+
+AT_TESTED([ocesql])
+m4_include([numeric_signed_v.at])
+m4_include([numeric_v.at])
+m4_include([alphanumeric.at])
+m4_include([japanese.at])
