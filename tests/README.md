@@ -81,26 +81,6 @@
      ```PGPASSWORD=password psql -h db_postgres -U main_user -d testdb```
   
   3. Write configuration to embed_db_info.sh.    
-     Refer to embed_db_info.sh for the setting example. The settings should be the same as docker-compose.yml.
-     ```
-      #embed_db_info.sh                           
-      DB_NAME=testdb                             
-      DB_HOST=db_postgres                     
-      DB_PORT=5432                               
-      DB_USER=main_user                           
-      DB_PASSWORD=password                        
-     ```
-     ```
-     # docker-compose.yml
-       services:
-        db_postgres:
-          image: postgres:10
-          environment:
-            - POSTGRES_USER=main_user
-            - POSTGRES_PASSWORD=password
-            - POSTGRES_DB=testdb
-          ports:
-            - "5432"
-     ```
+     Copy embed_db_info_docker.sh to embed_db_info.sh. The settings should be the same as docker-compose.yml.
   
   4. Run ```./basic``` to start test programs.
