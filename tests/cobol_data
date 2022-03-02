@@ -2260,9 +2260,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_v.at:230: \${RUN_MODULE} prog"
+$as_echo "$at_srcdir/numeric_signed_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_v.at:230"
-( $at_check_trace; ${RUN_MODULE} prog
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2584,9 +2584,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_v.at:230: \${RUN_MODULE} prog"
+$as_echo "$at_srcdir/numeric_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_v.at:230"
-( $at_check_trace; ${RUN_MODULE} prog
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2800,9 +2800,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/alphanumeric.at:122: \${RUN_MODULE} prog"
+$as_echo "$at_srcdir/alphanumeric.at:122: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "alphanumeric.at:122"
-( $at_check_trace; ${RUN_MODULE} prog
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2905,11 +2905,11 @@ cat >prog.cbl <<'_ATEOF'
       ******************************************************************
 
       *    SERVER
-           MOVE  "testdb@db_postgres:5432"
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
              TO DBNAME.
-           MOVE  "main_user"
+           MOVE  "<|DB_USER|>"
              TO USERNAME.
-           MOVE  "password"
+           MOVE  "<|DB_PASSWORD|>"
              TO PASSWD.
 
            EXEC SQL
@@ -2996,9 +2996,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/japanese.at:122: \${RUN_MODULE} prog"
+$as_echo "$at_srcdir/japanese.at:122: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "japanese.at:122"
-( $at_check_trace; ${RUN_MODULE} prog
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter

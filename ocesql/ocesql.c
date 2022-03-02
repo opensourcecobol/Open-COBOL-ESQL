@@ -29,17 +29,17 @@ char  *cb_source_file = NULL;
 int   cb_source_line = 0;
 char *include_path = NULL;
 int currenthostno = 0;
-int hostlineno;
+extern int hostlineno;
 
 int flag_external = 0;
 
-struct cb_hostreference_list *host_reference_list = NULL;
-struct cb_res_hostreference_list *res_host_reference_list = NULL;
-struct cb_sql_list *sql_list = NULL;
-struct cb_exec_list *exec_list;
-char dbname[BUFFSIZE];
-char prepname[BUFFSIZE];
-char cursorname[BUFFSIZE];
+extern struct cb_hostreference_list *host_reference_list;
+extern struct cb_res_hostreference_list *res_host_reference_list;
+extern struct cb_sql_list *sql_list;
+extern struct cb_exec_list *exec_list;
+extern char dbname[BUFFSIZE];
+extern char prepname[BUFFSIZE];
+extern char cursorname[BUFFSIZE];
 char *errorfilename = NULL;
 char *filenameID = NULL;
 

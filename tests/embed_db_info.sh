@@ -1,16 +1,10 @@
 # Database Settings ----------
-DB_NAME=
-DB_HOST=
-DB_PORT=
-DB_USER=
-DB_PASSWORD=
-
 # example
-#DB_NAME=testdb
-#DB_HOST=db_postgres
-#DB_PORT=5432
-#DB_USER=main_user
-#DB_PASSWORD=password
+DB_NAME=testdb
+DB_HOST=db
+DB_PORT=5432
+DB_USER=main_user
+DB_PASSWORD=password
 # ----------------------------
 
 TEMP_FILE=$(mktemp)

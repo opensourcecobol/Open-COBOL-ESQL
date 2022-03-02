@@ -2509,9 +2509,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/sql_type.at:483: \${RUN_MODULE} prog"
+$as_echo "$at_srcdir/sql_type.at:483: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sql_type.at:483"
-( $at_check_trace; ${RUN_MODULE} prog
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
