@@ -62,11 +62,11 @@ AT_DATA([prog.cbl], [
       ******************************************************************
 
       *    SERVER
-           MOVE  "testdb@db_postgres:5432"
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
              TO DBNAME.
-           MOVE  "main_user"
+           MOVE  "<|DB_USER|>"
              TO USERNAME.
-           MOVE  "password"
+           MOVE  "<|DB_PASSWORD|>"
              TO PASSWD.
 
            EXEC SQL
@@ -120,7 +120,7 @@ AT_DATA([prog.cbl], [
 AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
 AT_CHECK([sh ../../embed_db_info.sh prog.cob])
 AT_CHECK([cobc -locesql -I ../../ prog.cob])
-AT_CHECK([cobcrun prog], [0],
+AT_CHECK([cobcrun prog 2> /dev/null], [0],
 [0001 <log> success test_return_code
 0002 <log> success test_return_code
 0003 <log> success test_return_code
