@@ -591,9 +591,7 @@ at_tested='ocesql'
 at_format='?'
 # Description of all the test groups.
 at_help_all="1;connect-disconnect.at:1;connect-disconnect;;
-2;insert-select-update-delete.at:1;insert-select-update-delete;;
-3;open-fetch-close.at:1;open-fetch-close;;
-4;prepare-execute.at:1;prepare-execute;;
+2;open-fetch-close.at:1;open-fetch-close;;
 "
 # List of the all the test groups.
 at_groups_all=`$as_echo "$at_help_all" | sed 's/;.*//'`
@@ -607,7 +605,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 4; then
+    if test $at_value -lt 1 || test $at_value -gt 2; then
       $as_echo "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -2109,9 +2107,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/connect-disconnect.at:79: \${RUN_MODULE} prog"
+$as_echo "$at_srcdir/connect-disconnect.at:79: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "connect-disconnect.at:79"
-( $at_check_trace; ${RUN_MODULE} prog
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2139,228 +2137,11 @@ $at_traceon; }
 read at_status <"$at_status_file"
 #AT_STOP_1
 #AT_START_2
-at_fn_group_banner 2 'insert-select-update-delete.at:1' \
-  "insert-select-update-delete" "                    "
-at_xfail=no
-(
-  $as_echo "2. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-cat >prog.cbl <<'_ATEOF'
-
-       IDENTIFICATION              DIVISION.
-      ******************************************************************
-       PROGRAM-ID.                 prog.
-      ******************************************************************
-       DATA                        DIVISION.
-      ******************************************************************
-       WORKING-STORAGE             SECTION.
-       01 READ-DATA.
-         03  READ-TBL    OCCURS  1.
-           05  READ-V PIC X(5).
-
-       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
-       01 DATA-ID PIC 9(4).
-       01 DATA-V PIC X(5).
-       01  DBNAME                  PIC  X(30) VALUE SPACE.
-       01  USERNAME                PIC  X(30) VALUE SPACE.
-       01  PASSWD                  PIC  X(10) VALUE SPACE.
-       EXEC SQL END DECLARE SECTION END-EXEC.
-
-       EXEC SQL INCLUDE SQLCA END-EXEC.
-
-      ******************************************************************
-       PROCEDURE                   DIVISION.
-      ******************************************************************
-       MAIN-RTN.
-
-       PERFORM SETUP-DB.
-
-       EXEC SQL
-         INSERT INTO TESTTABLE VALUES (1, 'hello')
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         INSERT INTO TESTTABLE VALUES ('invalid', 'invalid')
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         SELECT V INTO :READ-TBL FROM TESTTABLE
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         SELECT V INTO :READ-TBL FROM TESTTABLEERROR
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         UPDATE TESTTABLE SET V = 'world' WHERE ID = 1
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         UPDATE TESTTABLE SET V = 'world' WHERE ID = 3
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         UPDATE TESTTABLEERROR SET V = 'world' WHERE ID = 1
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         DELETE FROM TESTTABLE WHERE ID = 1
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         DELETE FROM TESTTABLE WHERE ID = 3
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       EXEC SQL
-         DELETE FROM TESTTABLEERROR WHERE ID = 3
-       END-EXEC.
-       PERFORM SHOW-STATUS.
-
-       PERFORM CLEANUP-DB.
-
-           STOP RUN.
-
-      ******************************************************************
-       SETUP-DB.
-      ******************************************************************
-
-           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
-             TO DBNAME.
-           MOVE  "<|DB_USER|>"
-             TO USERNAME.
-           MOVE  "<|DB_PASSWORD|>"
-             TO PASSWD.
-
-           EXEC SQL
-               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
-           END-EXEC.
-
-           EXEC SQL
-               DROP TABLE IF EXISTS TESTTABLE
-           END-EXEC.
-
-           EXEC SQL
-               CREATE TABLE TESTTABLE
-               (
-                 ID integer,
-                 V  char(5)
-               )
-           END-EXEC.
-
-
-      ******************************************************************
-       CLEANUP-DB.
-      ******************************************************************
-
-           EXEC SQL
-               DISCONNECT ALL
-           END-EXEC.
-
-      ******************************************************************
-       SHOW-STATUS.
-      ******************************************************************
-           DISPLAY SQLCODE.
-           DISPLAY SQLSTATE.
-
-_ATEOF
-
-
-{ set +x
-$as_echo "$at_srcdir/insert-select-update-delete.at:130: ocesql prog.cbl prog.cob > /dev/null"
-at_fn_check_prepare_trace "insert-select-update-delete.at:130"
-( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/insert-select-update-delete.at:130"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/insert-select-update-delete.at:131: \${EMBED_DB_INFO} prog.cob"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "insert-select-update-delete.at:131"
-( $at_check_trace; ${EMBED_DB_INFO} prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/insert-select-update-delete.at:131"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/insert-select-update-delete.at:132: \${COMPILE_MODULE} prog.cob"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "insert-select-update-delete.at:132"
-( $at_check_trace; ${COMPILE_MODULE} prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/insert-select-update-delete.at:132"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/insert-select-update-delete.at:133: \${RUN_MODULE} prog"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "insert-select-update-delete.at:133"
-( $at_check_trace; ${RUN_MODULE} prog
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "+000000000
-00000
-+000000000
-22P02
-+000000000
-00000
-+000000000
-42P01
-+000000000
-00000
-+000000000
-00000
-+000000000
-42P01
-+000000000
-00000
-+000000000
-00000
-+000000000
-42P01
-" | \
-  $at_diff - "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/insert-select-update-delete.at:133"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-  set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
-#AT_STOP_2
-#AT_START_3
-at_fn_group_banner 3 'open-fetch-close.at:1' \
+at_fn_group_banner 2 'open-fetch-close.at:1' \
   "open-fetch-close" "                               "
 at_xfail=no
 (
-  $as_echo "3. $at_setup_line: testing $at_desc ..."
+  $as_echo "2. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -2543,9 +2324,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/open-fetch-close.at:143: \${RUN_MODULE} prog"
+$as_echo "$at_srcdir/open-fetch-close.at:143: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "open-fetch-close.at:143"
-( $at_check_trace; ${RUN_MODULE} prog
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2573,213 +2354,4 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_3
-#AT_START_4
-at_fn_group_banner 4 'prepare-execute.at:1' \
-  "prepare-execute" "                                "
-at_xfail=no
-(
-  $as_echo "4. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-cat >prog.cbl <<'_ATEOF'
-
-       IDENTIFICATION              DIVISION.
-      ******************************************************************
-       PROGRAM-ID.                 prog.
-      ******************************************************************
-       DATA                        DIVISION.
-      ******************************************************************
-       WORKING-STORAGE             SECTION.
-       01 TEST-DATA.
-         03 FILLER PIC X(9) VALUE "0001____1".
-         03 FILLER PIC X(9) VALUE "0002____2".
-         03 FILLER PIC X(9) VALUE "0003____3".
-         03 FILLER PIC X(9) VALUE "0004____4".
-         03 FILLER PIC X(9) VALUE "0005____5".
-
-       01 TEST-DATA-R REDEFINES TEST-DATA.
-         03 TEST-TBL OCCURS 5.
-           05 TEST-ID PIC 9(4).
-           05 TEST-V  PIC X(5).
-
-       01 IDX PIC 9.
-
-       01 READ-DATA.
-         03  READ-TBL    OCCURS  1.
-           05  READ-V PIC X(5).
-
-       01 SQL-COMMAND.
-         03 SQL-COMMAND-LEN PIC 9(9) VALUE 50.
-         03 SQL-COMMAND-ARR PIC X(50)
-            VALUE "DELETE FROM TESTTABLE WHERE ID > ?".
-       01 SQL-COMMAND-ARG PIC 99 VALUE 2.
-
-       01 INVALID-COMMAND PIC X(50)
-         VALUE "DELETE FROM TESTTABLEERROR WHERE ID > ?".
-
-       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
-       01 DATA-ID PIC 9(4).
-       01 DATA-V PIC X(5).
-       01  DBNAME                  PIC  X(30) VALUE SPACE.
-       01  USERNAME                PIC  X(30) VALUE SPACE.
-       01  PASSWD                  PIC  X(10) VALUE SPACE.
-       EXEC SQL END DECLARE SECTION END-EXEC.
-
-       EXEC SQL INCLUDE SQLCA END-EXEC.
-
-      ******************************************************************
-       PROCEDURE                   DIVISION.
-      ******************************************************************
-       MAIN-RTN.
-
-         PERFORM SETUP-DB.
-
-         EXEC SQL
-             PREPARE st FROM :SQL-COMMAND
-         END-EXEC.
-         PERFORM SHOW-STATUS.
-
-         EXEC SQL
-             EXECUTE st USING :SQL-COMMAND-ARG
-         END-EXEC.
-         PERFORM SHOW-STATUS.
-
-         MOVE INVALID-COMMAND TO SQL-COMMAND-ARR.
-
-         EXEC SQL
-             PREPARE st FROM :SQL-COMMAND
-         END-EXEC.
-         PERFORM SHOW-STATUS.
-
-         EXEC SQL
-             EXECUTE st USING :SQL-COMMAND-ARG
-         END-EXEC.
-         PERFORM SHOW-STATUS.
-
-         PERFORM CLEANUP-DB.
-
-         STOP RUN.
-
-      ******************************************************************
-       SETUP-DB.
-      ******************************************************************
-
-         MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
-           TO DBNAME.
-         MOVE  "<|DB_USER|>"
-           TO USERNAME.
-         MOVE  "<|DB_PASSWORD|>"
-           TO PASSWD.
-
-         EXEC SQL
-             CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
-         END-EXEC.
-
-         EXEC SQL
-             DROP TABLE IF EXISTS TESTTABLE
-         END-EXEC.
-
-         EXEC SQL
-             CREATE TABLE TESTTABLE
-             (
-               ID integer,
-               V  char(5)
-             )
-         END-EXEC.
-
-
-         PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 5
-           MOVE TEST-ID(IDX) TO DATA-ID
-           MOVE TEST-V(IDX) TO DATA-V
-           EXEC SQL
-             INSERT INTO TESTTABLE VALUES
-               (:DATA-ID, :DATA-V)
-           END-EXEC
-         END-PERFORM.
-
-      ******************************************************************
-       CLEANUP-DB.
-      ******************************************************************
-
-         EXEC SQL
-             DISCONNECT ALL
-         END-EXEC.
-
-      ******************************************************************
-       SHOW-STATUS.
-      ******************************************************************
-         DISPLAY SQLCODE.
-         DISPLAY SQLSTATE.
-
-_ATEOF
-
-
-{ set +x
-$as_echo "$at_srcdir/prepare-execute.at:134: ocesql prog.cbl prog.cob > /dev/null"
-at_fn_check_prepare_trace "prepare-execute.at:134"
-( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/prepare-execute.at:134"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/prepare-execute.at:135: \${EMBED_DB_INFO} prog.cob"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "prepare-execute.at:135"
-( $at_check_trace; ${EMBED_DB_INFO} prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/prepare-execute.at:135"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/prepare-execute.at:136: \${COMPILE_MODULE} prog.cob"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "prepare-execute.at:136"
-( $at_check_trace; ${COMPILE_MODULE} prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/prepare-execute.at:136"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/prepare-execute.at:137: \${RUN_MODULE} prog"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "prepare-execute.at:137"
-( $at_check_trace; ${RUN_MODULE} prog
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "+000000000
-00000
-+000000000
-00000
-+000000000
-00000
-+000000000
-42P01
-" | \
-  $at_diff - "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/prepare-execute.at:137"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-  set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
-#AT_STOP_4
+#AT_STOP_2

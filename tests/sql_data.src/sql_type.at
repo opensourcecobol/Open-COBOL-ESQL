@@ -480,7 +480,7 @@ AT_DATA([prog.cbl], [
 AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
 AT_CHECK([${EMBED_DB_INFO} prog.cob])
 AT_CHECK([${COMPILE_MODULE} prog.cob])
-AT_CHECK([${RUN_MODULE} prog], [0],
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
 [12345678901
 12345678901
 hello

@@ -78,12 +78,12 @@ AT_DATA([prog.cbl], [
       ******************************************************************
 
       *    SERVER
-           MOVE  "testdb@db_postgres:5432"
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
              TO DBNAME.
-           MOVE  "main_user"
+           MOVE  "<|DB_USER|>"
              TO USERNAME.
-           MOVE  "password"
-             TO PASSWD.      
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
 
            EXEC SQL
                CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
@@ -174,7 +174,7 @@ AT_DATA([prog.cbl], [
 AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
 AT_CHECK([${EMBED_DB_INFO} prog.cob])
 AT_CHECK([${COMPILE_MODULE} prog.cob])
-AT_CHECK([${RUN_MODULE} prog], [0],
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
 [0001 <log> success test_return_code
 +0005, 宮城　五郎          , -0200
 +0006, 福島　六郎          , +0150

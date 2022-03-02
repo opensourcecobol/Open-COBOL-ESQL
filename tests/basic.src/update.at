@@ -9,16 +9,16 @@ AT_DATA([prog.cbl], [
       ******************************************************************
        WORKING-STORAGE             SECTION.
        01  TEST-DATA.
-         03 FILLER       PIC X(28) VALUE "0001åŒ—æµ·ã€€å¤ªéƒ          0400".
-         03 FILLER       PIC X(28) VALUE "0002é’æ£®ã€€æ¬¡éƒ          0350".
-         03 FILLER       PIC X(28) VALUE "0003ç§‹ç”°ã€€ä¸‰éƒ          0300".
-         03 FILLER       PIC X(28) VALUE "0004å²©æ‰‹ã€€å››éƒ          025p".
-         03 FILLER       PIC X(28) VALUE "0005å®®åŸã€€äº”éƒ          020p".
-         03 FILLER       PIC X(28) VALUE "0006ç¦å³¶ã€€å…­éƒ          0150".
-         03 FILLER       PIC X(28) VALUE "0007æ ƒæœ¨ã€€ä¸ƒéƒ          010p".
-         03 FILLER       PIC X(28) VALUE "0008èŒ¨åŸã€€å…«éƒ          0050".
-         03 FILLER       PIC X(28) VALUE "0009ç¾¤é¦¬ã€€ä¹éƒ          020p".
-         03 FILLER       PIC X(28) VALUE "0010åŸ¼ç‰ã€€åéƒ          0350".
+         03 FILLER       PIC X(28) VALUE "0001–kŠC@‘¾˜Y          0400".
+         03 FILLER       PIC X(28) VALUE "0002ÂX@Ÿ˜Y          0350".
+         03 FILLER       PIC X(28) VALUE "0003H“c@O˜Y          0300".
+         03 FILLER       PIC X(28) VALUE "0004Šâè@l˜Y          025p".
+         03 FILLER       PIC X(28) VALUE "0005‹{é@ŒÜ˜Y          020p".
+         03 FILLER       PIC X(28) VALUE "0006•Ÿ“‡@˜Z˜Y          0150".
+         03 FILLER       PIC X(28) VALUE "0007“È–Ø@µ˜Y          010p".
+         03 FILLER       PIC X(28) VALUE "0008ˆïé@”ª˜Y          0050".
+         03 FILLER       PIC X(28) VALUE "0009ŒQ”n@‹ã˜Y          020p".
+         03 FILLER       PIC X(28) VALUE "0010é‹Ê@\˜Y          0350".
 
        01  TEST-DATA-R   REDEFINES TEST-DATA.
          03  TEST-TBL    OCCURS  10.
@@ -183,11 +183,11 @@ AT_CHECK([${EMBED_DB_INFO} prog.cob])
 AT_CHECK([${COMPILE_MODULE} prog.cob])
 AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
 [0001 <log> success test_return_code
-0002 <log> success fetch_record +0001, åŒ—æµ·ã€€å¤ªéƒ          , +0400
-0003 <log> success fetch_record +0002, é’æ£®ã€€æ¬¡éƒ          , +0350
-0004 <log> success fetch_record +0003, ç§‹ç”°ã€€ä¸‰éƒ          , +0300
-0005 <log> success fetch_record +0004, å²©æ‰‹ã€€å››éƒ          , -0250
-0006 <log> success fetch_record +0005, å®®åŸã€€äº”éƒ          , -0200
+0002 <log> success fetch_record +0001, –kŠC@‘¾˜Y          , +0400
+0003 <log> success fetch_record +0002, ÂX@Ÿ˜Y          , +0350
+0004 <log> success fetch_record +0003, H“c@O˜Y          , +0300
+0005 <log> success fetch_record +0004, Šâè@l˜Y          , -0250
+0006 <log> success fetch_record +0005, ‹{é@ŒÜ˜Y          , -0200
 0007 <log> success fetch_record +0006, NO_NAME             , +0150
 0008 <log> success fetch_record +0007, NO_NAME             , -0100
 0009 <log> success fetch_record +0008, NO_NAME             , +0050
