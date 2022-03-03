@@ -588,7 +588,7 @@ at_tested='ocesql'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
-at_format='??'
+at_format='?'
 # Description of all the test groups.
 at_help_all="1;connect-disconnect.at:1;connect and disconnect statement test;;
 2;declare.at:1;declare statement test;;
@@ -598,8 +598,7 @@ at_help_all="1;connect-disconnect.at:1;connect and disconnect statement test;;
 6;delete.at:1;delete statement test;;
 7;commit-rollback.at:1;commit and rollback statement test;;
 8;select.at:1;select statement test;;
-9;other-sql.at:1;other sql test;;
-10;update.at:1;update statement test;;
+9;update.at:1;update statement test;;
 "
 # List of the all the test groups.
 at_groups_all=`$as_echo "$at_help_all" | sed 's/;.*//'`
@@ -613,7 +612,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 10; then
+    if test $at_value -lt 1 || test $at_value -gt 9; then
       $as_echo "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -3794,201 +3793,11 @@ $at_traceon; }
 read at_status <"$at_status_file"
 #AT_STOP_8
 #AT_START_9
-at_fn_group_banner 9 'other-sql.at:1' \
-  "other sql test" "                                 "
-at_xfail=no
-(
-  $as_echo "9. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-cat >prog.cbl <<'_ATEOF'
-
-       IDENTIFICATION              DIVISION.
-      ******************************************************************
-       PROGRAM-ID.                 prog.
-      ******************************************************************
-       DATA                        DIVISION.
-      ******************************************************************
-       WORKING-STORAGE             SECTION.
-
-       01  IDX                     PIC  9(02).
-       01 LOG-COUNT PIC 9999 VALUE 1.
-
-       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
-       01  DBNAME                  PIC  X(30) VALUE SPACE.
-       01  USERNAME                PIC  X(30) VALUE SPACE.
-       01  PASSWD                  PIC  X(10) VALUE SPACE.
-
-       01  EMP-REC-VARS.
-         03  EMP-NO                PIC S9(04) VALUE ZERO.
-         03  EMP-NAME              PIC  X(20) .
-         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
-       EXEC SQL END DECLARE SECTION END-EXEC.
-
-       EXEC SQL INCLUDE SQLCA END-EXEC.
-      ******************************************************************
-       PROCEDURE                   DIVISION.
-      ******************************************************************
-       MAIN-RTN.
-
-       PERFORM CONNECT-DB.
-
-           EXEC SQL
-               DROP TABLE IF EXISTS EMP
-           END-EXEC.
-           PERFORM OUTPUT-RETURN-CODE-TEST.
-
-           EXEC SQL
-                CREATE TABLE EMP
-                (
-                    EMP_NO     NUMERIC(4,0) NOT NULL,
-                    EMP_NAME   CHAR(20),
-                    EMP_SALARY NUMERIC(4,0),
-                    CONSTRAINT IEMP_0 PRIMARY KEY (EMP_NO)
-                )
-           END-EXEC.
-           PERFORM OUTPUT-RETURN-CODE-TEST.
-
-           EXEC SQL
-               DROP TABLE IF EXISTS EMP
-           END-EXEC.
-           PERFORM OUTPUT-RETURN-CODE-TEST.
-
-       PERFORM DISCONNECT-DB.
-
-      *    END
-           STOP RUN.
-
-      ******************************************************************
-       CONNECT-DB.
-      ******************************************************************
-
-      *    SERVER
-           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
-             TO DBNAME.
-           MOVE  "<|DB_USER|>"
-             TO USERNAME.
-           MOVE  "<|DB_PASSWORD|>"
-             TO PASSWD.
-
-           EXEC SQL
-               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
-           END-EXEC.
-
-      ******************************************************************
-       DISCONNECT-DB.
-      ******************************************************************
-
-           EXEC SQL
-               DISCONNECT ALL
-           END-EXEC.
-
-      ******************************************************************
-       OUTPUT-RETURN-CODE-TEST.
-      ******************************************************************
-           IF  SQLCODE = ZERO
-             THEN
-
-               DISPLAY LOG-COUNT " <log> success test_return_code"
-
-             ELSE
-               DISPLAY LOG-COUNT " <log> fail test_return_code    "
-                   NO ADVANCING
-               DISPLAY "SQLCODE=" SQLCODE " ERRCODE="  SQLSTATE " "
-                   NO ADVANCING
-               EVALUATE SQLCODE
-                  WHEN  +10
-                     DISPLAY "Record_not_found"
-                  WHEN  -01
-                     DISPLAY "Connection_falied"
-                  WHEN  -20
-                     DISPLAY "Internal_error"
-                  WHEN  -30
-                     DISPLAY "PostgreSQL_error" NO ADVANCING
-                     DISPLAY SQLERRMC
-                  *> TO RESTART TRANSACTION, DO ROLLBACK.
-                     EXEC SQL
-                         ROLLBACK
-                     END-EXEC
-                  WHEN  OTHER
-                     DISPLAY "Undefined_error" NO ADVANCING
-                     DISPLAY SQLERRMC
-               END-EVALUATE.
-
-           ADD 1 TO LOG-COUNT.
-      ******************************************************************
-
-_ATEOF
-
-{ set +x
-$as_echo "$at_srcdir/other-sql.at:120: ocesql prog.cbl prog.cob > /dev/null"
-at_fn_check_prepare_trace "other-sql.at:120"
-( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/other-sql.at:120"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/other-sql.at:121: sh ../../embed_db_info.sh prog.cob"
-at_fn_check_prepare_trace "other-sql.at:121"
-( $at_check_trace; sh ../../embed_db_info.sh prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/other-sql.at:121"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/other-sql.at:122: cobc -locesql -I ../../ prog.cob"
-at_fn_check_prepare_trace "other-sql.at:122"
-( $at_check_trace; cobc -locesql -I ../../ prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/other-sql.at:122"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/other-sql.at:123: cobcrun prog 2> /dev/null"
-at_fn_check_prepare_trace "other-sql.at:123"
-( $at_check_trace; cobcrun prog 2> /dev/null
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "0001 <log> success test_return_code
-0002 <log> success test_return_code
-0003 <log> success test_return_code
-" | \
-  $at_diff - "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/other-sql.at:123"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-  set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
-#AT_STOP_9
-#AT_START_10
-at_fn_group_banner 10 'update.at:1' \
+at_fn_group_banner 9 'update.at:1' \
   "update statement test" "                          "
 at_xfail=no
 (
-  $as_echo "10. $at_setup_line: testing $at_desc ..."
+  $as_echo "9. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -4241,4 +4050,4 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_10
+#AT_STOP_9
