@@ -1,0 +1,1 @@
+LD_PRELOAD=/usr/local/lib/libocesql.so cobcrun $1
