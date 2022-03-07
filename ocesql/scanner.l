@@ -648,6 +648,9 @@ INT_CONSTANT {digit}+
         "COMP-3" {
         	return COMP_3;
         }
+        "COMP-5" {
+        	return COMP_5;
+        }
 
         "SIGN"  { return SIGN ;}
          "LEADING" { return LEADING;}
