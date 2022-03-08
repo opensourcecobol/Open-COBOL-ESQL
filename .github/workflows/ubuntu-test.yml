@@ -6,6 +6,7 @@ on:
       - main
       - 'feature/**'
       - 'develop/**'
+      - 'issue/**'
   pull_request:
     types: [opened, reopened, review_requested]
 
