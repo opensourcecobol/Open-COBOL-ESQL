@@ -6,6 +6,7 @@ on:
       - main
       - 'feature/**'
       - 'develop/**'
+      - 'issue/**'
   pull_request:
     types: [opened, reopened, review_requested]
 
@@ -88,7 +89,6 @@ jobs:
         run: |
           mkdir Open-COBOL-ESQL/log
           mkdir Open-COBOL-ESQL/log/test
-          mkdir Open-COBOL-ESQL/log/static-analysis
 
       # Run Autotest
       - name: Run tests
@@ -105,18 +105,6 @@ jobs:
           ./sqlca || true
           cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir *.log ../log/test
           cd ../
-      
-      # Run cppcheck (static checker for C language)
-      - name: cppcheck
-        uses: deep5050/cppcheck-action@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          force_language: c
-          exclude_check: opensource-1.5.2J
-          output_file: Open-COBOL-ESQL/log/static-analysis/static-analysis.txt
-          
-      - name: Show static analysis results
-        run: cat Open-COBOL-ESQL/log/static-analysis/static-analysis.txt
       
       # Upload test logs and the result of static checking
       - name: Archive Logs
