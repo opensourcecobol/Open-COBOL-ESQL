@@ -2855,7 +2855,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		int final_length;
 
 		// fill zero
-		finalbuflen = sv->length + TERMINAL_LENGTH;
+		finalbuflen = sv->length;
 		final = (char *)calloc(finalbuflen, sizeof(char));
 
 		if(retstr[0] == '-'){
@@ -2908,7 +2908,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 			final[final_length - 1] = type_tc_negative_final_number[index];
 		}
 
-		memcpy(addr, final, sv->length + SIGN_LENGTH);
+		memcpy(addr, final, sv->length);
 		free(final);
 		break;
 	}

@@ -591,10 +591,11 @@ at_tested='ocesql'
 at_format='?'
 # Description of all the test groups.
 at_help_all="1;numeric_signed_v.at:1;numeric_signed_v;;
-2;numeric_v.at:1;numeric_v;;
-3;comp5.at:1;COMP-5;;
-4;alphanumeric.at:1;alphanumeric;;
-5;japanese.at:1;japanese;;
+2;numeric_signed_trailing_v.at:1;numeric_signed_trailing_v;;
+3;numeric_v.at:1;numeric_v;;
+4;comp5.at:1;COMP-5;;
+5;alphanumeric.at:1;alphanumeric;;
+6;japanese.at:1;japanese;;
 "
 # List of the all the test groups.
 at_groups_all=`$as_echo "$at_help_all" | sed 's/;.*//'`
@@ -608,7 +609,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 5; then
+    if test $at_value -lt 1 || test $at_value -gt 6; then
       $as_echo "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -2311,11 +2312,335 @@ $at_traceon; }
 read at_status <"$at_status_file"
 #AT_STOP_1
 #AT_START_2
-at_fn_group_banner 2 'numeric_v.at:1' \
-  "numeric_v" "                                      "
+at_fn_group_banner 2 'numeric_signed_trailing_v.at:1' \
+  "numeric_signed_trailing_v" "                      "
 at_xfail=no
 (
   $as_echo "2. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01 VV PIC S9(4)V9(2) SIGN IS TRAILING .
+       01 VP PIC S9(4)PP SIGN IS TRAILING .
+       01 V PIC S9(4) SIGN IS TRAILING .
+
+       01  TEST-DATA-V.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE 0.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE 0.01.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE -0.01.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE 1.01.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE -1.01.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE 10.1.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE -10.1.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE 1234.56.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE 9999.99.
+         03 FILLER       PIC S9(4)V9(2) SIGN IS TRAILING VALUE -9999.99.
+
+       01  TEST-DATA-R-V   REDEFINES TEST-DATA-V.
+         03  TEST-TBL-V    OCCURS  10.
+           05  D-V             PIC S9(4)V9(2) SIGN IS TRAILING .
+
+       01  TEST-DATA-P.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE 0.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE 100.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE -100.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE 110000.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE -110000.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE 123000.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE -12300.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE 100000.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE 999900.
+         03 FILLER       PIC S9(4)PP SIGN IS TRAILING VALUE -999900.
+
+       01  TEST-DATA-R-P   REDEFINES TEST-DATA-P.
+         03  TEST-TBL-P    OCCURS  10.
+           05  D-P             PIC S9(4)PP SIGN IS TRAILING .
+
+       01  TEST-DATA.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE 0.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE 1.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE -1.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE 10.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE -10.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE 100.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE -100.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE 1000.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE 9999.
+         03 FILLER       PIC S9(4) SIGN IS TRAILING VALUE -9999.
+
+       01  TEST-DATA-R   REDEFINES TEST-DATA.
+         03  TEST-TBL    OCCURS  10.
+           05  D             PIC S9(4) SIGN IS TRAILING.
+
+       01  IDX                     PIC  S9(02).
+       01 LOG-COUNT PIC 9999 VALUE 1.
+
+       01 READ-DATA-TBL-V.
+         03  READ-TBL-V    OCCURS  10.
+           05  READ-DATA-V             PIC S9(4)V9(2) SIGN IS TRAILING .
+
+       01 READ-DATA-TBL-P.
+         03  READ-TBL-P    OCCURS  10.
+           05  READ-DATA-P             PIC S9(4)PP SIGN IS TRAILING .
+
+       01 READ-DATA-TBL.
+         03  READ-TBL    OCCURS  10.
+           05  READ-DATA             PIC S9(4) SIGN IS TRAILING .
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+
+       PERFORM SETUP-DB.
+
+      *    SHOW RESULT
+           EXEC SQL
+               SELECT FIELD INTO :READ-TBL-V FROM TESTTABLEV ORDER BY N
+           END-EXEC.
+
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+               DISPLAY READ-DATA-V(IDX)
+           END-PERFORM.
+
+      *    SHOW RESULT
+           EXEC SQL
+               SELECT FIELD INTO :READ-TBL-P FROM TESTTABLEP ORDER BY N
+           END-EXEC.
+
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+               DISPLAY READ-DATA-P(IDX)
+           END-PERFORM.
+
+      *    SHOW RESULT
+           EXEC SQL
+               SELECT FIELD INTO :READ-TBL FROM TESTTABLE ORDER BY N
+           END-EXEC.
+
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+               DISPLAY READ-DATA(IDX)
+           END-PERFORM.
+
+       PERFORM CLEANUP-DB.
+
+      *    END
+           STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS TESTTABLEV
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS TESTTABLEP
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS TESTTABLE
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE TESTTABLEV
+                (
+                    N         NUMERIC(2,0) NOT NULL,
+                    FIELD     DECIMAL(6,2) NOT NULL
+                )
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE TESTTABLEP
+                (
+                    N         NUMERIC(2,0) NOT NULL,
+                    FIELD     NUMERIC(6,0) NOT NULL
+                )
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE TESTTABLE
+                (
+                    N         NUMERIC(2,0) NOT NULL,
+                    FIELD     NUMERIC(4,0) NOT NULL
+                )
+           END-EXEC.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE D-V(IDX)     TO  VV
+              EXEC SQL
+                 INSERT INTO TESTTABLEV VALUES (:IDX, :VV)
+              END-EXEC
+           END-PERFORM.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE D-P(IDX)     TO  VP
+              EXEC SQL
+                 INSERT INTO TESTTABLEP VALUES (:IDX, :VP)
+              END-EXEC
+           END-PERFORM.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE D(IDX)     TO  V
+              EXEC SQL
+                 INSERT INTO TESTTABLE VALUES (:IDX, :V)
+              END-EXEC
+           END-PERFORM.
+
+      *    COMMIT
+           EXEC SQL
+               COMMIT WORK
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               DROP TABLE IF EXISTS TESTTABLEV
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS TESTTABLEP
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS TESTTABLE
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/numeric_signed_trailing_v.at:227: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "numeric_signed_trailing_v.at:227"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/numeric_signed_trailing_v.at:227"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/numeric_signed_trailing_v.at:228: \${EMBED_DB_INFO} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_trailing_v.at:228"
+( $at_check_trace; ${EMBED_DB_INFO} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/numeric_signed_trailing_v.at:228"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/numeric_signed_trailing_v.at:229: \${COMPILE_MODULE} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_trailing_v.at:229"
+( $at_check_trace; ${COMPILE_MODULE} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/numeric_signed_trailing_v.at:229"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/numeric_signed_trailing_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_trailing_v.at:230"
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; $as_echo "+0000.00
++0000.01
+-0000.01
++0001.01
+-0001.01
++0010.10
+-0010.10
++1234.56
++9999.99
+-9999.99
++000000
++000100
+-000100
++110000
+-110000
++123000
+-012300
++100000
++999900
+-999900
++0000
++0001
+-0001
++0010
+-0010
++0100
+-0100
++1000
++9999
+-9999
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/numeric_signed_trailing_v.at:230"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_2
+#AT_START_3
+at_fn_group_banner 3 'numeric_v.at:1' \
+  "numeric_v" "                                      "
+at_xfail=no
+(
+  $as_echo "3. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -2633,13 +2958,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_2
-#AT_START_3
-at_fn_group_banner 3 'comp5.at:1' \
+#AT_STOP_3
+#AT_START_4
+at_fn_group_banner 4 'comp5.at:1' \
   "COMP-5" "                                         "
 at_xfail=no
 (
-  $as_echo "3. $at_setup_line: testing $at_desc ..."
+  $as_echo "4. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -2808,13 +3133,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_3
-#AT_START_4
-at_fn_group_banner 4 'alphanumeric.at:1' \
+#AT_STOP_4
+#AT_START_5
+at_fn_group_banner 5 'alphanumeric.at:1' \
   "alphanumeric" "                                   "
 at_xfail=no
 (
-  $as_echo "4. $at_setup_line: testing $at_desc ..."
+  $as_echo "5. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3004,13 +3329,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_4
-#AT_START_5
-at_fn_group_banner 5 'japanese.at:1' \
+#AT_STOP_5
+#AT_START_6
+at_fn_group_banner 6 'japanese.at:1' \
   "japanese" "                                       "
 at_xfail=no
 (
-  $as_echo "5. $at_setup_line: testing $at_desc ..."
+  $as_echo "6. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3200,4 +3525,4 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_5
+#AT_STOP_6
