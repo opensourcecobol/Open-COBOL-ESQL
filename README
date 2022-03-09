@@ -149,6 +149,12 @@ To run the sample programs:
        ./INSERTTBL
        ./FETCHTBL
 
+     Remark!
+     On Ubuntu, Set the environment variable LD_PRELOAD to /usr/local/lib/libocesql.so.
+
+       LD_PRELOAD=/usr/local/lib/libocesql.so ./INSERTTBL
+       LD_PRELOAD=/usr/local/lib/libocesql.so ./FETCHTBL
+
    * To create a sample table, run INSERTTBL first.
 
 7. Working with PostgreSQL
