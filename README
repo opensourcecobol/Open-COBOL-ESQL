@@ -50,26 +50,26 @@ See also AUTHORS for the author and contributors.
     Ocesql currently supports PostgreSQL database only.
 
     o PostgreSQL C Library (libpq) 8.4 or later
-      http://www.postgresql.org/
-      http://www.postgresql.jp/
+      https://www.postgresql.org/
+      https://www.postgresql.jp/
 
   2) COBOL Development System
 
     Ocesql is tested with the following COBOL compilers:
 
     o OpenCOBOL 1.1
-      http://www.opencobol.org/
+      https://sourceforge.net/projects/open-cobol/
 
     o opensource COBOL 1.5.2J
-      http://www.osscons.jp/osscobol/download/
+      https://www.osscons.jp/osscobol/download/
 
     o Micro Focus Server Express 5.1
       Micro Focus Visual COBOL 2.1 for x64/x86 Linux
-      http://www.microfocus.com/
-      http://www.microfocus.co.jp/
+      https://www.microfocus.com/
+      https://www.microfocus.co.jp/
 
     o GnuCOBOL 2.2
-      https://sourceforge.net/projects/open-cobol/
+      https://www.gnu.org/software/gnucobol/
 
 5. Installation
 ===============
@@ -190,8 +190,8 @@ this means that a PostgreSQL error has happened internally.
 SQLSTATE is set to one of the PostgreSQL error codes listed in 
 the following URL:
 
-  http://www.postgresql.org/docs/8.4/static/errcodes-appendix.html
-  http://www.postgresql.jp/document/8.4/html/errcodes-appendix.html
+  https://www.postgresql.org/docs/8.4/static/errcodes-appendix.html
+  https://www.postgresql.jp/document/8.4/html/errcodes-appendix.html
 
 The sample programs demonstrate the use of SQLSTATE.
 
