@@ -1,0 +1,4 @@
+AT_INIT(miscellaneous)
+
+AT_TESTED([ocesql])
+m4_include([empty-string.at])
