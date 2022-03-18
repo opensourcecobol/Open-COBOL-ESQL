@@ -909,9 +909,6 @@ check_has_occurs_children(struct cb_field *field){
 	if(field == NULL)
 		return 0;
 
-	printmsg("CHILDR:sname=%s, level=%d, occurs=%d, children=%d",
-	       field->sname, field->level, field->occurs, field->children);
-
 	if(field->occurs != 0){
 		return 1;
 	}
