@@ -1,4 +1,4 @@
-MODULES=basic cobol_data sql_data sqlca
+MODULES=basic cobol_data sql_data sqlca misc
 
 .PHONY: clean all help
 
