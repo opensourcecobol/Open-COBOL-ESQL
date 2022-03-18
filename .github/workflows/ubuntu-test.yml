@@ -103,6 +103,7 @@ jobs:
           ./cobol_data || true
           ./sql_data || true
           ./sqlca || true
+          ./misc || true
           cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir *.log ../log/test
           cd ../
       
