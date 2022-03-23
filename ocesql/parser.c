@@ -66,7 +66,7 @@
 
 
 /* First part of user prologue.  */
-#line 21 "parser.y"
+#line 20 "parser.y"
 
 
 
@@ -268,7 +268,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 51 "parser.y"
+#line 50 "parser.y"
 
 	char *s;
 	long int ld;
@@ -656,19 +656,19 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   123,   123,   124,   125,   126,   127,   128,   129,   130,
-     131,   132,   133,   134,   135,   136,   137,   138,   139,   140,
-     141,   145,   154,   158,   166,   169,   178,   181,   189,   190,
-     195,   200,   207,   211,   214,   215,   216,   219,   220,   221,
-     224,   230,   234,   239,   240,   243,   248,   249,   250,   251,
-     254,   260,   265,   270,   275,   280,   285,   290,   293,   298,
-     304,   311,   312,   315,   318,   321,   324,   327,   328,   329,
-     332,   339,   341,   342,   343,   344,   346,   346,   359,   360,
-     361,   362,   363,   364,   365,   369,   369,   384,   384,   402,
-     403,   408,   409,   410,   411,   412,   413,   414,   418,   422,
-     423,   427,   428,   429,   430,   434,   438,   452,   454,   455,
-     456,   459,   463,   469,   470,   472,   473,   477,   484,   487,
-     487,   488,   488,   488,   489,   489,   490,   490
+       0,   122,   122,   123,   124,   125,   126,   127,   128,   129,
+     130,   131,   132,   133,   134,   135,   136,   137,   138,   139,
+     140,   144,   153,   157,   165,   168,   177,   180,   188,   189,
+     194,   199,   206,   210,   213,   214,   215,   218,   219,   220,
+     223,   229,   233,   238,   239,   242,   247,   248,   249,   250,
+     253,   259,   264,   269,   274,   279,   284,   289,   292,   297,
+     303,   310,   311,   314,   317,   320,   323,   326,   327,   328,
+     331,   338,   340,   341,   342,   343,   345,   345,   358,   359,
+     360,   361,   362,   363,   364,   368,   368,   383,   383,   401,
+     402,   407,   408,   409,   410,   411,   412,   413,   417,   421,
+     422,   426,   427,   428,   429,   433,   437,   451,   453,   454,
+     455,   458,   462,   468,   469,   471,   472,   476,   483,   486,
+     486,   487,   487,   487,   488,   488,   489,   489
 };
 #endif
 
@@ -1618,7 +1618,7 @@ yyreduce:
   switch (yyn)
     {
   case 21:
-#line 147 "parser.y"
+#line 146 "parser.y"
 {
 	(yyval.l) = cb_add_text_list ((yyvsp[-2].l), (yyvsp[-1].l));
 	put_exec_list();
@@ -1627,13 +1627,13 @@ yyreduce:
     break;
 
   case 22:
-#line 154 "parser.y"
+#line 153 "parser.y"
        {(yyval.l) = cb_text_list_add (NULL, (yyvsp[0].s));}
 #line 1633 "parser.c"
     break;
 
   case 23:
-#line 160 "parser.y"
+#line 159 "parser.y"
 {
 	(yyval.l) = cb_add_text_list ((yyvsp[-2].l), (yyvsp[-1].l));
 	put_exec_list();
@@ -1642,13 +1642,13 @@ yyreduce:
     break;
 
   case 24:
-#line 166 "parser.y"
+#line 165 "parser.y"
            {(yyval.l) = cb_text_list_add (NULL, (yyvsp[0].s));}
 #line 1648 "parser.c"
     break;
 
   case 25:
-#line 171 "parser.y"
+#line 170 "parser.y"
 {
 	(yyval.l) = cb_add_text_list ((yyvsp[-2].l), (yyvsp[-1].l));
 	put_exec_list();
@@ -1657,13 +1657,13 @@ yyreduce:
     break;
 
   case 26:
-#line 178 "parser.y"
+#line 177 "parser.y"
        {(yyval.l) = cb_text_list_add (NULL, (yyvsp[0].s));}
 #line 1663 "parser.c"
     break;
 
   case 27:
-#line 183 "parser.y"
+#line 182 "parser.y"
 {
 	(yyval.l) = cb_add_text_list ((yyvsp[-2].l), (yyvsp[-1].l));
 	put_exec_list();
@@ -1672,19 +1672,19 @@ yyreduce:
     break;
 
   case 28:
-#line 189 "parser.y"
+#line 188 "parser.y"
        {(yyval.l) = cb_text_list_add (NULL, (yyvsp[0].s));}
 #line 1678 "parser.c"
     break;
 
   case 29:
-#line 190 "parser.y"
+#line 189 "parser.y"
               {(yyval.l) = cb_text_list_add ((yyvsp[-1].l), (yyvsp[0].s));}
 #line 1684 "parser.c"
     break;
 
   case 30:
-#line 195 "parser.y"
+#line 194 "parser.y"
                                        {
 	put_exec_list();
 }
@@ -1692,7 +1692,7 @@ yyreduce:
     break;
 
   case 31:
-#line 200 "parser.y"
+#line 199 "parser.y"
                                      {
 	put_exec_list();
 }
@@ -1700,7 +1700,7 @@ yyreduce:
     break;
 
   case 32:
-#line 207 "parser.y"
+#line 206 "parser.y"
                                                         {
 	put_exec_list();
 }
@@ -1708,37 +1708,37 @@ yyreduce:
     break;
 
   case 33:
-#line 211 "parser.y"
+#line 210 "parser.y"
            { cb_set_cursorname((yyvsp[0].s));}
 #line 1714 "parser.c"
     break;
 
   case 34:
-#line 214 "parser.y"
+#line 213 "parser.y"
                {cb_host_list_add (host_reference_list, (yyvsp[0].s));}
 #line 1720 "parser.c"
     break;
 
   case 36:
-#line 216 "parser.y"
+#line 215 "parser.y"
                                  {cb_host_list_add (host_reference_list, (yyvsp[0].s));}
 #line 1726 "parser.c"
     break;
 
   case 37:
-#line 219 "parser.y"
+#line 218 "parser.y"
                {cb_res_host_list_add (res_host_reference_list, (yyvsp[0].s));}
 #line 1732 "parser.c"
     break;
 
   case 39:
-#line 221 "parser.y"
+#line 220 "parser.y"
                                      {cb_res_host_list_add (res_host_reference_list, (yyvsp[0].s));}
 #line 1738 "parser.c"
     break;
 
   case 40:
-#line 224 "parser.y"
+#line 223 "parser.y"
                                     {
 	cb_set_cursorname((yyvsp[-1].s));
 	put_exec_list();
@@ -1747,7 +1747,7 @@ yyreduce:
     break;
 
   case 41:
-#line 230 "parser.y"
+#line 229 "parser.y"
                                    {
 	cb_set_cursorname((yyvsp[-1].s));
 	put_exec_list();
@@ -1756,7 +1756,7 @@ yyreduce:
     break;
 
   case 42:
-#line 234 "parser.y"
+#line 233 "parser.y"
                                                            {
 	cb_set_cursorname((yyvsp[-3].s));
 	put_exec_list();
@@ -1765,13 +1765,13 @@ yyreduce:
     break;
 
   case 44:
-#line 240 "parser.y"
+#line 239 "parser.y"
           { }
 #line 1771 "parser.c"
     break;
 
   case 45:
-#line 243 "parser.y"
+#line 242 "parser.y"
           {
 	cb_set_dbname((yyvsp[0].s));
 }
@@ -1779,31 +1779,31 @@ yyreduce:
     break;
 
   case 46:
-#line 248 "parser.y"
+#line 247 "parser.y"
                                  { put_exec_list(); }
 #line 1785 "parser.c"
     break;
 
   case 47:
-#line 249 "parser.y"
+#line 248 "parser.y"
                                                     { put_exec_list(); }
 #line 1791 "parser.c"
     break;
 
   case 48:
-#line 250 "parser.y"
+#line 249 "parser.y"
                                    { put_exec_list(); }
 #line 1797 "parser.c"
     break;
 
   case 49:
-#line 251 "parser.y"
+#line 250 "parser.y"
                                    { put_exec_list(); }
 #line 1803 "parser.c"
     break;
 
   case 50:
-#line 254 "parser.y"
+#line 253 "parser.y"
                                               {
 	(yyval.l) = cb_add_text_list(cb_text_list_add(NULL, (yyvsp[-2].s)), (yyvsp[-1].l));
 	put_exec_list();
@@ -1812,7 +1812,7 @@ yyreduce:
     break;
 
   case 51:
-#line 260 "parser.y"
+#line 259 "parser.y"
                        {
 	cb_host_list_add (host_reference_list, (yyvsp[0].s));
 }
@@ -1820,7 +1820,7 @@ yyreduce:
     break;
 
   case 52:
-#line 265 "parser.y"
+#line 264 "parser.y"
                              {
 	cb_host_list_add (host_reference_list, (yyvsp[0].s));
 }
@@ -1828,7 +1828,7 @@ yyreduce:
     break;
 
   case 53:
-#line 270 "parser.y"
+#line 269 "parser.y"
                      {
 	cb_host_list_add (host_reference_list, (yyvsp[0].s));
 }
@@ -1836,7 +1836,7 @@ yyreduce:
     break;
 
   case 54:
-#line 275 "parser.y"
+#line 274 "parser.y"
                                      {
 	put_exec_list();
 }
@@ -1844,7 +1844,7 @@ yyreduce:
     break;
 
   case 55:
-#line 280 "parser.y"
+#line 279 "parser.y"
                                       {
 	put_exec_list();
 }
@@ -1852,7 +1852,7 @@ yyreduce:
     break;
 
   case 56:
-#line 285 "parser.y"
+#line 284 "parser.y"
                                                                    {
 	put_exec_list();
 }
@@ -1860,7 +1860,7 @@ yyreduce:
     break;
 
   case 57:
-#line 290 "parser.y"
+#line 289 "parser.y"
                                                                        {
 	put_exec_list();
 }
@@ -1868,7 +1868,7 @@ yyreduce:
     break;
 
   case 58:
-#line 293 "parser.y"
+#line 292 "parser.y"
                                                    {
 	put_exec_list();
 }
@@ -1876,7 +1876,7 @@ yyreduce:
     break;
 
   case 59:
-#line 298 "parser.y"
+#line 297 "parser.y"
                                                                                            {
 	(yyval.l) = cb_add_text_list(cb_text_list_add(NULL, (yyvsp[-6].s)), (yyvsp[-5].l));
 	cb_add_text_list((yyval.l), cb_text_list_add(NULL, (yyvsp[-2].s)));
@@ -1887,7 +1887,7 @@ yyreduce:
     break;
 
   case 60:
-#line 304 "parser.y"
+#line 303 "parser.y"
                                                                        {
 	(yyval.l) = cb_add_text_list(cb_text_list_add(NULL, (yyvsp[-4].s)), (yyvsp[-3].l));
 	put_exec_list();
@@ -1896,55 +1896,55 @@ yyreduce:
     break;
 
   case 61:
-#line 311 "parser.y"
+#line 310 "parser.y"
                                             { put_exec_list(); }
 #line 1902 "parser.c"
     break;
 
   case 62:
-#line 312 "parser.y"
+#line 311 "parser.y"
                                                        { put_exec_list(); }
 #line 1908 "parser.c"
     break;
 
   case 63:
-#line 315 "parser.y"
+#line 314 "parser.y"
      { cb_set_prepname((yyvsp[0].s)); }
 #line 1914 "parser.c"
     break;
 
   case 64:
-#line 318 "parser.y"
+#line 317 "parser.y"
          { cb_host_list_add (host_reference_list, (yyvsp[0].s)); }
 #line 1920 "parser.c"
     break;
 
   case 65:
-#line 321 "parser.y"
+#line 320 "parser.y"
                  { (yyval.l) = cb_add_text_list (cb_text_list_add (NULL, (yyvsp[-1].s)), (yyvsp[0].l));}
 #line 1926 "parser.c"
     break;
 
   case 66:
-#line 324 "parser.y"
+#line 323 "parser.y"
                         { cb_set_cursorname((yyvsp[-2].s));}
 #line 1932 "parser.c"
     break;
 
   case 67:
-#line 327 "parser.y"
+#line 326 "parser.y"
                                 {      (yyval.l) = cb_text_list_add (NULL, (yyvsp[0].s));}
 #line 1938 "parser.c"
     break;
 
   case 68:
-#line 328 "parser.y"
+#line 327 "parser.y"
                         {      (yyval.l) = cb_text_list_add ((yyvsp[-1].l), (yyvsp[0].s));}
 #line 1944 "parser.c"
     break;
 
   case 69:
-#line 329 "parser.y"
+#line 328 "parser.y"
                               {
 	(yyval.l) = cb_text_list_add ((yyvsp[-1].l), cb_host_list_add (host_reference_list, (yyvsp[0].s)));
 }
@@ -1952,7 +1952,7 @@ yyreduce:
     break;
 
   case 70:
-#line 332 "parser.y"
+#line 331 "parser.y"
                                     {
 	     (yyval.l) = cb_text_list_add((yyvsp[-2].l), "WHERE CURRENT OF");
 	     cb_set_cursorname((yyvsp[0].s));
@@ -1962,37 +1962,37 @@ yyreduce:
     break;
 
   case 71:
-#line 339 "parser.y"
+#line 338 "parser.y"
           {}
 #line 1968 "parser.c"
     break;
 
   case 72:
-#line 341 "parser.y"
+#line 340 "parser.y"
             {}
 #line 1974 "parser.c"
     break;
 
   case 73:
-#line 342 "parser.y"
+#line 341 "parser.y"
        {}
 #line 1980 "parser.c"
     break;
 
   case 74:
-#line 343 "parser.y"
+#line 342 "parser.y"
      {}
 #line 1986 "parser.c"
     break;
 
   case 75:
-#line 344 "parser.y"
+#line 343 "parser.y"
         {}
 #line 1992 "parser.c"
     break;
 
   case 76:
-#line 346 "parser.y"
+#line 345 "parser.y"
                                {
 	current_field = NULL;
 	description_field = NULL;
@@ -2002,7 +2002,7 @@ yyreduce:
     break;
 
   case 77:
-#line 353 "parser.y"
+#line 352 "parser.y"
            {
 	// check host_variable
 	put_exec_list();
@@ -2011,19 +2011,19 @@ yyreduce:
     break;
 
   case 83:
-#line 364 "parser.y"
+#line 363 "parser.y"
                                        { put_exec_list(); }
 #line 2017 "parser.c"
     break;
 
   case 84:
-#line 365 "parser.y"
+#line 364 "parser.y"
                                      { put_exec_list(); }
 #line 2023 "parser.c"
     break;
 
   case 85:
-#line 369 "parser.y"
+#line 368 "parser.y"
              {
 	struct cb_field *x;
 
@@ -2038,7 +2038,7 @@ yyreduce:
     break;
 
   case 86:
-#line 380 "parser.y"
+#line 379 "parser.y"
 {
 	if (description_field == NULL)
 		description_field = current_field;
@@ -2047,7 +2047,7 @@ yyreduce:
     break;
 
   case 87:
-#line 384 "parser.y"
+#line 383 "parser.y"
          {
 	struct cb_field *x;
 
@@ -2061,7 +2061,7 @@ yyreduce:
     break;
 
   case 88:
-#line 394 "parser.y"
+#line 393 "parser.y"
 {
 	if (description_field == NULL)
 		description_field = current_field;
@@ -2070,43 +2070,43 @@ yyreduce:
     break;
 
   case 89:
-#line 402 "parser.y"
+#line 401 "parser.y"
 {}
 #line 2076 "parser.c"
     break;
 
   case 90:
-#line 404 "parser.y"
+#line 403 "parser.y"
 {}
 #line 2082 "parser.c"
     break;
 
   case 98:
-#line 418 "parser.y"
+#line 417 "parser.y"
                 {  build_picture( (yyvsp[0].s),current_field); }
 #line 2088 "parser.c"
     break;
 
   case 101:
-#line 427 "parser.y"
+#line 426 "parser.y"
                         { current_field->usage = USAGE_FLOAT;   }
 #line 2094 "parser.c"
     break;
 
   case 102:
-#line 428 "parser.y"
+#line 427 "parser.y"
                                 { current_field->usage = USAGE_DOUBLE; }
 #line 2100 "parser.c"
     break;
 
   case 103:
-#line 429 "parser.y"
+#line 428 "parser.y"
                                 { current_field->usage = USAGE_PACKED; }
 #line 2106 "parser.c"
     break;
 
   case 104:
-#line 430 "parser.y"
+#line 429 "parser.y"
          {
 	printmsg("parse error: Open-COBOL-ESQL does not support 'COMP-5'\n");
 	exit(-1);
@@ -2115,13 +2115,13 @@ yyreduce:
     break;
 
   case 105:
-#line 434 "parser.y"
+#line 433 "parser.y"
                     { current_field->usage = USAGE_OTHER; }
 #line 2121 "parser.c"
     break;
 
   case 106:
-#line 439 "parser.y"
+#line 438 "parser.y"
 {
 	if(current_field->pictype != PIC_ALPHANUMERIC &&
 		current_field->pictype != PIC_NATIONAL){
@@ -2137,31 +2137,31 @@ yyreduce:
     break;
 
   case 107:
-#line 452 "parser.y"
+#line 451 "parser.y"
                                               {}
 #line 2143 "parser.c"
     break;
 
   case 108:
-#line 454 "parser.y"
+#line 453 "parser.y"
                       {}
 #line 2149 "parser.c"
     break;
 
   case 109:
-#line 455 "parser.y"
+#line 454 "parser.y"
       {}
 #line 2155 "parser.c"
     break;
 
   case 110:
-#line 456 "parser.y"
+#line 455 "parser.y"
        {}
 #line 2161 "parser.c"
     break;
 
   case 111:
-#line 460 "parser.y"
+#line 459 "parser.y"
 {
 	current_field->sign_leading = SIGNLEADING;
 }
@@ -2169,7 +2169,7 @@ yyreduce:
     break;
 
   case 112:
-#line 464 "parser.y"
+#line 463 "parser.y"
 {
 
 }
@@ -2177,25 +2177,25 @@ yyreduce:
     break;
 
   case 113:
-#line 469 "parser.y"
+#line 468 "parser.y"
                        {}
 #line 2183 "parser.c"
     break;
 
   case 114:
-#line 470 "parser.y"
+#line 469 "parser.y"
           {}
 #line 2189 "parser.c"
     break;
 
   case 116:
-#line 473 "parser.y"
+#line 472 "parser.y"
            { current_field->separate = SIGN_SEPARATE; }
 #line 2195 "parser.c"
     break;
 
   case 117:
-#line 478 "parser.y"
+#line 477 "parser.y"
 {
 	current_field->occurs = (int)(yyvsp[-1].ld);
 }
@@ -2203,7 +2203,7 @@ yyreduce:
     break;
 
   case 118:
-#line 484 "parser.y"
+#line 483 "parser.y"
              {}
 #line 2209 "parser.c"
     break;
@@ -2441,7 +2441,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 492 "parser.y"
+#line 491 "parser.y"
 
 
 
