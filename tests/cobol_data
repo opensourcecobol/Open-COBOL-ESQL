@@ -3113,18 +3113,47 @@ cat >prog.cbl <<'_ATEOF'
 _ATEOF
 
 
+cat >prog2.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+       PROGRAM-ID.                 prog2.
+       DATA                        DIVISION.
+       WORKING-STORAGE             SECTION.
+       01 VAL PIC 9(5) COMP-5.
+       PROCEDURE                   DIVISION.
+           DISPLAY "Hello".
+           STOP RUN.
+_ATEOF
+
+
 { set +x
-$as_echo "$at_srcdir/comp5.at:146: ocesql prog.cbl prog.cob | grep parse"
-at_fn_check_prepare_notrace 'a shell pipeline' "comp5.at:146"
-( $at_check_trace; ocesql prog.cbl prog.cob | grep parse
+$as_echo "$at_srcdir/comp5.at:157: ocesql prog.cbl prog.cob | grep EMP-NO"
+at_fn_check_prepare_notrace 'a shell pipeline' "comp5.at:157"
+( $at_check_trace; ocesql prog.cbl prog.cob | grep EMP-NO
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "parse error: Open-COBOL-ESQL does not support 'COMP-5'
+echo >>"$at_stdout"; $as_echo "000055:E030:EMP-NO's usage option not supported.
 " | \
   $at_diff - "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/comp5.at:146"
+at_fn_check_status 0 $at_status "$at_srcdir/comp5.at:157"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+{ set +x
+$as_echo "$at_srcdir/comp5.at:161: ocesql prog2.cbl prog2.cob | tail -n +5"
+at_fn_check_prepare_notrace 'a shell pipeline' "comp5.at:161"
+( $at_check_trace; ocesql prog2.cbl prog2.cob | tail -n +5
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; $as_echo "=======================================================
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/comp5.at:161"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 

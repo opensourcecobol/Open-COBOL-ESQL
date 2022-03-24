@@ -666,9 +666,9 @@ static const yytype_int16 yyrline[] =
      331,   338,   340,   341,   342,   343,   345,   345,   358,   359,
      360,   361,   362,   363,   364,   368,   368,   383,   383,   401,
      402,   407,   408,   409,   410,   411,   412,   413,   417,   421,
-     422,   426,   427,   428,   429,   433,   437,   451,   453,   454,
-     455,   458,   462,   468,   469,   471,   472,   476,   483,   486,
-     486,   487,   487,   487,   488,   488,   489,   489
+     422,   426,   427,   428,   429,   430,   434,   448,   450,   451,
+     452,   455,   459,   465,   466,   468,   469,   473,   480,   483,
+     483,   484,   484,   484,   485,   485,   486,   486
 };
 #endif
 
@@ -2107,21 +2107,18 @@ yyreduce:
 
   case 104:
 #line 429 "parser.y"
-         {
-	printmsg("parse error: Open-COBOL-ESQL does not support 'COMP-5'\n");
-	exit(-1);
-}
-#line 2115 "parser.c"
+                                { current_field->usage = USAGE_OTHER;  }
+#line 2112 "parser.c"
     break;
 
   case 105:
-#line 433 "parser.y"
+#line 430 "parser.y"
                     { current_field->usage = USAGE_OTHER; }
-#line 2121 "parser.c"
+#line 2118 "parser.c"
     break;
 
   case 106:
-#line 438 "parser.y"
+#line 435 "parser.y"
 {
 	if(current_field->pictype != PIC_ALPHANUMERIC &&
 		current_field->pictype != PIC_NATIONAL){
@@ -2133,83 +2130,83 @@ yyreduce:
 	var_varying = current_field;
 	put_exec_list();
 }
-#line 2137 "parser.c"
+#line 2134 "parser.c"
     break;
 
   case 107:
-#line 451 "parser.y"
+#line 448 "parser.y"
                                               {}
-#line 2143 "parser.c"
+#line 2140 "parser.c"
     break;
 
   case 108:
-#line 453 "parser.y"
+#line 450 "parser.y"
                       {}
-#line 2149 "parser.c"
+#line 2146 "parser.c"
     break;
 
   case 109:
-#line 454 "parser.y"
+#line 451 "parser.y"
       {}
-#line 2155 "parser.c"
+#line 2152 "parser.c"
     break;
 
   case 110:
-#line 455 "parser.y"
+#line 452 "parser.y"
        {}
-#line 2161 "parser.c"
+#line 2158 "parser.c"
     break;
 
   case 111:
-#line 459 "parser.y"
+#line 456 "parser.y"
 {
 	current_field->sign_leading = SIGNLEADING;
 }
-#line 2169 "parser.c"
+#line 2166 "parser.c"
     break;
 
   case 112:
-#line 463 "parser.y"
+#line 460 "parser.y"
 {
 
 }
-#line 2177 "parser.c"
+#line 2174 "parser.c"
     break;
 
   case 113:
-#line 468 "parser.y"
+#line 465 "parser.y"
                        {}
-#line 2183 "parser.c"
+#line 2180 "parser.c"
     break;
 
   case 114:
-#line 469 "parser.y"
+#line 466 "parser.y"
           {}
-#line 2189 "parser.c"
+#line 2186 "parser.c"
     break;
 
   case 116:
-#line 472 "parser.y"
+#line 469 "parser.y"
            { current_field->separate = SIGN_SEPARATE; }
-#line 2195 "parser.c"
+#line 2192 "parser.c"
     break;
 
   case 117:
-#line 477 "parser.y"
+#line 474 "parser.y"
 {
 	current_field->occurs = (int)(yyvsp[-1].ld);
 }
-#line 2203 "parser.c"
+#line 2200 "parser.c"
     break;
 
   case 118:
-#line 483 "parser.y"
+#line 480 "parser.y"
              {}
-#line 2209 "parser.c"
+#line 2206 "parser.c"
     break;
 
 
-#line 2213 "parser.c"
+#line 2210 "parser.c"
 
       default: break;
     }
@@ -2441,7 +2438,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 491 "parser.y"
+#line 488 "parser.y"
 
 
 

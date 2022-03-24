@@ -426,10 +426,7 @@ usage:
 COMP_1			{ current_field->usage = USAGE_FLOAT;   }
 | COMP_2			{ current_field->usage = USAGE_DOUBLE; }
 | COMP_3			{ current_field->usage = USAGE_PACKED; }
-| COMP_5 {
-	printmsg("parse error: Open-COBOL-ESQL does not support 'COMP-5'\n");
-	exit(-1);
-}
+| COMP_5                        { current_field->usage = USAGE_OTHER;  }
 | WORD              { current_field->usage = USAGE_OTHER; }
 ;
 

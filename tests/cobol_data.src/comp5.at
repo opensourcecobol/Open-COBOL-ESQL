@@ -143,8 +143,23 @@ AT_DATA([prog.cbl], [
 
 ])
 
-AT_CHECK([ocesql prog.cbl prog.cob | grep parse], [0], 
-[parse error: Open-COBOL-ESQL does not support 'COMP-5'
+AT_DATA([prog2.cbl], [
+       IDENTIFICATION              DIVISION.
+       PROGRAM-ID.                 prog2.
+       DATA                        DIVISION.
+       WORKING-STORAGE             SECTION.
+       01 VAL PIC 9(5) COMP-5.
+       PROCEDURE                   DIVISION.
+           DISPLAY "Hello".
+           STOP RUN.
+])
+
+AT_CHECK([ocesql prog.cbl prog.cob | grep EMP-NO], [0], 
+[000055:E030:EMP-NO's usage option not supported.
+])
+
+AT_CHECK([ocesql prog2.cbl prog2.cob | tail -n +5], [0],
+[=======================================================
 ])
 
 AT_CLEANUP
