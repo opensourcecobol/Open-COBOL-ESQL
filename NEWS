@@ -1,6 +1,21 @@
 NEWS
 ****
 
+2022-03-24
+===========
+	Open Cobol ESQL (Ocesql) 1.3 released
+
+	<< New features >>
+	* Changed the license to GPL3.
+
+	<< Bug fixes >>
+	* Updated urls in README
+        * Removed useless debug messages for OCESQL developpers.
+        * Fixed a parser to show warning messages when COMP5 is used for bind variables.
+        * Fixed installation problem on Fedora 34.
+        * Fixed a code that may cause buffer overflows while processing PIC S9(n) data.
+        * Fixed a parser to accept source code that contains empty string literals.
+
 2019-04-19
 ===========
 	Open Cobol ESQL (Ocesql) 1.2 released

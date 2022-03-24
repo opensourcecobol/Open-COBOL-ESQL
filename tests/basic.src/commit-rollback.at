@@ -1,0 +1,210 @@
+AT_SETUP([commit and rollback statement test])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01  TEST-DATA.
+         03 FILLER       PIC X(28) VALUE "0001北海　太郎          0400".
+         03 FILLER       PIC X(28) VALUE "0002青森　次郎          0350".
+         03 FILLER       PIC X(28) VALUE "0003秋田　三郎          0300".
+         03 FILLER       PIC X(28) VALUE "0004岩手　四郎          025p".
+         03 FILLER       PIC X(28) VALUE "0005宮城　五郎          020p".
+         03 FILLER       PIC X(28) VALUE "0006福島　六郎          0150".
+         03 FILLER       PIC X(28) VALUE "0007栃木　七郎          010p".
+         03 FILLER       PIC X(28) VALUE "0008茨城　八郎          0050".
+         03 FILLER       PIC X(28) VALUE "0009群馬　九郎          020p".
+         03 FILLER       PIC X(28) VALUE "0010埼玉　十郎          0350".
+
+
+       01  TEST-DATA-R   REDEFINES TEST-DATA.
+         03  TEST-TBL    OCCURS  10.
+           05  TEST-NO             PIC S9(04).
+           05  TEST-NAME           PIC  X(20) .
+           05  TEST-SALARY         PIC S9(04).
+       01  IDX                     PIC  9(02).
+       01 LOG-COUNT PIC 9999 VALUE 1.
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           
+       PERFORM SETUP-DB.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE TEST-NO(IDX)     TO  EMP-NO
+              MOVE TEST-NAME(IDX)   TO  EMP-NAME
+              MOVE TEST-SALARY(IDX) TO  EMP-SALARY
+              EXEC SQL
+                 INSERT INTO EMP VALUES
+                        (:EMP-NO,:EMP-NAME,:EMP-SALARY)
+              END-EXEC
+           END-PERFORM.
+
+      *    COMMIT
+           EXEC SQL
+               COMMIT WORK
+           END-EXEC.
+           PERFORM OUTPUT-RETURN-CODE-TEST.
+
+      *    DELETE
+           MOVE 5 TO EMP-NO.
+           EXEC SQL
+              UPDATE EMP SET EMP_NAME = 'NO_NAME' WHERE EMP_NO > :EMP-NO
+           END-EXEC.
+
+      *    ROLLBACK
+           EXEC SQL
+               ROLLBACK WORK
+           END-EXEC.
+           PERFORM OUTPUT-RETURN-CODE-TEST.
+
+      *    SHOW RESULT
+           EXEC SQL 
+               DECLARE C1 CURSOR FOR
+               SELECT EMP_NO, EMP_NAME, EMP_SALARY 
+                      FROM EMP
+                      ORDER BY EMP_NO
+           END-EXEC.
+
+           EXEC SQL
+               OPEN C1
+           END-EXEC.
+
+           EXEC SQL 
+               FETCH C1 INTO :EMP-NO, :EMP-NAME, :EMP-SALARY
+           END-EXEC.
+           PERFORM UNTIL SQLCODE NOT = ZERO
+
+              DISPLAY LOG-COUNT " <log> success fetch_record "
+                      EMP-NO ", " EMP-NAME ", " EMP-SALARY
+              ADD 1 TO LOG-COUNT
+              EXEC SQL 
+                  FETCH C1 INTO :EMP-NO, :EMP-NAME, :EMP-SALARY
+              END-EXEC
+           END-PERFORM.
+
+       PERFORM CLEANUP-DB.
+
+      *    END
+           STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE EMP
+                (
+                    EMP_NO     NUMERIC(4,0) NOT NULL,
+                    EMP_NAME   CHAR(20),
+                    EMP_SALARY NUMERIC(4,0),
+                    CONSTRAINT IEMP_0 PRIMARY KEY (EMP_NO)
+                )
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               CLOSE C1
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+      ******************************************************************
+       OUTPUT-RETURN-CODE-TEST.
+      ******************************************************************
+           IF  SQLCODE = ZERO
+             THEN
+
+               DISPLAY LOG-COUNT " <log> success test_return_code"
+
+             ELSE
+               DISPLAY LOG-COUNT " <log> fail test_return_code    "
+                   NO ADVANCING
+               DISPLAY "SQLCODE=" SQLCODE " ERRCODE="  SQLSTATE " "
+                   NO ADVANCING
+               EVALUATE SQLCODE
+                  WHEN  +10
+                     DISPLAY "Record_not_found"
+                  WHEN  -01
+                     DISPLAY "Connection_falied"
+                  WHEN  -20
+                     DISPLAY "Internal_error"
+                  WHEN  -30
+                     DISPLAY "PostgreSQL_error" NO ADVANCING
+                     DISPLAY SQLERRMC
+                  *> TO RESTART TRANSACTION, DO ROLLBACK.
+                     EXEC SQL
+                         ROLLBACK
+                     END-EXEC
+                  WHEN  OTHER
+                     DISPLAY "Undefined_error" NO ADVANCING
+                     DISPLAY SQLERRMC
+               END-EVALUATE.
+           
+           ADD 1 TO LOG-COUNT.
+      ******************************************************************
+
+
+])
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
+AT_CHECK([${EMBED_DB_INFO} prog.cob])
+AT_CHECK([${COMPILE_MODULE} prog.cob])
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
+[0001 <log> success test_return_code
+0002 <log> success test_return_code
+0003 <log> success fetch_record +0001, 北海　太郎          , +0400
+0004 <log> success fetch_record +0002, 青森　次郎          , +0350
+0005 <log> success fetch_record +0003, 秋田　三郎          , +0300
+0006 <log> success fetch_record +0004, 岩手　四郎          , -0250
+0007 <log> success fetch_record +0005, 宮城　五郎          , -0200
+0008 <log> success fetch_record +0006, 福島　六郎          , +0150
+0009 <log> success fetch_record +0007, 栃木　七郎          , -0100
+0010 <log> success fetch_record +0008, 茨城　八郎          , +0050
+0011 <log> success fetch_record +0009, 群馬　九郎          , -0200
+0012 <log> success fetch_record +0010, 埼玉　十郎          , +0350
+])
+
+AT_CLEANUP

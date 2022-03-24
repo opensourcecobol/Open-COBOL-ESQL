@@ -1,0 +1,500 @@
+
+AT_SETUP([sql data test])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01 INPUT-DATA-0 PIC 9(11) VALUE 12345678901.
+       01 OUTPUT-DATA-0-TBL.
+         03 OUTPUT-DATA-0-ARR OCCURS 1.
+           05 OUTPUT-DATA-0 PIC 9(11).
+       01 INPUT-DATA-1 PIC 9(11) VALUE 12345678901.
+       01 OUTPUT-DATA-1-TBL.
+         03 OUTPUT-DATA-1-ARR OCCURS 1.
+           05 OUTPUT-DATA-1 PIC 9(11).
+       01 INPUT-DATA-2 PIC X(5) VALUE "hello".
+       01 OUTPUT-DATA-2-TBL.
+         03 OUTPUT-DATA-2-ARR OCCURS 1.
+           05 OUTPUT-DATA-2 PIC X(5).
+       01 INPUT-DATA-3 PIC X(10) VALUE "2021-01-23".
+       01 OUTPUT-DATA-3-TBL.
+         03 OUTPUT-DATA-3-ARR OCCURS 1.
+           05 OUTPUT-DATA-3 PIC X(10).
+       01 INPUT-DATA-4 PIC 999V99 VALUE 123.45.
+       01 OUTPUT-DATA-4-TBL.
+         03 OUTPUT-DATA-4-ARR OCCURS 1.
+           05 OUTPUT-DATA-4 PIC 999V99.
+       01 INPUT-DATA-5 PIC 9(3) VALUE 123.
+       01 OUTPUT-DATA-5-TBL.
+         03 OUTPUT-DATA-5-ARR OCCURS 1.
+           05 OUTPUT-DATA-5 PIC 9(3).
+       01 INPUT-DATA-6 PIC 9(4)V9(2) VALUE 1234.56.
+       01 OUTPUT-DATA-6-TBL.
+         03 OUTPUT-DATA-6-ARR OCCURS 1.
+           05 OUTPUT-DATA-6 PIC 9(4)V9(2).
+       01 INPUT-DATA-7 PIC 9(4)V9(2) VALUE 1234.56.
+       01 OUTPUT-DATA-7-TBL.
+         03 OUTPUT-DATA-7-ARR OCCURS 1.
+           05 OUTPUT-DATA-7 PIC 9(4)V9(2).
+       01 INPUT-DATA-8 PIC 9(5) VALUE 12345.
+       01 OUTPUT-DATA-8-TBL.
+         03 OUTPUT-DATA-8-ARR OCCURS 1.
+           05 OUTPUT-DATA-8 PIC 9(5).
+       01 INPUT-DATA-9 PIC 9(5) VALUE 12345.
+       01 OUTPUT-DATA-9-TBL.
+         03 OUTPUT-DATA-9-ARR OCCURS 1.
+           05 OUTPUT-DATA-9 PIC 9(5).
+       01 INPUT-DATA-10 PIC 9(10) VALUE 1234567890.
+       01 OUTPUT-DATA-10-TBL.
+         03 OUTPUT-DATA-10-ARR OCCURS 1.
+           05 OUTPUT-DATA-10 PIC 9(10).
+       01 INPUT-DATA-11 PIC X(5) VALUE "hello".
+       01 OUTPUT-DATA-11-TBL.
+         03 OUTPUT-DATA-11-ARR OCCURS 1.
+           05 OUTPUT-DATA-11 PIC X(5).
+       01 INPUT-DATA-12 PIC X(8) VALUE "12:34:56".
+       01 OUTPUT-DATA-12-TBL.
+         03 OUTPUT-DATA-12-ARR OCCURS 1.
+           05 OUTPUT-DATA-12 PIC X(8).
+       01 INPUT-DATA-13 PIC X(19) VALUE "2021-01-23 12:34:56".
+       01 OUTPUT-DATA-13-TBL.
+         03 OUTPUT-DATA-13-ARR OCCURS 1.
+           05 OUTPUT-DATA-13 PIC X(19).
+
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+       PERFORM SETUP-DB.
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD bigint
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-0)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-0-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-0(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD bigserial
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-1)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-1-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-1(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD char(5)
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-2)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-2-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-2(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD date
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-3)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-3-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-3(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD double precision
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-4)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-4-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-4(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD integer
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-5)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-5-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-5(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD numeric(6,2)
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-6)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-6-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-6(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD real
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-7)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-7-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-7(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD smallint
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-8)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-8-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-8(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD smallserial
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-9)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-9-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-9(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD serial
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-10)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-10-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-10(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD text
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-11)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-11-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-11(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD time
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-12)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-12-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-12(1).
+      ******************************************************************
+
+       EXEC SQL
+           DROP TABLE IF EXISTS TESTTABLE
+       END-EXEC.
+
+       EXEC SQL
+            CREATE TABLE TESTTABLE
+            (
+                FIELD timestamp
+            )
+       END-EXEC.
+
+       EXEC SQL
+            INSERT INTO TESTTABLE VALUES (:INPUT-DATA-13)
+       END-EXEC
+
+       EXEC SQL
+           COMMIT WORK
+       END-EXEC.
+
+       EXEC SQL
+           SELECT FIELD INTO :OUTPUT-DATA-13-ARR FROM TESTTABLE
+       END-EXEC.
+
+       DISPLAY OUTPUT-DATA-13(1).
+      ******************************************************************
+
+
+       *    END
+       PERFORM CLEANUP-DB.
+       STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               DROP TABLE IF EXISTS TESTTABLE
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+])
+
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
+AT_CHECK([${EMBED_DB_INFO} prog.cob])
+AT_CHECK([${COMPILE_MODULE} prog.cob])
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
+[12345678901
+12345678901
+hello
+2021-01-23
+123.45
+123
+1234.56
+1234.56
+12345
+12345
+1234567890
+hello
+12:34:56
+2021-01-23 12:34:56
+])
+
+AT_CLEANUP

@@ -1,0 +1,6 @@
+COBC="cobc -locesql"
+OCESQL=ocesql
+EMBED_DB_INFO="sh ../../embed_db_info.sh"
+COMPILE="${COBC} -I ../../"
+COMPILE_MODULE="${COMPILE} -m"
+RUN_MODULE=cobcrun

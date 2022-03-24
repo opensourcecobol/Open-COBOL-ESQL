@@ -1,0 +1,13 @@
+AT_INIT(basic test)
+
+AT_TESTED([ocesql])
+
+m4_include([connect-disconnect.at])
+m4_include([declare.at])
+m4_include([open-close.at])
+m4_include([insert.at])
+m4_include([fetch.at])
+m4_include([delete.at])
+m4_include([commit-rollback.at])
+m4_include([select.at])
+m4_include([update.at])

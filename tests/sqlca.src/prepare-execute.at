@@ -1,0 +1,144 @@
+AT_SETUP([prepare-execute])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01 TEST-DATA.
+         03 FILLER PIC X(9) VALUE "0001____1".
+         03 FILLER PIC X(9) VALUE "0002____2".
+         03 FILLER PIC X(9) VALUE "0003____3".
+         03 FILLER PIC X(9) VALUE "0004____4".
+         03 FILLER PIC X(9) VALUE "0005____5".
+
+       01 TEST-DATA-R REDEFINES TEST-DATA.
+         03 TEST-TBL OCCURS 5.
+           05 TEST-ID PIC 9(4).
+           05 TEST-V  PIC X(5).
+
+       01 IDX PIC 9.
+
+       01 READ-DATA.
+         03  READ-TBL    OCCURS  1.
+           05  READ-V PIC X(5).
+
+       01 SQL-COMMAND.
+         03 SQL-COMMAND-LEN PIC 9(9) VALUE 50.
+         03 SQL-COMMAND-ARR PIC X(50)
+            VALUE "DELETE FROM TESTTABLE WHERE I > ?".
+       01 SQL-COMMAND-ARG PIC 99 VALUE 2.
+
+       01 INVALID-COMMAND PIC X(50)
+         VALUE "DELETE FROM TESTTABLEERROR WHERE I > ?".
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01 DATA-ID PIC 9(4).
+       01 DATA-V PIC X(5).
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           
+         PERFORM SETUP-DB.
+
+         EXEC SQL
+             PREPARE st FROM :SQL-COMMAND
+         END-EXEC.
+         PERFORM SHOW-STATUS.
+
+         EXEC SQL
+             EXECUTE st USING :SQL-COMMAND-ARG
+         END-EXEC.
+         PERFORM SHOW-STATUS.
+
+         MOVE INVALID-COMMAND TO SQL-COMMAND-ARR.
+
+      *  EXEC SQL
+      *      PREPARE st FROM :SQL-COMMAND
+      *  END-EXEC.
+      *  PERFORM SHOW-STATUS.
+
+      *  EXEC SQL
+      *      EXECUTE st USING :SQL-COMMAND-ARG
+      *  END-EXEC.
+      *  PERFORM SHOW-STATUS.
+
+         PERFORM CLEANUP-DB.
+
+         STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+         MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+           TO DBNAME.
+         MOVE  "<|DB_USER|>"
+           TO USERNAME.
+         MOVE  "<|DB_PASSWORD|>"
+           TO PASSWD.
+
+         EXEC SQL
+             CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
+         END-EXEC.
+
+         EXEC SQL
+             DROP TABLE IF EXISTS TESTTABLE
+         END-EXEC.
+
+         EXEC SQL
+             CREATE TABLE TESTTABLE
+             (
+               I integer,
+               V  char(5)
+             )
+         END-EXEC.
+
+
+         PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 5
+           MOVE TEST-ID(IDX) TO DATA-ID
+           MOVE TEST-V(IDX) TO DATA-V
+           EXEC SQL
+             INSERT INTO TESTTABLE VALUES
+               (:DATA-ID, :DATA-V)
+           END-EXEC
+         END-PERFORM.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+
+         EXEC SQL
+             DISCONNECT ALL
+         END-EXEC.
+
+      ******************************************************************
+       SHOW-STATUS.
+      ******************************************************************
+         DISPLAY SQLCODE.
+         DISPLAY SQLSTATE.
+
+])
+
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
+AT_CHECK([${EMBED_DB_INFO} prog.cob])
+AT_CHECK([${COMPILE_MODULE} prog.cob])
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
+[+000000000
+00000
++000000000
+00000
+])
+
+AT_CLEANUP

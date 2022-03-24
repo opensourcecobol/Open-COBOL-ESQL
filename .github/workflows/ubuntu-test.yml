@@ -1,0 +1,121 @@
+name: Open-COBOL-ESQL tests on Ubuntu
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'develop/**'
+      - 'issue/**'
+  pull_request:
+    types: [opened, reopened, review_requested]
+
+jobs:
+  Open-COBOL-ESQL-tests:
+    runs-on: ubuntu-latest
+    
+    # Start PostgreSQL server
+    services:
+      postgres:
+        image: postgres:9.6
+        ports: 
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: main_user
+          POSTGRES_DB: testdb
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses5 libncurses5-dev libgmp-dev bison flex gettext automake autoconf
+          sudo apt-get install -y libpq-dev postgresql postgresql-contrib
+      
+      # Cache the directory 'opensource-cobol-1.5.2J'
+      - name: Cache opnesource COBOL v1.5.2J
+        id: opensource_cobol_cache_id
+        uses: actions/cache@v2
+        with:
+          path: opensource-cobol-1.5.2J
+          key: opensource-cobol-1.5.2J-key
+          
+      # Build opensource COBOL if the cache is not found
+      - name: Download and Build opensource COBOL v1.5.2J
+        if: steps.opensource_cobol_cache_id.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o opensource-cobol-1.5.2J.tar.gz https://github.com/opensourcecobol/opensource-cobol/archive/refs/tags/v1.5.2J.tar.gz
+          tar zxvf opensource-cobol-1.5.2J.tar.gz
+          cd opensource-cobol-1.5.2J/vbisam
+          ./configure --prefix=/usr/
+          make
+          sudo make install
+          cd ../
+          ./configure --prefix=/usr/ --with-vbisam
+          make
+          cd ../
+      
+      # Install opensource COBOL
+      - name: Install opensource COBOL v1.5.2J
+        run: |
+          cd opensource-cobol-1.5.2J/vbisam
+          sudo make install
+          cd ../
+          sudo make install
+          cd ../
+
+      # Checkout Open-COBOL-ESQL
+      - name: Checkout Open-COBOL-ESQL
+        uses: actions/checkout@v2
+        with:
+          path: Open-COBOL-ESQL
+
+      # Build and Install Open-COBOL-ESQL
+      - name: Install Open-COBOL-ESQL
+        run: |
+          cd Open-COBOL-ESQL
+          touch * # Without this instructions, the following './configure' command fails.
+          ./configure
+          C_INCLUDE_PATH=/usr/include/postgresql/ make
+          sudo make install
+      
+      - name: Create a log directory
+        run: |
+          mkdir Open-COBOL-ESQL/log
+          mkdir Open-COBOL-ESQL/log/test
+
+      # Run Autotest
+      - name: Run tests
+        run: |
+          cd Open-COBOL-ESQL/tests
+          make clean
+          cp ../.github/workflows/ubuntu-test-settings/atlocal atlocal
+          cp ../.github/workflows/ubuntu-test-settings/embed_db_info.sh embed_db_info.sh
+          cp ../.github/workflows/ubuntu-test-settings/cobol_runner.sh cobol_runner.sh
+          make
+          ./basic || true
+          ./cobol_data || true
+          ./sql_data || true
+          ./sqlca || true
+          ./misc || true
+          cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir *.log ../log/test
+          cd ../
+      
+      # Upload test logs and the result of static checking
+      - name: Archive Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubuntu-log
+          path: Open-COBOL-ESQL/log/*
+      
+      # Workflow fails if one or more test cases failed
+      - name: Check test results
+        run: |
+          cat Open-COBOL-ESQL/tests/*.log
+          [ -z "$(cat Open-COBOL-ESQL/tests/*.log | grep 'Failed tests:')" ]

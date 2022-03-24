@@ -1,21 +1,20 @@
 ﻿/*
- * Copyright (C) 2015 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2022 Tokyo System House Co.,Ltd.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; either version 2.1,
- * or (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; see the file COPYING.LIB.  If
- * not, write to the Free Software Foundation, 51 Franklin Street, Fifth Floor
- * Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2855,7 +2854,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		int final_length;
 
 		// fill zero
-		finalbuflen = sv->length + TERMINAL_LENGTH;
+		finalbuflen = sv->length;
 		final = (char *)calloc(finalbuflen, sizeof(char));
 
 		if(retstr[0] == '-'){
@@ -2908,7 +2907,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 			final[final_length - 1] = type_tc_negative_final_number[index];
 		}
 
-		memcpy(addr, final, sv->length + SIGN_LENGTH);
+		memcpy(addr, final, sv->length);
 		free(final);
 		break;
 	}

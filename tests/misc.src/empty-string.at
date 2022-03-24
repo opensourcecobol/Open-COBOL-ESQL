@@ -1,0 +1,15 @@
+AT_SETUP([empty string test])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+       PROGRAM-ID.                 a.
+       DATA                        DIVISION.
+       WORKING-STORAGE             SECTION.
+       01 VAL PIC X(5) VALUE "".
+       PROCEDURE                   DIVISION.
+           DISPLAY "Hello".
+           STOP RUN.
+])
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null], [0])
+
+AT_CLEANUP

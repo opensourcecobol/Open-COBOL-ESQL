@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2015 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2022 Tokyo System House Co.,Ltd.
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -12,10 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.  If not, write to
- * the Free Software Foundation, 51 Franklin Street, Fifth Floor
- * Boston, MA 02110-1301 USA
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 
 %defines
 %{
@@ -97,6 +96,7 @@
 %token COMP_1
 %token COMP_2
 %token COMP_3
+%token COMP_5
 %token USAGE
 %token SIGN
 %token LEADING
@@ -426,6 +426,7 @@ usage:
 COMP_1			{ current_field->usage = USAGE_FLOAT;   }
 | COMP_2			{ current_field->usage = USAGE_DOUBLE; }
 | COMP_3			{ current_field->usage = USAGE_PACKED; }
+| COMP_5                        { current_field->usage = USAGE_OTHER;  }
 | WORD              { current_field->usage = USAGE_OTHER; }
 ;
 
@@ -903,9 +904,6 @@ check_has_occurs_children(struct cb_field *field){
 
 	if(field == NULL)
 		return 0;
-
-	printmsg("CHILDR:sname=%s, level=%d, occurs=%d, children=%d",
-	       field->sname, field->level, field->occurs, field->children);
 
 	if(field->occurs != 0){
 		return 1;
