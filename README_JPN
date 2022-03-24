@@ -148,12 +148,6 @@ Ocesql は COBOL アプリケーション内の埋め込み SQL の具体例を�
   
        ./INSERTTBL
        ./FETCHTBL
-      
-      注意!
-      Ubuntuでは,環境変数LD_PRELOADを/usr/local/lib/libocesql.soに設定すること。
-
-       LD_PRELOAD=/usr/local/lib/libocesql.so ./INSERTTBL
-       LD_PRELOAD=/usr/local/lib/libocesql.so ./FETCHTBL
 
    * サンプルテーブルを生成するため、INSERTTBL を先に実行します。
 
