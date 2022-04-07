@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "ocesqlutil.h"
+#include "errorfile.h"
 
 #ifdef _WIN32
 #include <process.h>
