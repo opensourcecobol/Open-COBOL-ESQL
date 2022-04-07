@@ -1979,7 +1979,7 @@ void ppbuff_incfile(struct cb_exec_list *list){
 
 		while(1){
 			memset(incf_buff, 0, BUFFSIZE + 1);
-			char *fgets(char *incf_buff, BUFFSIZE, FILE *incf);
+			char *fgets(char *incf_buff, sizeof(buff), FILE *incf);
 			if(feof(incf)) break;
 
 			if(strlen(incf_buff) > MAX_LINESIZE){
