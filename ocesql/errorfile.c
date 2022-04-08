@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "ocesqlutil.h"
+#include "errorfile.h"
 
 #define MAXBUFFSIZE  1024
 #define ERRORMSGNUM 10
