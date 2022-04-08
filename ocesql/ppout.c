@@ -1952,7 +1952,7 @@ void ppbuff(struct cb_exec_list *list){
 void ppbuff_incfile(struct cb_exec_list *list){
 	struct cb_exec_list *l;
 	char buff[10];
-	char incmsg[256];
+	char incmsg[1024];
 	int len2;
 
 	l = list;
@@ -1972,14 +1972,14 @@ void ppbuff_incfile(struct cb_exec_list *list){
  
  		incf = fopen_or_die(filename, "r");
 
-		memset(incmsg, 0, 256);
-		sprintf(incmsg, "%s incfile start:%-s", INC_START_MARK, filename);
+		memset(incmsg, 0, 1024);
+		sprintf(incmsg, "%s incfile start: %s", INC_START_MARK, filename);
 		com_strcpy(out,sizeof(out),incmsg);
 		outwrite();
 
 		while(1){
 			memset(incf_buff, 0, BUFFSIZE + 1);
-			char *fgets(char *incf_buff, sizeof(buff), FILE *incf);
+			char *dummy = fgets(incf_buff, BUFFSIZE, incf);
 			if(feof(incf)) break;
 
 			if(strlen(incf_buff) > MAX_LINESIZE){
@@ -1998,8 +1998,8 @@ void ppbuff_incfile(struct cb_exec_list *list){
 			outwrite();
 		}
 
-		memset(incmsg, 0, 256);
-		sprintf(incmsg, "%s incfile end:%-s",INC__END__MARK , filename);
+		memset(incmsg, 0, 1024);
+		sprintf(incmsg, "%s incfile end: %s",INC__END__MARK , filename);
 		com_strcpy(out,sizeof(out),incmsg);
 		outwrite();
 
