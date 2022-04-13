@@ -1,5 +1,6 @@
 ﻿/*
- * Copyright (C) 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2015, 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2022 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 
 #ifndef OCDBUTIL_H
 #define OCDBUTIL_H
@@ -52,8 +52,6 @@ void com_fopen(FILE**, const char *,const char *);
 char *com_strcpy(char *, size_t, const char*);
 char *com_ctime(char *, size_t, const time_t *);
 char *com_strncpy(char *, size_t, const char*, size_t);
-int com_get_loglevel();
-char *com_get_logfile();
 char *com_getenv(char *, char *);
 void com_fprint_log(FILE *, const char *, const char *);
 void com_fprint_elog(FILE *, const char *, const char *);

@@ -1,4 +1,5 @@
 ﻿/*
+ * Copyright (C) 2015, 2022 Tokyo System House Co.,Ltd.
  * Copyright (C) 2022 Tokyo System House Co.,Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,6 +24,9 @@
 #include <time.h>
 #include "ocdbutil.h"
 #include "ocdblog.h"
+
+enum ocloglevel loglevel = LOG_OUTPUT_NOTSET;
+char *logfile = NULL;
 
 void OCLOG(const char *file, const char *func, const char *format, ...){
 	if(loglevel == LOG_OUTPUT_NOTSET){

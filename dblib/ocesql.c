@@ -1,5 +1,6 @@
 ﻿/*
- * Copyright (C) 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2015, 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2022 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2288,11 +2288,13 @@ OCESQLSetHostTable(int iter, int length, int is_parent){
  */
 int
 OCESQLEndSQL(void){
-	LOG("#debug start dump var_list\n");
-	show_sql_var_list(_sql_var_lists);
-	LOG("#debug start dump res_list\n");
-	show_sql_var_list(_sql_res_var_lists);
-	LOG("#debug end dump list\n");
+	if (loglevel == LOG_OUTPUT_DEBUG) {
+		LOG("#debug start dump var_list\n");
+		show_sql_var_list(_sql_var_lists);
+		LOG("#debug start dump res_list\n");
+		show_sql_var_list(_sql_res_var_lists);
+		LOG("#debug end dump list\n");
+	}
 
 	clear_sql_var_list(_sql_var_lists);
 	clear_sql_var_list(_sql_res_var_lists);
@@ -3228,14 +3230,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		break;
 	}
 #ifndef NDEBUG
-	char *tmp;
-	if(sv->type == OCDB_TYPE_JAPANESE){
-		tmp = oc_strndup((char *)addr,sv->length*2);
-	}else{
-		tmp = oc_strndup((char *)addr,sv->length);
-	}
-	LOG("%d %d#%s#%s#\n", sv->type, sv->length, retstr, tmp);
-	if(tmp) free(tmp);
+	LOG("%d %d#%s#%s#\n", sv->type, sv->length, retstr, (char *)addr);
 #endif
 }
 
@@ -3693,7 +3688,9 @@ add_prepare_list(char *sname, char *query, int nParams){
 	p->sq.query = query;
 	p->sq.nParams = nParams;
 
+	if(loglevel == LOG_OUTPUT_DEBUG){
 		show_prepare_list();
+	}
 
 	return p;
 }
