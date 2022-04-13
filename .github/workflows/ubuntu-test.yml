@@ -80,9 +80,8 @@ jobs:
       - name: Install Open-COBOL-ESQL
         run: |
           cd Open-COBOL-ESQL
-          touch * # Without this instructions, the following './configure' command fails.
+          ./autogen.sh
           ./configure
-          C_INCLUDE_PATH=/usr/include/postgresql/ make
           sudo make install
       
       - name: Create a log directory

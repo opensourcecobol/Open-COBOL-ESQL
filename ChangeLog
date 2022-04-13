@@ -3,6 +3,17 @@
 	* Open Cobol ESQL (Ocesql) 1.3.0 released
 
 
+2021-07-05  Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: moved additional build-scripts to build_aux
+	* configure.ac: added AC_CONFIG_AUX_DIR([build_aux])
+	* autogen.sh: new, wrapper for build_aux/bootstrap
+	* configure.ac: explicit check for libpq-fe.h and let configure pick up
+	  the necessary options from pkg_config
+	* Makefile.am: added missing subdirectories copy and sample
+	* Open Cobol ESQL (Ocesql) 1.2.0b released
+
+
 2019-04-19  TOKYO SYSTEM HOUSE Co., Ltd. <opencobol@tsh-world.co.jp>
 
 	* Open Cobol ESQL (Ocesql) 1.2.0 released
