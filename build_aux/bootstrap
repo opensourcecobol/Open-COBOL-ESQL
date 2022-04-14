@@ -77,7 +77,7 @@ ret=0
 
 # ensure the configure and Makefile parts are up-to-date:
 #autoreconf --verbose --force --include=m4 $MAINPATH; ret=$?
-autoreconf --verbose --force $MAINPATH; ret=$?
+autoreconf --verbose --force --install $MAINPATH; ret=$?
 
 if test $ret -ne 0; then
   echo; echo "ERROR, autoreconf returned $ret - aborting bootstrap" && exit $ret
