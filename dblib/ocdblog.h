@@ -1,5 +1,6 @@
 ﻿/*
- * Copyright (C) 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2015, 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2022 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 #ifndef OCDBLOG_H /* OCDBLOG_H */
 #define OCDBLOG_H
 
-#define LOG_OUTPUT_NOTSET 0
-#define LOG_OUTPUT_NOTHING 1
-#define LOG_OUTPUT_ERR 2
-#define LOG_OUTPUT_DEBUG 3
+enum ocloglevel {
+    LOG_OUTPUT_NOTSET = 0,
+    LOG_OUTPUT_NOTHING = 1,
+    LOG_OUTPUT_ERR = 2,
+    LOG_OUTPUT_DEBUG = 3
+};
 
 #define LOGBUFSIZE 26
 
-static int loglevel = LOG_OUTPUT_NOTSET;
-static char* logfile = NULL;
+extern enum ocloglevel loglevel;
+extern char* logfile;
 
-#define LOG(...) {OCLOG(__FILE__, __FUNCTION__,__VA_ARGS__);}
-#define ERRLOG(...) {OCERRLOG(__FILE__, __FUNCTION__,__VA_ARGS__);}
+#define LOG(...) {if (loglevel == LOG_OUTPUT_NOTSET || loglevel == LOG_OUTPUT_DEBUG) OCLOG(__FILE__, __FUNCTION__,__VA_ARGS__);}
+#define ERRLOG(...) {if (loglevel != LOG_OUTPUT_NOTHING) OCERRLOG(__FILE__, __FUNCTION__,__VA_ARGS__);}
 
 void OCLOG(const char *, const char *, const char *, ...);
 void OCERRLOG(const char *, const char *, const char *, ...);
+
+/* actually defined in ocdbutil.h */
+enum ocloglevel com_get_loglevel();
+char *com_get_logfile();
 
 #endif

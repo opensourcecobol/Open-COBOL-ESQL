@@ -1,4 +1,25 @@
 
+2022-02-02  Simon Sobisch <simonsobisch@gnu.org>
+
+	* ocdblog.h, ocdblog.c, odbcutil.c, odbcutil.h:
+	  changed magic numbers to enum ocloglevel, 
+	  use a single static loglevel instead of one for each source
+	* ocesql.c (OCESQLEndSQL, add_prepare_list): only run debug logging
+	  code if debug logging is active
+	* ocesql.c (create_coboldata) [!NDEBUG]: send data to logging
+	  without unnecessary temporary string duplication 
+	* ocdblog.h: changed definitions for LOG and ERRLOG to only call the
+	  logging functions if the current loglevel is either unknown or
+	  set to actually do that logging which saves a lot of stack changes
+	  (nice for 'step'ing with the debugger and for saving cpu cycles if
+	  logging is disabled)
+	* ocdbutil.c (com_get_logfile): simplified
+	* ocdbutil.c (env_to_loglevel): extracted from com_get_loglevel,
+	  changed default from "no log" to "log only errors"
+	* ocdbutil.c (com_get_logfile) [_WIN32]: changed default log path
+	  to current working directory instead of D:\develop
+	* ocdbutil.c (com_sleep, com_strdup): inlined calculation
+
 2021-07-05  Simon Sobisch <simonsobisch@gnu.org>
 
 	* Makefile.am: added EXTRA_DIST to ship headers, necessary for make dist

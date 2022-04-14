@@ -1,5 +1,6 @@
 ﻿/*
- * Copyright (C) 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2015, 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2022 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -305,14 +306,10 @@ com_strdup(const char *string){
 #ifdef _WIN32
 	return _strdup(string);
 #else
-	char *new;
-
 	if(string == NULL){
 		return NULL;
 	}
-
-	new = strdup(string);
-	return (new);
+	return strdup(string);
 #endif
 }
 
@@ -354,9 +351,7 @@ com_strncat(char *rc, size_t rcs, const char *pc, size_t len){
 void
 com_sleep(unsigned int t){
 #ifdef _WIN32
-	unsigned int st;
-	st = t * 1000;
-	Sleep(st);
+	Sleep(t * 1000);
 #else
 	sleep(t);
 #endif
@@ -411,86 +406,80 @@ com_strncpy(char *st1, size_t stb1, const char *st2, size_t stb2){
 #endif
 }
 
-int
+static enum ocloglevel
+env_to_loglevel (char *strenv)
+{
+	if (!strenv) {
+		#if 0 /* better default to "see errors"... */
+		return LOG_OUTPUT_NOTHING;
+		#else
+		return LOG_OUTPUT_ERR;
+		#endif
+	}
+	if (!strcmp(strenv, "NOLOG") || !strcmp(strenv, "nolog")){
+		return LOG_OUTPUT_NOTHING;
+	}
+	if (!strcmp(strenv, "ERR") || !strcmp(strenv, "err")){
+		return LOG_OUTPUT_ERR;
+	}
+	if (!strcmp(strenv, "DEBUG") || !strcmp(strenv, "debug")){
+		return LOG_OUTPUT_DEBUG;
+	}
+	{
+		int ret = atoi(strenv);
+		if (ret <= LOG_OUTPUT_NOTHING)  {
+			return LOG_OUTPUT_NOTHING;
+		}
+		if (ret >= LOG_OUTPUT_DEBUG) {
+			return LOG_OUTPUT_DEBUG;
+		}
+		return (enum ocloglevel)ret;
+	}
+}
+
+enum ocloglevel
 com_get_loglevel(){
-	char *strenv;
-	int retval =  LOG_OUTPUT_NOTHING;
 #ifdef _WIN32
+	enum ocloglevel retval;
+	char *strenv;
 	size_t len;
 	errno_t err = _dupenv_s(&strenv, &len, "OCDB_LOGLEVEL");
-
-	if (err || (strenv == NULL)){
-		retval = LOG_OUTPUT_NOTHING;
-	} else {
-		if (!strcmp(strenv, "NOLOG") || !strcmp(strenv, "nolog")){
-			retval = LOG_OUTPUT_NOTHING;
-		}
-		else if (!strcmp(strenv, "ERR") || !strcmp(strenv, "err")){
-			retval = LOG_OUTPUT_ERR;
-		}
-		else if (!strcmp(strenv, "DEBUG") || !strcmp(strenv, "debug")){
-			retval = LOG_OUTPUT_DEBUG;
-		}
-		else{
-			retval = atoi(strenv);
-		}
-
+	if (err) strenv = NULL;
+	retval = env_to_loglevel (strenv);
+	if (strenv) {
 		free(strenv);
 	}
-#else
-	char *tmp = getenv("OCDB_LOGLEVEL");
-	if(tmp != NULL){
-		strenv = strdup(tmp);
-		if(strenv != NULL){
-			if(!strcmp(strenv, "NOLOG") || !strcmp(strenv, "nolog")){
-				retval = LOG_OUTPUT_NOTHING;
-			} else if(!strcmp(strenv, "ERR") || !strcmp(strenv, "err")){
-				retval = LOG_OUTPUT_ERR;
-			} else if(!strcmp(strenv, "DEBUG") || !strcmp(strenv, "debug")){
-				retval = LOG_OUTPUT_DEBUG;
-			}
-			free(strenv);
-		}else{
-			retval = LOG_OUTPUT_NOTHING;
-		}
-	} else {
-		retval = LOG_OUTPUT_NOTHING;
-	}
-#endif
 	return retval;
+#else
+	return env_to_loglevel (getenv("OCDB_LOGLEVEL"));
+#endif
 }
 
 char *
 com_get_logfile(){
-	char *strenv;
 
 	if(logfile != NULL){
 		return logfile;
-	}
-#ifdef _WIN32
-	size_t len = 0;
-	errno_t err;
-
-	const char defpath[] = "D:\\develop\\ocesql.log";
-
-	err = _dupenv_s(&strenv, &len, "OCDB_LOGFILE");
-
-	if (!len){
-		return com_strdup(defpath);
 	} else {
+		char *strenv;
+#ifdef _WIN32
+		size_t len = 0;
+
+		(void) _dupenv_s(&strenv, &len, "OCDB_LOGFILE");
+
+		if (!len){
+			return com_strdup(".\\ocesql.log");
+		}
+#else
+		strenv = getenv("OCDB_LOGFILE");
+		if (strenv != NULL){
+			strenv = strdup(strenv);
+		} else {
+			strenv = strdup("/tmp/ocesql.log");
+		}
+#endif
 		return strenv;
 	}
-#else
-	const char defpath[] = "/tmp/ocesql.log";
-
-	char *tmp = getenv("OCDB_LOGFILE");
-	if(tmp != NULL){
-		strenv = strdup(tmp);
-	} else {
-		strenv = strdup(defpath);
-	}
-	return strenv;
-#endif
 }
 
 /*
