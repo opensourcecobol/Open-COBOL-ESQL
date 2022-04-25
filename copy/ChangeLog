@@ -1,0 +1,9 @@
+
+2021-07-05  Simon Sobisch <simonsobisch@gnu.org>
+
+	* Makefile.am: new file to include folder in distribution
+
+Copyright 2021 Simon Sobisch
+
+Copying and distribution of this file, with or without modification, are
+permitted provided the copyright notice and this notice are preserved.
