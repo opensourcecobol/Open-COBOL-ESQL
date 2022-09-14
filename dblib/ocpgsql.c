@@ -17,10 +17,9 @@
 
 
 #include <stdio.h>
-#include <string.h>
-#include <malloc.h>
-#include <math.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 #include "ocpgsql.h"
 #include "ocdblog.h"
