@@ -73,7 +73,7 @@ See also AUTHORS for the author and contributors.
 
   3) Bison
     
-    Ocesql's parser requires some features of Bison. POSIX Yacc doesn't work.
+    Ocesql's parser depends on some features of Bison. POSIX Yacc doesn't work.
 
 5. Installation
 ===============
