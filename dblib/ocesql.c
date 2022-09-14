@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include "ocdblog.h"
 #include "ocdbutil.h"
