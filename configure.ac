@@ -17,6 +17,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_YACC
+AC_PATH_PROG(BISON, bison)
+if test -z "$BISON"; then
+	AC_MSG_ERROR([Ocesql requires bison. POSIC Yacc will not work.])
+fi
 AC_PROG_CC
 AC_PROG_LEX
 AC_PROG_LIBTOOL

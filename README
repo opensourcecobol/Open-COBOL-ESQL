@@ -71,6 +71,10 @@ See also AUTHORS for the author and contributors.
     o GnuCOBOL 2.2
       https://www.gnu.org/software/gnucobol/
 
+  3) Bison
+    
+    Ocesql's parser depends on some features of Bison. POSIX Yacc doesn't work.
+
 5. Installation
 ===============
 

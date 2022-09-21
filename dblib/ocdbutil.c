@@ -20,7 +20,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdbool.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <math.h>
 #include "ocdbutil.h"
 #include "ocdblog.h"
