@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright (C) 2015, 2022 Tokyo System House Co.,Ltd.
- * Copyright (C) 2022 Simon Sobisch
+ * Copyright (C) 2022, 2023 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -607,8 +607,10 @@ OCESQLPrepare(struct sqlca_t *st, char *sname, char *query, int querylen){
 	LOG("Add prepare: sname:%s, nParams:%d, query:'%s'\n",sname,nParams,pquery);
 	if(add_prepare_list(sname, pquery, nParams) ==NULL){
 		OCDBSetLibErrorStatus(st,OCDB_OUT_OF_MEMORY);
+		return 1;
 	}
 
+	sqlca_initialize(st);
 	return 0;
 }
 
