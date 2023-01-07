@@ -1,3 +1,10 @@
+
+2023-01-07  Simon Sobisch <simonsobisch@gnu.org>
+
+	* configure.ac: use AM_PROG_LEX instead of AC_PROG_LEX to get a useful note
+	  if it is missing; remove unused AC_PROG_CXX (and duplicate AC_PROG_CC)
+
+
 2022-03-24  TOKYO SYSTEM HOUSE Co., Ltd. <opencobol@tsh-world.co.jp>
 
 	* Open Cobol ESQL (Ocesql) 1.3.0 released

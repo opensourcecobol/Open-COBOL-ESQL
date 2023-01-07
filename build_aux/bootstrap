@@ -1,6 +1,6 @@
 #!/bin/sh
-# bootstrap gnucobol/build_aux
-# Bootstrap gnucobol package from checked-out sources
+# bootstrap Open-COBOL-ESQL/build_aux
+# Bootstrap Open Cobol ESQL package from checked-out sources
 # Note:  call as ./bootstrap if you don't have readlink -f
 #
 # Copyright (C) 2017-2021 Free Software Foundation, Inc.

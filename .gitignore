@@ -24,3 +24,5 @@ ocesql/scanner.c
 */*.la
 */*.lo
 ocesql/ocesql
+
+build

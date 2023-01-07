@@ -2,7 +2,7 @@
 # Makefile open-cobol-esql/ocesql
 #
 # Copyright (C) 2015 Tokyo System House Co.,Ltd.
-# Copyright (C) 2021 Simon Sobisch
+# Copyright (C) 2021, 2023 Simon Sobisch
 #
 # This file is part of Open Cobol ESQL.
 #
@@ -22,6 +22,5 @@
 bin_PROGRAMS = ocesql
 ocesql_SOURCES = errorfile.c ocesql.c ocesqlutil.c parser.y ppout.c scanner.l
 
-CLEANFILES = parser.c parser.h scanner.c
-
+BUILT_SOURCES = parser.c scanner.c
 EXTRA_DIST = define.h ocesql.h ocesqlutil.h parser.h

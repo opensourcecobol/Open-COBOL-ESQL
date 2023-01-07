@@ -1,6 +1,6 @@
 #!/bin/sh
-# autogen.sh gnucobol
-# Bootstrap gnucobol package from checked-out sources
+# autogen.sh Open-COBOL-ESQL
+# Bootstrap Open Cobol ESQL package from checked-out sources
 # Note:  call as ./autogen.sh if you don't have readlink -f
 #
 # Copyright (C) 2019 Free Software Foundation, Inc.
