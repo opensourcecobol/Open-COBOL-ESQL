@@ -2,13 +2,8 @@ name: Open-COBOL-ESQL tests on Ubuntu
 
 on:
   push:
-    branches:
-      - main
-      - 'feature/**'
-      - 'develop/**'
-      - 'issue/**'
   pull_request:
-    types: [opened, reopened, review_requested]
+    types: [opened, reopened, review_requested, synchronize]
 
 jobs:
   Open-COBOL-ESQL-tests:
