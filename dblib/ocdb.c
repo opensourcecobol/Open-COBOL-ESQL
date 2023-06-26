@@ -88,18 +88,15 @@ OCDBConnect(int dbtype, char *conninfo, char *connname, int autocommit, char *ce
  */
 int
 OCDBStatus(int id){
-	struct s_conn *p_conn;
-	int retval = OCDB_CONN_FAIL_CONNECT;
+	const struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-
-	if(p_conn == NULL) return retval;
+	if(p_conn == NULL) return OCDB_CONN_FAIL_CONNECT;
 
 #ifdef PGSQL_MODE_ON
-	retval = OCDB_PGstatus(p_conn->connaddr);
+	return OCDB_PGstatus(p_conn->connaddr);
+#else
+	return OCDB_CONN_FAIL_CONNECT;
 #endif
-
-	return retval;
 }
 
 /*
@@ -110,19 +107,15 @@ OCDBStatus(int id){
  */
 char *
 OCDBErrorMessage(int id){
-	struct s_conn *p_conn;
-	char *retstr;
+	const struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return NULL;
-	}
+	if(p_conn == NULL) return NULL;
 
 #ifdef PGSQL_MODE_ON
-	retstr = OCDB_PGErrorMessage(p_conn->connaddr);
+	return OCDB_PGErrorMessage(p_conn->connaddr);
+#else
+	return NULL;
 #endif
-
-	return retstr;
 }
 
 /*
@@ -132,12 +125,10 @@ OCDBErrorMessage(int id){
  */
 void
 OCDBExec(int id, char *query){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
+
 	// initialize
 #ifdef PGSQL_MODE_ON
 	if(p_conn->resaddr != OCDB_RES_DEFAULT_ADDRESS){
@@ -154,7 +145,6 @@ OCDBExec(int id, char *query){
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 /*
@@ -167,13 +157,10 @@ OCDBExecParams(int id, char *query, int nParams,
 		const int *paramsTypes, const char * const *paramValues,
 		const int *paramLengths, const int *paramFormats,
 		int resultFormat){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
 	LOG("id=%d,p_conn=%d\n", id, p_conn);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
 
 
 	// initialize
@@ -193,7 +180,6 @@ OCDBExecParams(int id, char *query, int nParams,
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 /*
@@ -205,12 +191,9 @@ return;
  */
 void
 OCDBCursorDeclare(int id, char *cname, char *query, int with_hold){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
 
 	// initialize
 #ifdef PGSQL_MODE_ON
@@ -228,7 +211,6 @@ OCDBCursorDeclare(int id, char *cname, char *query, int with_hold){
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 /*
@@ -242,12 +224,9 @@ OCDBCursorDeclareParams(int id, char *cname, char *query, int nParams,
 		const int *paramsTypes, const char * const *paramValues,
 		const int *paramLengths, const int *paramFormats,
 		int resultFormat, int with_hold){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
 
 	// initialize
 #ifdef PGSQL_MODE_ON
@@ -267,7 +246,6 @@ OCDBCursorDeclareParams(int id, char *cname, char *query, int nParams,
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 /*
@@ -277,12 +255,9 @@ return;
  */
 void
 OCDBCursorOpen(int id, char *cname){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
 
 	// initialize
 #ifdef PGSQL_MODE_ON
@@ -297,10 +272,7 @@ OCDBCursorOpen(int id, char *cname){
 #ifdef PGSQL_MODE_ON
 	// dummy
 	p_conn->result = RESULT_FLAG1_PGSQL_DUMMYOPEN;
-	return;
 #endif
-
-	return;
 }
 
 /*
@@ -310,12 +282,9 @@ OCDBCursorOpen(int id, char *cname){
  */
 void
 OCDBCursorFetchOne(int id, char *cname, int fetchmode){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
 
 	// initialize
 #ifdef PGSQL_MODE_ON
@@ -334,7 +303,6 @@ OCDBCursorFetchOne(int id, char *cname, int fetchmode){
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 /*
@@ -345,12 +313,9 @@ return;
  */
 void
 OCDBCursorFetchOccurs(int id, char *cname, int fetchmode, int count){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
 
 	// initialize
 #ifdef PGSQL_MODE_ON
@@ -369,7 +334,6 @@ OCDBCursorFetchOccurs(int id, char *cname, int fetchmode, int count){
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 /*
@@ -379,12 +343,9 @@ return;
  */
 void
 OCDBCursorClose(int id, char *cname){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
 
 	// initialize
 #ifdef PGSQL_MODE_ON
@@ -402,15 +363,12 @@ OCDBCursorClose(int id, char *cname){
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 int
 OCDBSetResultStatus(int id, struct sqlca_t *st){
-	struct s_conn *p_conn;
-	int retval;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
 	if(p_conn == NULL){
 	  //return OCDB_RES_FATAL_ERROR;
 		return RESULT_ERROR;
@@ -426,12 +384,12 @@ OCDBSetResultStatus(int id, struct sqlca_t *st){
 #ifdef PGSQL_MODE_ON
 	if(p_conn->result == RESULT_FLAG1_PGSQL_DUMMYOPEN){
 		// DUMMY OPENの対応
-		retval = RESULT_SUCCESS;
+		return RESULT_SUCCESS;
 	} else {
-		retval = OCDB_PGSetResultStatus(p_conn->resaddr,st);
+		return OCDB_PGSetResultStatus(p_conn->resaddr,st);
 	}
 #endif
-	return retval;
+	return 0;
 }
 
 /*
@@ -442,18 +400,16 @@ OCDBSetResultStatus(int id, struct sqlca_t *st){
  */
 char *
 OCDBResultErrorMessage(int id){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	LOG("id=%d\n", id);
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return OCDB_RES_NOCONNECT_ERRORMSG;
-	}
+	LOG("id=%d,p_conn=%d\n", id, p_conn);
+	if(p_conn == NULL) return OCDB_RES_NOCONNECT_ERRORMSG;
 
 	// initialize
-	p_conn->errorMessage = NULL;
 #ifdef PGSQL_MODE_ON
 	p_conn->errorMessage = OCDB_PGResultErrorMessage(p_conn->resaddr);
+#else
+	p_conn->errorMessage = NULL;
 #endif
 	return p_conn->errorMessage;
 }
@@ -461,136 +417,108 @@ OCDBResultErrorMessage(int id){
 
 char *
 OCDBResultErrorField(int id){
-	struct s_conn *p_conn;
-	char *errfield;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	LOG("id=%d\n", id);
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return OCDB_RES_NOCONNECT_ERRORMSG;
-	}
+	LOG("id=%d,p_conn=%d\n", id, p_conn);
+	if(p_conn == NULL) return OCDB_RES_NOCONNECT_ERRORMSG;
 
-	// initialize
-	errfield = NULL;
 #ifdef PGSQL_MODE_ON
-	errfield = OCDB_PGResultErrorField(p_conn->resaddr);
+	return OCDB_PGResultErrorField(p_conn->resaddr);
+#else
+	return NULL;
 #endif
-	return errfield;
 }
 
 int
 OCDBCmdTuples(int id){
-	struct s_conn *p_con;
-	int retval;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_con = look_up_conn_lists(id);
-	if(p_con == NULL){
-		return OCDB_INVALID_NUMBER;
+	LOG("id=%d,p_conn=%d\n", id, p_conn);
+	if(p_conn == NULL) return OCDB_INVALID_NUMBER;
 	}
 
 #ifdef PGSQL_MODE_ON
-	retval = OCDB_PGcmdtuples(p_con->resaddr);
+	return OCDB_PGcmdtuples(p_con->resaddr);
+#else
+	return 0;
 #endif
-
-	return retval;
 }
 
 
 int
 OCDBNtuples(int id){
-	struct s_conn *p_con;
-	int retval;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_con = look_up_conn_lists(id);
-	if(p_con == NULL){
-		return OCDB_INVALID_NUMBER;
-	}
+	if(p_conn == NULL) return OCDB_INVALID_NUMBER;
 
 #ifdef PGSQL_MODE_ON
-	retval = OCDB_PGntuples(p_con->resaddr);
+	return OCDB_PGntuples(p_con->resaddr);
+#else
+	return 0;
 #endif
-
-	return retval;
 }
 
 int
 OCDBNfields(int id){
-	struct s_conn *p_conn;
-	int retval;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return OCDB_INVALID_NUMBER;
-	}
+	if(p_conn == NULL) return OCDB_INVALID_NUMBER;
 
 #ifdef PGSQL_MODE_ON
-	retval = OCDB_PGnfields(p_conn->resaddr);
+	return OCDB_PGnfields(p_con->resaddr);
+#else
+	return 0;
 #endif
-
-	return retval;
 }
 
 char *
 OCDBFname(int id, int index){
-	struct s_conn *p_conn;
-	char *retstr;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return OCDB_INVALID_STRING;
-	}
+	if(p_conn == NULL) return OCDB_INVALID_STRING;
 
 #ifdef PGSQL_MODE_ON
-	retstr = OCDB_PGfname(p_conn->resaddr, index);
+	return OCDB_PGfname(p_conn->resaddr, index);
+#else
+	return NULL;
 #endif
-
-	return retstr;
 }
 
 int
 OCDBFnumber(int id, const char *fname){
-	struct s_conn *p_conn;
-	int retval;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return OCDB_INVALID_NUMBER;
-	}
+	if(p_conn == NULL) return OCDB_INVALID_NUMBER;
 
 #ifdef PGSQL_MODE_ON
-	retval = OCDB_PGfnumber(p_conn->resaddr, fname);
+	return OCDB_PGfnumber(p_conn->resaddr, fname);
+#else
+	return 0;
 #endif
-
-	return retval;
 }
 
 char *
 OCDBGetvalue(int id, int row, int cnum){
-	struct s_conn *p_conn;
-	char *retstr;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return NULL;
-	}
+	if(p_conn == NULL) return OCDB_INVALID_STRING;
 
-#ifdef PGSQL_MODE_ON
-	retstr = OCDB_PGgetvalue(p_conn->resaddr, row, cnum);
+#ifdef PGSQL_MODE_ON	
+	char *retstr = OCDB_PGgetvalue(p_conn->resaddr, row, cnum);
 	LOG("retstr:%s\n",retstr);
-#endif
-
 	return retstr;
+#else
+	return NULL;
+#endif
 }
 
 
 void
 OCDBDropTable(int id, char *tname){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
+
 
 #ifdef PGSQL_MODE_ON
 	p_conn->resaddr = OCDB_PGDropTable(p_conn->connaddr, tname);
@@ -598,17 +526,13 @@ OCDBDropTable(int id, char *tname){
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 void
 OCDBDeleteTable(int id, char *tname){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
-	if(p_conn == NULL){
-		return;
-	}
+	if(p_conn == NULL) return;
 
 #ifdef PGSQL_MODE_ON
 	p_conn->resaddr = OCDB_PGDeleteTable(p_conn->connaddr, tname);
@@ -616,14 +540,12 @@ OCDBDeleteTable(int id, char *tname){
 		ERRLOG("PostgreSQL Result is NULL");
 	}
 #endif
-return;
 }
 
 void
 OCDBFinish(int id){
-	struct s_conn *p_conn;
+	struct s_conn *p_conn = look_up_conn_lists(id);
 
-	p_conn = look_up_conn_lists(id);
 	if(p_conn == NULL){
 		LOG("no connection id %d found.\n", id);
 		return;
@@ -637,16 +559,14 @@ OCDBFinish(int id){
 #endif
 	LOG("connection id %d released.\n", id);
 	free_conn_lists(id);
-	return;
 }
 
 int
 OCDBSetLibErrorStatus(struct sqlca_t * st, int errorno){
-	int retval;
 #ifdef PGSQL_MODE_ON
-	retval = OCDB_PGSetLibErrorStatus(st, errorno);
+	return OCDB_PGSetLibErrorStatus(st, errorno);
 #endif
-	return retval;
+	return 0;
 }
 
 /*
@@ -673,7 +593,6 @@ OCDBResolveCONNID(char *cid){
 		if(strcmp(cid, tmp->sc.cid) == 0){
 			LOG("return connid=%d\n", tmp->sc.id);
 			return tmp->sc.id;
-			break;
 		}
 	}
 
@@ -696,17 +615,15 @@ OCDBResolveCONNID(char *cid){
  */
 static struct s_conn *
 look_up_conn_lists(int id){
-	struct s_conn *retval = NULL;
 	struct conn_list *tmp = &_conn_lists;
 
 	while(tmp->next != NULL){
 		tmp = tmp->next;
 		if(tmp->sc.id == id){
-			retval = &(tmp->sc);
-			break;
+			return &(tmp->sc);
 		}
 	}
-	return retval;
+	return NULL;
 }
 
 /*
@@ -820,7 +737,7 @@ free_conn_lists(int id){
 			if(tmp->sc.cid) free(tmp->sc.cid);
 			if(tmp->sc.pid) free(tmp->sc.pid);
 			free(tmp);
-			break;
+			return;
 		}
 	}
 }
@@ -831,8 +748,7 @@ free_conn_lists(int id){
 char *
 _alloc(long size)
 {
-	char *new = (char *) calloc(1L, size);
-	return (new);
+	return (char *) calloc(1L, size);
 }
 
 /*
