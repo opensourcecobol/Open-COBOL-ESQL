@@ -435,10 +435,9 @@ OCDBCmdTuples(int id){
 
 	LOG("id=%d,p_conn=%d\n", id, p_conn);
 	if(p_conn == NULL) return OCDB_INVALID_NUMBER;
-	}
 
 #ifdef PGSQL_MODE_ON
-	return OCDB_PGcmdtuples(p_con->resaddr);
+	return OCDB_PGcmdtuples(p_conn->resaddr);
 #else
 	return 0;
 #endif
@@ -452,7 +451,7 @@ OCDBNtuples(int id){
 	if(p_conn == NULL) return OCDB_INVALID_NUMBER;
 
 #ifdef PGSQL_MODE_ON
-	return OCDB_PGntuples(p_con->resaddr);
+	return OCDB_PGntuples(p_conn->resaddr);
 #else
 	return 0;
 #endif
@@ -465,7 +464,7 @@ OCDBNfields(int id){
 	if(p_conn == NULL) return OCDB_INVALID_NUMBER;
 
 #ifdef PGSQL_MODE_ON
-	return OCDB_PGnfields(p_con->resaddr);
+	return OCDB_PGnfields(p_conn->resaddr);
 #else
 	return 0;
 #endif
