@@ -1,0 +1,94 @@
+
+image: gitpod/workspace-c
+
+tasks:
+
+- name: setup coding environment on Ubuntu 20.04
+  before: |
+    # note: sadly we need this to be done every time as only /workspace is kept, but linked
+    #       against those dependencies; and also we do want to recompile after adjustments
+    #       this can all be dropped if we would use a prepared docker
+    sudo apt update && sudo apt upgrade -y
+    sudo apt install -y build-essential  \
+         automake libtool flex bison \
+         libpq-dev
+    gp sync-done system-prepare
+  command: |
+    gp sync-done system-prepare
+    exit
+
+- name: setup test environment on Ubuntu 20.04
+  before: |
+    gp sync-await system-prepare
+    sudo apt install -y build-essential \
+         libpq-dev postgresql postgresql-contrib \
+         gnucobol
+    gp sync-done test-system-prepare
+  command: |
+    gp sync-done test-system-prepare
+    exit
+
+- name: setup dev helpers
+  before: |
+    gp sync-await test-system-prepare
+    sudo apt install -y bear manpages-dev
+  command: |
+    exit
+
+- name: building
+  init: |
+    mkdir -p $GITPOD_REPO_ROOTS/build
+    cd $GITPOD_REPO_ROOTS/build
+    gp sync-await system-prepare
+    ../autogen.sh
+    ../configure --enable-debug
+    make --jobs=$(nproc)
+  command: |
+    cd $GITPOD_REPO_ROOTS/build
+    gp sync-done build-finish
+
+- name: test preparation
+  command: |
+    gp sync-await test-system-prepare
+    gp sync-await build-finish
+    cd $GITPOD_REPO_ROOTS/build
+    half_jobs=$(( $(nproc) / 2 ))
+    # as the testuite is setup currently, we need to install first
+    sudo make install
+    # as the tests directory is not part of automake yet...
+    mkdir tests && cd tests
+    # force rebuild of files that should not be in the repo in the first place
+    make -f $GITPOD_REPO_ROOTS/tests/Makefile distcleanclean
+    cp -p $GITPOD_REPO_ROOTS/.github/workflows/ubuntu-test-settings/atlocal .
+    cp -p $GITPOD_REPO_ROOTS/.github/workflows/ubuntu-test-settings/embed_db_info.sh .
+    cp -p $GITPOD_REPO_ROOTS/.github/workflows/ubuntu-test-settings/cobol_runner.sh .
+    nice make -f $GITPOD_REPO_ROOTS/tests/Makefile --jobs=${half_jobs}
+    gp sync-done test-prepare
+
+- name: running tests
+  command: |
+    gp sync-await test-prepare
+    cd $GITPOD_REPO_ROOTS/build/tests
+
+    make clean
+    ./basic || true
+    ./cobol_data || true
+    ./sql_data || true
+    ./sqlca || true
+    ./misc || true
+    #cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir *.log ../log/test
+
+    # output results and fail if one test failed
+    cat *.log
+    [ -z "$(cat *.log | grep 'Failed tests:')" ]
+
+vscode:
+  extensions:
+    - llvm-vs-code-extensions.vscode-clangd
+    - maelvalais.autoconf
+    - Dizy.lex-flex-yacc-bison
+    - meronz.manpages
+    - webfreak.debug
+    # no code-coverage yet
+    #- ryanluker.vscode-coverage-gutters
+    #- tenninebt.vscode-koverage
