@@ -141,12 +141,12 @@ struct cb_field {
 	char	*sname;
 	int		level;
 	int		usage;
-//	int		sign_leading;
+	/* int		sign_leading; */
 	int		occurs;
 	struct cb_field *parent;
 	struct cb_field *children;
 	struct cb_field *sister;
-//	char  *picname;
+	/* char  *picname; */
 
 	int pictype;
 	int picnsize;

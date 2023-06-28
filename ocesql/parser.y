@@ -350,7 +350,7 @@ sqlvariantstates: WORKINGBEGIN {
 
 sqlvariantstate_list
 WORKINGEND {
-	// check host_variable
+	/* check host_variable */
 	put_exec_list();
 }
 ;
@@ -383,7 +383,7 @@ data_description_clause_sequence
 |NUMERIC {
 	struct cb_field *x;
 
-	x =  cb_build_field_tree( $1, "" , current_field); // regist dummy name
+	x =  cb_build_field_tree( $1, "" , current_field); /* regist dummy name */
 	if( x != NULL){
 		if( x->level != 78)
 			current_field = x;
@@ -640,7 +640,8 @@ int gethostvarianttype(char *name,  int *type, int *digits, int *scale)
 		}
 		*type = tmp_type;
 		return 0;
-	} else { // Group data
+	} else {
+		/* Group data */
 		if(p->occurs > 0){
 			struct cb_field * c;
 
