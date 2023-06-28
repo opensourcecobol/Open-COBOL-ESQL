@@ -1206,9 +1206,10 @@ _ocesqlPreparedCursorDeclare(struct sqlca_t *st, int id, char *cname, char *snam
 		return;
 	}
 
-	if((res = add_cursor_list_with_prepare(id, cname, prepare)) == RESULT_FAILED){
+	res = add_cursor_list_with_prepare(id, cname, prepare);
+	if(res == RESULT_FAILED){
 		OCDBSetLibErrorStatus(st,OCDB_WARNING_PORTAL_EXISTS);
-	}else if((res = add_cursor_list_with_prepare(id, cname, prepare)) == RESULT_ERROR){
+	}else if(res == RESULT_ERROR){
 		OCDBSetLibErrorStatus(st,OCDB_OUT_OF_MEMORY);
 	}
 }
