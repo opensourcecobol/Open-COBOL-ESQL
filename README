@@ -35,10 +35,10 @@ run-time library as follows:
 ==========
 
 All programs except those in dblib subdirectories are distributed
-under the GNU General Public License.  See COPYING for details.
+under the GNU General Public License v3 or later.  See COPYING for details.
 
 Programs in dblib subdirectories are distributed under the GNU
-Lesser General Public License.  See COPYING.LIB for details.
+Lesser General Public License v3 or later.  See COPYING.LESSER for details.
 
 See also AUTHORS for the author and contributors.
 
