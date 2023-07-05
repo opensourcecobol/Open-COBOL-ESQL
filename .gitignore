@@ -25,4 +25,8 @@ ocesql/scanner.c
 */*.lo
 ocesql/ocesql
 
-build
+# out of tree builds
+*build
+
+# clangd cache
+.cache
