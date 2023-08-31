@@ -2581,10 +2581,8 @@ create_realdata(SQLVAR *sv,int index){
 		/* set real data */
 		int i;
 		int index = 0;
-		char *ptr;
-		unsigned char tmp;
-		unsigned char ubit = 0xF0;
-		unsigned char lbit = 0x0F;
+		const unsigned char ubit = 0xF0;
+		const unsigned char lbit = 0x0F;
 
 		realdata_length = sv_tmp.length;
 		// 小数点
@@ -2594,21 +2592,14 @@ create_realdata(SQLVAR *sv,int index){
 
 		sv_tmp.realdata = (char *)calloc(realdata_length + TERMINAL_LENGTH, sizeof(char));
 		for(i=0; i<dlength; i++){
-			char val[2];
 
-			ptr = (char *)sv_tmp.data + i * sizeof(char);
-			tmp = (unsigned char)*ptr;
-			int vallen = 2;
+			unsigned char *ptr = (unsigned char *)sv_tmp.data + i * sizeof(char);
 
 			if(i!=0 || !skip_first){
-				com_sprintf(val, vallen, "%d", (tmp & ubit) >> 4);
-				sv_tmp.realdata[index] = val[0];
-				index++;
+				sv_tmp.realdata[index++] = '0' + ((*ptr & ubit) >> 4);
 			}
 			if(i != dlength - 1){
-				com_sprintf(val, vallen, "%d", tmp & lbit);
-				sv_tmp.realdata[index] = val[0];
-				index++;
+				sv_tmp.realdata[index++] = '0' + (*ptr & lbit);
 			}
 		}
 
@@ -2634,10 +2625,8 @@ create_realdata(SQLVAR *sv,int index){
 		/* set real data */
 		int i;
 		int index = SIGN_LENGTH;
-		char *ptr;
-		unsigned char tmp;
-		unsigned char ubit = 0xF0;
-		unsigned char lbit = 0x0F;
+		const unsigned char ubit = 0xF0;
+		const unsigned char lbit = 0x0F;
 
 		// 符号部分
 		realdata_length = SIGN_LENGTH + sv_tmp.length;
@@ -2648,26 +2637,20 @@ create_realdata(SQLVAR *sv,int index){
 
 		sv_tmp.realdata = (char *)calloc(realdata_length + TERMINAL_LENGTH, sizeof(char));
 		for(i=0; i<dlength; i++){
-			char val[2];
-			int vallen = 2;
 
-			ptr = (char *)sv_tmp.data + i * sizeof(char);
-			tmp = (unsigned char)*ptr;
+			unsigned char *ptr = (unsigned char *)sv_tmp.data + i * sizeof(char);
 
 			if(i!=0 || !skip_first){
-				com_sprintf(val, vallen, "%d", (tmp & ubit) >> 4);
-				sv_tmp.realdata[index] = val[0];
-				index++;
+				sv_tmp.realdata[index++] = '0' + ((*ptr & ubit) >> 4);
 			}
 			if(i != dlength - 1){
-				com_sprintf(val, vallen, "%d", tmp & lbit);
-				sv_tmp.realdata[index] = val[0];
-				index++;
+				sv_tmp.realdata[index++] = '0' + (*ptr & lbit);
 			} else {
-				if((tmp & lbit) == 0x0C){
-					sv_tmp.realdata[0] = '+';
-				} else {
+				if((*ptr & lbit) == 0x0D){
 					sv_tmp.realdata[0] = '-';
+				} else {
+				// expected 0x0C, but -std=ibm may lead to 0x0F (and Pro*COB handles that as positive, too)
+					sv_tmp.realdata[0] = '+';
 				}
 			}
 		}
@@ -3691,7 +3674,3 @@ get_prepare_from_list(char *sname){
 	LOG("#return:%s#\n", ret->sq.pname);
 	return ret;
 }
-
-
-
-
