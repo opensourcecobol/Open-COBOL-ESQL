@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2023 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -305,13 +306,12 @@ void ppoutputendcall(struct cb_exec_list *list){
 }
 
 void ppoutputopen(struct cb_exec_list *list){
+	struct cb_exec_list *l = list;
 	struct cb_hostreference_list *wk_host;
-	struct cb_exec_list *l;
 	char str_type[BUFFSIZE];
 
-	l = list;
-
 	if(l->hostreferenceCount != 0){
+		int count = 0;
 		com_strcpy(out,sizeof(out),"OCESQL ");
 		com_strcat(out,sizeof(out),"   ");
 		com_strcat(out,sizeof(out),strcall);
@@ -323,7 +323,6 @@ void ppoutputopen(struct cb_exec_list *list){
 		com_strcat(out,sizeof(out),strend);
 		outwrite();
 		wk_host = l->host_list;
-		int count = 0;
 		for(; wk_host ; wk_host = wk_host->next){
 			count += ppoutputparam(wk_host,0);
 		}
@@ -649,17 +648,16 @@ void ppoutputexecprepare(struct cb_exec_list *list){
 	char buff[256];
 	struct cb_hostreference_list *host_list;
 	int type, digits, scale;
-	int iret;
 	char str_type[BUFFSIZE];
+	int count = 0;
 
 	memset(buff, 0, sizeof(buff));
 	com_sprintf(buff,sizeof(buff), "OCESQL%5sCALL \"OCESQLStartSQL\"\nOCESQL%5sEND-CALL\n"," "," ");
 	fputs(buff, outfile);
 
 	host_list = list->host_list;
-	int count = 0;
 	if(host_list){
-		iret = gethostvarianttype(host_list->hostreference, &type, &digits, &scale);
+		int iret = gethostvarianttype(host_list->hostreference, &type, &digits, &scale);
 		if(iret != 0){
 			printmsg("%s:%d\n", host_list->hostreference,iret);
 			memset(buff, 0, sizeof(buff));
@@ -1134,6 +1132,11 @@ void ppoutputother(struct cb_exec_list *list){
 	char buff[256];
 	struct cb_hostreference_list *host_list;
 
+	int length = 0;
+	int iteration = 0;
+	int occurs_is_parent = 0;
+	int count;
+
 	if( list->hostreferenceCount ==  0)
 	{
 		memset(buff, 0, sizeof(buff));
@@ -1187,17 +1190,13 @@ void ppoutputother(struct cb_exec_list *list){
 	com_sprintf(buff,sizeof(buff), "OCESQL%5sCALL \"OCESQLStartSQL\"\nOCESQL%5sEND-CALL\n"," "," ");
 	fputs(buff, outfile);
 
-	int length = 0;
-	int iteration = 0;
-	int occurs_is_parent = 0;
 
 	if((com_stricmp(list->commandName,"INSERT")==0) ||
 			(com_stricmp(list->commandName,"DELETE")==0) ||
 			(com_stricmp(list->commandName,"UPDATE")==0)){
-		struct cb_hostreference_list *res_host_list;
+		struct cb_hostreference_list *res_host_list = list->host_list;
 		int iret;
 
-		res_host_list = list->host_list;
 		struct cb_field *parent, *child, *f;
 		f = getfieldbyname(res_host_list->hostreference);
 		if (f == NULL){
@@ -1229,12 +1228,11 @@ void ppoutputother(struct cb_exec_list *list){
 		}
 	}
 exit_occurs_check:
-	host_list = list->host_list;
-	int count = 0;
-	while( host_list)
+	count = 0;
+
+	for( host_list = list->host_list; host_list; host_list = host_list->next)
 	{
 		count += ppoutputparam(host_list,iteration);
-		host_list = host_list->next;
 	}
 
 	memset(buff, 0, sizeof(buff));
@@ -1452,7 +1450,7 @@ void ppbuff(struct cb_exec_list *list){
 	}
 
 	if(strcmp(l->commandName,"VARYING_PARAM")==0){
-	     // modify cb_field
+	     /* modify cb_field */
 	     struct cb_field *vp_parent, *vp_len, *vp_arr;
 	     int pstart;
 	     int istart;
@@ -1464,7 +1462,7 @@ void ppbuff(struct cb_exec_list *list){
 	     vp_len = vp_parent->children;
 	     vp_arr = vp_len->sister;
 
-	     // get start position
+	     /* get start position */
 	     for(pstart=6;inbuff[pstart]!='\0';pstart++){
 		  if(inbuff[pstart] != ' ')
 		       break;
@@ -1640,7 +1638,8 @@ void ppbuff(struct cb_exec_list *list){
 				com_strcat(out,sizeof(out),".");
 
 			outwrite();
-		} else { // SELECT INTO
+		} else {
+			/* SELECT INTO */
 			struct cb_res_hostreference_list *wk_res_host;
 			int length = 0;
 			int iteration = 0;
@@ -1845,7 +1844,7 @@ void ppbuff(struct cb_exec_list *list){
 			outwrite();
 		}
 	} else if(l->prepareName[0] != '\0'){
-		// DECLARE cursor for prepare
+		/* DECLARE cursor for prepare */
 		com_strcpy(out,sizeof(out),"OCESQL ");
 		com_strcat(out,sizeof(out),"   ");
 		com_strcat(out,sizeof(out),strcall);
@@ -1960,7 +1959,6 @@ void ppbuff_incfile(struct cb_exec_list *list){
 	if(strcmp(l->commandName,"INCFILE")==0){
 		char filename[512];
 		FILE *incf;
-		char incf_buff[BUFFSIZE + 1];
 		int retcode;
 
 		memset(filename, 0, 512);
@@ -1978,7 +1976,7 @@ void ppbuff_incfile(struct cb_exec_list *list){
 		outwrite();
 
 		while(1){
-			memset(incf_buff, 0, BUFFSIZE + 1);
+			char incf_buff[BUFFSIZE + 1] = { 0 };
 			char *dummy = fgets(incf_buff, BUFFSIZE, incf);
 			if(feof(incf)) break;
 
@@ -2244,7 +2242,7 @@ void parameter_split(struct cb_field *vp_parent){
 	varlen = vp_parent->picnsize;
 	vartype = vp_parent->pictype;
 
-	// vp_len
+	/* vp_len */
 	vp_len->sname = (char *)malloc((strlen(basename) + strlen("-LEN") + TERMINAL_LENGTH) * sizeof(char));
 	if(vp_len->sname == NULL){
 	     printmsg("parameter_split: memory allocation for vp_len->sname failed.\n");
@@ -2260,7 +2258,7 @@ void parameter_split(struct cb_field *vp_parent){
 	vp_len->picnsize = 10;
 	vp_parent->children = vp_len;
 
-	// vp_arr
+	/* vp_arr */
 	vp_arr->sname = (char *)malloc((strlen(basename) + strlen("-ARR") + TERMINAL_LENGTH) * sizeof(char));
 	if(vp_arr->sname == NULL){
 	     printmsg("parameter_split: memory allocation for vp_arr->sname failed.\n");
@@ -2274,7 +2272,7 @@ void parameter_split(struct cb_field *vp_parent){
 	vp_arr->parent = vp_parent;
 	vp_len->sister = vp_arr;
 
-	// vp_parent
+	/* vp_parent */
 	if(vp_parent->pictype == PIC_NATIONAL){
 	     vp_parent->pictype = PIC_NATIONAL_VARYING;
 	} else {

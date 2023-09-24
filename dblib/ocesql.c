@@ -22,7 +22,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include "ocdblog.h"
 #include "ocdbutil.h"
@@ -1206,9 +1205,10 @@ _ocesqlPreparedCursorDeclare(struct sqlca_t *st, int id, char *cname, char *snam
 		return;
 	}
 
-	if((res = add_cursor_list_with_prepare(id, cname, prepare)) == RESULT_FAILED){
+	res = add_cursor_list_with_prepare(id, cname, prepare);
+	if(res == RESULT_FAILED){
 		OCDBSetLibErrorStatus(st,OCDB_WARNING_PORTAL_EXISTS);
-	}else if((res = add_cursor_list_with_prepare(id, cname, prepare)) == RESULT_ERROR){
+	}else if(res == RESULT_ERROR){
 		OCDBSetLibErrorStatus(st,OCDB_OUT_OF_MEMORY);
 	}
 }
@@ -2363,22 +2363,9 @@ reset_sql_var_list(void){
  * <Outline>
  *   埋め込みSQLリスト生成
  */
-static SQLVARLIST *
+static inline SQLVARLIST *
 new_sql_var_list(void){
-	SQLVARLIST *p;
-	p = (SQLVARLIST *)malloc(sizeof(SQLVARLIST));
-	if(p != NULL){
-		// initialize
-		p->sv.type = 0;
-		p->sv.length = 0;
-		p->sv.power = 0;
-		p->sv.addr = NULL;
-		p->sv.data = NULL;
-		p->sv.realdata = NULL;
-		p->next = NULL;
-	}
-
-	return p;
+	return (SQLVARLIST *)calloc(1, sizeof(SQLVARLIST));
 }
 
 /*
@@ -3373,23 +3360,9 @@ _ocesqlResolveCONNID(struct sqlca_t *st, char *atdb, int atdblen){
  * <Outline>
  *   CURSORリスト生成
  */
-static CURSORLIST *
+static inline CURSORLIST *
 new_cursor_list(void){
-	CURSORLIST *p;
-	p = (CURSORLIST *)malloc(sizeof(CURSORLIST));
-	if(p != NULL){
-		// initialize
-		p->connid = 0;
-		p->cname = NULL;
-		p->sp = NULL;
-		p->query = NULL;
-		p->nParams = 0;
-		p->isOpened = 0;
-		p->tuples = 0;
-		p->next = NULL;
-	}
-
-	return p;
+	return (CURSORLIST *)calloc(1, sizeof(CURSORLIST));
 }
 
 /*
@@ -3641,19 +3614,9 @@ show_prepare_list(){
 	}
 }
 
-static PREPARELIST*
+static inline PREPARELIST*
 new_prepare_list(){
-	PREPARELIST *p;
-	p = (PREPARELIST *)malloc(sizeof(PREPARELIST));
-	if(p != NULL){
-		// initialize
-		p->sq.pname = NULL;
-		p->sq.query = NULL;
-		p->sq.nParams = 0;
-		p->next = NULL;
-	}
-	return p;
-
+	return (PREPARELIST *)calloc(1, sizeof(PREPARELIST));
 }
 
 static PREPARELIST*

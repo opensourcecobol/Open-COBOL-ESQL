@@ -714,8 +714,7 @@ INT_CONSTANT {digit}+
 
 
 <*>[ \t]+ {
-
-	//Ignore
+	/* Ignore */
 }
 
 . {}

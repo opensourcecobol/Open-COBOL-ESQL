@@ -38,7 +38,7 @@ dblib サブディレクトリ以外のすべてのプログラムは、GNU Gene
 License の下で提供されます。詳細は COPYING をご覧ください。
 
 dblib サブディレクトリのプログラムは、GNU Lesser General Public License
-の下で提供されます。詳細は COPYING.LIB をご覧ください。
+の下で提供されます。詳細は COPYING.LESSER をご覧ください。
 
 著者と貢献者については、AUTHORSをご覧ください。
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2022 Tokyo System House Co.,Ltd.
+ * Copyright (C) 2023 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +97,7 @@ int translate (struct filename *fn)
 
 	tmpfile = gettmpname("tmp");
 
-	// 1st: LOAD INCLUDE FILE
+	/* 1st: LOAD INCLUDE FILE */
 	com_fopen (&yyin, fn->source, "rb");
 	if (!yyin) {
 		perror (fn->source);
@@ -109,12 +110,12 @@ int translate (struct filename *fn)
 	}
 	ppoutput_incfile(fn->source, tmpfile, exec_list);
 
-	// reset parser
+	/* reset parser */
 	exec_list = NULL;
 	yylineno = 1;
 	sqlnum = 0;
 
-	// 2nd: PARSE
+	/* 2nd: PARSE */
 	com_fopen (&yyin, tmpfile, "rb");
 	if (!yyin) {
 		com_unlink(tmpfile);
@@ -212,9 +213,8 @@ cb_res_host_list_add (struct cb_res_hostreference_list *list, char *text)
 int
 cb_search_list(char *text)
 {
-	struct cb_hostreference_list *l;
+	struct cb_hostreference_list *l = host_reference_list;
 	struct cb_hostreference_list *p;
-	l = host_reference_list;
 	int i = 0;
 
 	for(; l ; l = l->next) {
@@ -297,16 +297,11 @@ cb_get_env(char *filename, int num)
 
 void version(void){
 	printf("Open Cobol ESQL (Ocesql)\n");
-	printf("Version 1.3.0\n");
+	printf("Version 1.3.0b\n");
 	printf("\n");
 	printf("March 24, 2022\n");
 	printf("\n");
 	printf("Tokyo System House Co., Ltd. <opencobol@tsh-world.co.jp>\n");
-}
-
-void print_version(void){
-	version();
-	exit(-1);
 }
 
 void print_usage(void){
@@ -315,12 +310,11 @@ void print_usage(void){
 	printf("Usage: ocesql [options] SOURCE [DESTFILE] [LOGFILE]\n");
 	printf("\n");
 	printf("options\n");
-	printf("      --inc=include_dir      set INCLUDE FILE directory path.\n");
+	printf("      --inc=include_dir      set INCLUDE FILE directory path\n");
 	printf("\n");
 	printf("usage\n");
-	printf("  -v, --version              show version.\n");
-	printf("  -h, --help                 show this usage.\n");
-	exit(-1);
+	printf("  -V, --version              show version and exit\n");
+	printf("  -h, --help                 show this usage and exit\n");
 }
 
 int main (int argc, char *argv[])
@@ -337,19 +331,22 @@ int main (int argc, char *argv[])
 	char *opt;
 	char *optval;
 
-	char *env;
-	char *tempid;
 	int iret;
 
 	int i;
 	int optind;
 	int optfile_idx = 1;
+
+	int has_error = 0;
 	
+	/* parse options for ocesql */
+	/* FIXME: errors should go to to stderr, debug/log output to stdout */
 	for (optind=1; optind<argc; optind++){
-		if(strncmp(prelopt, argv[optind], preloptlen) == 0){
-			// long option
+		char *argval = argv[optind];
+		if(strncmp(prelopt, argval, preloptlen) == 0){
+			/* long option */
 			char *p;
-			opthead = argv[optind] + sizeof(char) * preloptlen;
+			opthead = argval + sizeof(char) * preloptlen;
 			p = strchr(opthead, '=');
 			if(p != NULL){
 				optval = p + sizeof(char);
@@ -361,43 +358,69 @@ int main (int argc, char *argv[])
 				if(optval != NULL){
 					include_path = com_strdup(optval);
 				} else {
-					printf("invalid option: --inc is get directory path parameter.\n");
+					printf("invalid option: --inc needs a directory path parameter.\n");
 				}
 			} else if(strcmp("version", opthead) == 0){
-				print_version();
-				break;
+				version();
+				exit (0);
 			} else if(strcmp("help", opthead) == 0){
 				print_usage();
-				break;
+				exit (0);
 			} else {
-				printf("invalid option: %s\n", argv[optind]);
-				print_usage();
-				break;
+				printf("invalid option: --%s\n", opthead);
+				has_error = 1;
 			}
-		} else if(strncmp(preopt, argv[optind], preoptlen) == 0){
-			print_usage();
-			break;
+		} else if(strncmp(preopt, argval, preoptlen) == 0){
+			/* short option */
+			int shoptind;
+			const int shoptind_max = strlen (argval);
+			for (shoptind = sizeof(char) * preoptlen; shoptind <= shoptind_max; shoptind++) {
+				char shopt = argval[shoptind];
+				switch (shopt) {
+				case 'V':
+					version();
+					exit (0);
+				case 'h':
+					print_usage();
+					exit (0);
+				default:
+					printf("invalid option: -%c\n", shopt);
+					has_error = 1;
+					break;
+				}
+			}
 		} else {
+			char *env;
+			/* file name */
 			if(transfile.source == NULL){
-				fileandpath = cb_get_env(argv[optind], 1);
+				/* first goes to SOURCE */
+				fileandpath = cb_get_env(argval, 1);
 				transfile.source = com_strdup(fileandpath);
 			} else if(outputname == NULL){
-				fileandpath = cb_get_env(argv[optind], 2);
+				/* second (optional) goes to DESTFILE */
+				fileandpath = cb_get_env(argval, 2);
 				outputname = com_strdup(fileandpath);
 			} else if(errorfilename == NULL){
-				fileandpath = cb_get_env(argv[optind], 3);
+				/* third (optional) goes to LOGFILE */
+				fileandpath = cb_get_env(argval, 3);
 				errorfilename = com_strdup(fileandpath);
 			} else {
+				/* we don't handle any more files */
 				printf("too many arguments.\n");
-				print_usage();
+				has_error = 1;
+				break;
 			}
 		}
 	}
 
+	if (transfile.source == NULL || has_error) {
+		/* missing input filename / bad option -> show help and exit nonzero */
+		print_usage ();
+		exit (-1);
+	}
 
-	if(transfile.source == NULL){
-		print_usage();
-	} else {
+	{
+		char *tempid;
 #ifdef _WIN32
 		tempid = strrchr(fileandpath,'\\');
 #else
@@ -418,6 +441,7 @@ int main (int argc, char *argv[])
 		filenameID = com_strdup(tempid);
 	}
 	openerrorfile(errorfilename);
+	/* TODO: only output in verbose mode, see #101 */
 	printmsg("precompile start: %s\n",transfile.source);
 	printmsg("=======================================================\n");
 	printmsg("              LIST OF CALLED DB Library API            \n");
@@ -430,14 +454,17 @@ int main (int argc, char *argv[])
 	else
 		transfile.translate =  gettranslatename(transfile.source);
 
-	size_t len;
-	com_dupenv(&env, &len, "OCESQL_EXT");
-	if(env == NULL)
-		flag_external=0;
-	else if(strcmp(env,"Y")==0)
-		flag_external=1;
-	else
-		flag_external=0;
+	{
+		char *env;
+		size_t len;
+		com_dupenv(&env, &len, "OCESQL_EXT");
+		if(env == NULL)
+			flag_external=0;
+		else if(strcmp(env,"Y")==0)
+			flag_external=1;
+		else
+			flag_external=0;
+	}
 
 	iret = translate(&transfile);
 	printmsg("=======================================================\n");
