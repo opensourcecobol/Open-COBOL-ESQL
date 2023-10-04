@@ -76,6 +76,8 @@ dblib サブディレクトリのプログラムは、GNU Lesser General Public 
 
 Ocesql をインストールするには下記のコマンドを実行します:
 
+
+    ./autogen.sh
     ./configure
     make
     make install
@@ -84,6 +86,7 @@ PostgreSQL 9.0 以降の場合は次のとおりです:
 
     export CPPFLAGS="-I/usr/pgsql-9.x/include"
     export LDFLAGS="-L/usr/pgsql-9.x/lib"
+    ./autogen.sh
     ./configure
     make
     make install
