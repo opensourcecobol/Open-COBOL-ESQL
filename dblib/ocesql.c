@@ -21,7 +21,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdbool.h>
-#include <math.h>
 #include <ctype.h>
 #include "ocdblog.h"
 #include "ocdbutil.h"
@@ -2569,12 +2568,11 @@ create_realdata(SQLVAR *sv,int index){
 	}
 	case OCDB_TYPE_UNSIGNED_NUMBER_PD:
 	{
-		double dlength;
-		int skip_first;
+		const int dlength = (sv_tmp.length / 2) + 1;
+		const int skip_first = (sv_tmp.length + 1) % 2; // 1 -> skip first 4 bits
+
 		int realdata_length;
 
-		dlength = ceil(((double)sv_tmp.length + 1)/2);
-		skip_first = (sv_tmp.length + 1) % 2; // 1 -> skip first 4 bits
 		sv_tmp.data = (char *)calloc((int)dlength + TERMINAL_LENGTH, sizeof(char));
 		memcpy(sv_tmp.data, addr, (int)dlength);
 
@@ -2613,12 +2611,10 @@ create_realdata(SQLVAR *sv,int index){
 	}
 	case OCDB_TYPE_SIGNED_NUMBER_PD:
 	{
-		double dlength;
-		int skip_first;
+		const int dlength = (sv_tmp.length / 2) + 1;
+		const int skip_first = (sv_tmp.length + 1) % 2; // 1 -> skip first 4 bits
 		int realdata_length;
 
-		dlength = ceil(((double)sv_tmp.length + 1)/2);
-		skip_first = (sv_tmp.length + 1) % 2; // 1 -> skip first 4 bits
 		sv_tmp.data = (char *)calloc((int)dlength + TERMINAL_LENGTH, sizeof(char));
 		memcpy(sv_tmp.data, addr, (int)dlength);
 
@@ -2961,14 +2957,12 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		int pre_final_len;
 		char *final;
 
-		double dlength;
-		int skip_first;
 		int i;
 		unsigned char ubit = 0xF0;
 		unsigned char lbit = 0x0F;
 
-		dlength = ceil(((double)sv->length + 1)/2);
-		skip_first = (sv->length + 1) % 2; // 1 -> skip first 4 bits
+		const int dlength = (sv->length / 2) + 1;
+		const int skip_first = (sv->length + 1) % 2; // 1 -> skip first 4 bits
 
 		pre_final_len = sv->length + TERMINAL_LENGTH;
 		pre_final = (char *)calloc(pre_final_len, sizeof(char));
@@ -3053,14 +3047,12 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		int pre_final_len;
 		char *final;
 
-		double dlength;
-		int skip_first;
 		int i;
 		unsigned char ubit = 0xF0;
 		unsigned char lbit = 0x0F;
 
-		dlength = ceil((double)(sv->length + 1)/2);
-		skip_first = (sv->length + 1) % 2; // 1 -> skip first 4 bits
+		const int dlength = (sv->length / 2) + 1;
+		const int skip_first = (sv->length + 1) % 2; // 1 -> skip first 4 bits
 
 		if(retstr[0] == '-'){
 			is_negative = true;
