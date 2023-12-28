@@ -544,8 +544,8 @@ OCDB_PGSetResultStatus(unsigned long connaddr, struct sqlca_t *st){
 }
 
 int
-OCDB_PGSetLibErrorStatus(struct sqlca_t *st, int errno){
-	switch(errno){
+OCDB_PGSetLibErrorStatus(struct sqlca_t *st, int errorno){
+	switch(errorno){
 	case OCDB_NO_ERROR:
 		st->sqlcode = OCPG_NO_ERROR;
 		SET_SQLSTATE(st->sqlstate,"00000");
