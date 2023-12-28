@@ -23,4 +23,4 @@ bin_PROGRAMS = ocesql
 ocesql_SOURCES = errorfile.c ocesql.c ocesqlutil.c parser.y ppout.c scanner.l
 
 BUILT_SOURCES = parser.c scanner.c
-EXTRA_DIST = define.h ocesql.h ocesqlutil.h parser.h
+EXTRA_DIST = ocesql.h ocesqlutil.h parser.h

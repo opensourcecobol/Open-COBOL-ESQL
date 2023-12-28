@@ -87,12 +87,14 @@ An earlier version (PostgreSQL 9) might be:
     
 Then run:
 
+    ./autogen.sh
     ./configure
     make
     make install
     
 If you want to install Ocesql on PostgreSQL < 9, just:
 
+    ./autogen.sh
     ./configure
     make
     make install

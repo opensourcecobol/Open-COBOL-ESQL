@@ -75,7 +75,7 @@ jobs:
       - name: Install Open-COBOL-ESQL
         run: |
           cd Open-COBOL-ESQL
-          chmod +x ./autogen.sh && ./autogen.sh
+          ./autogen.sh
           ./configure
           sudo make install
       
