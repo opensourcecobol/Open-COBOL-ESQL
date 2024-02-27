@@ -27,6 +27,7 @@ jobs:
           --health-retries 5
 
     steps:
+      # Install dependencies
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -46,7 +47,7 @@ jobs:
         if: steps.opensource_cobol_cache_id.outputs.cache-hit != 'true'
         run: |
           curl -L -o opensource-cobol-1.5.2J.tar.gz https://github.com/opensourcecobol/opensource-cobol/archive/refs/tags/v1.5.2J.tar.gz
-          tar zxvf opensource-cobol-1.5.2J.tar.gz
+          tar zxf opensource-cobol-1.5.2J.tar.gz
           cd opensource-cobol-1.5.2J/vbisam
           ./configure --prefix=/usr/
           make
@@ -54,7 +55,6 @@ jobs:
           cd ../
           ./configure --prefix=/usr/ --with-vbisam
           make
-          cd ../
       
       # Install opensource COBOL
       - name: Install opensource COBOL v1.5.2J
@@ -63,7 +63,6 @@ jobs:
           sudo make install
           cd ../
           sudo make install
-          cd ../
 
       # Checkout Open-COBOL-ESQL
       - name: Checkout Open-COBOL-ESQL
@@ -78,11 +77,11 @@ jobs:
           chmod +x ./autogen.sh && ./autogen.sh
           ./configure
           sudo make install
-      
+
+      # Create a log directory
       - name: Create a log directory
         run: |
-          mkdir Open-COBOL-ESQL/log
-          mkdir Open-COBOL-ESQL/log/test
+          mkdir -p Open-COBOL-ESQL/log/test
 
       # Run Autotest
       - name: Run tests
@@ -99,7 +98,7 @@ jobs:
           ./sqlca
           ./misc
           cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir *.log ../log/test
-      
+
       # Upload test logs and the result of static checking
       - name: Archive Logs
         uses: actions/upload-artifact@v4
