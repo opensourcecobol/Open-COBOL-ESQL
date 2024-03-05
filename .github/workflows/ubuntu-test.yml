@@ -5,6 +5,9 @@ on:
   pull_request:
     types: [opened, reopened, review_requested, synchronize]
 
+permissions:
+  contents: read
+
 jobs:
   Open-COBOL-ESQL-tests:
     runs-on: ubuntu-latest
@@ -28,6 +31,11 @@ jobs:
 
     steps:
       # Install dependencies
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -37,7 +45,7 @@ jobs:
       # Cache the directory 'opensource-cobol-1.5.2J'
       - name: Cache opnesource COBOL v1.5.2J
         id: opensource_cobol_cache_id
-        uses: actions/cache@v4
+        uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
         with:
           path: opensource-cobol-1.5.2J
           key: opensource-cobol-1.5.2J-key
@@ -66,7 +74,7 @@ jobs:
 
       # Checkout Open-COBOL-ESQL
       - name: Checkout Open-COBOL-ESQL
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           path: Open-COBOL-ESQL
 
@@ -101,7 +109,7 @@ jobs:
 
       # Upload test logs and the result of static checking
       - name: Archive Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: ubuntu-log
           path: Open-COBOL-ESQL/log/*
