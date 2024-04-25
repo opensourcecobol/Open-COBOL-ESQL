@@ -1,6 +1,6 @@
-﻿/*
+﻿﻿/*
  * Copyright (C) 2015, 2022 Tokyo System House Co.,Ltd.
- * Copyright (C) 2022, 2023 Simon Sobisch
+ * Copyright (C) 2022-2024 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +68,9 @@ typedef struct cursor_list {
 static PREPARELIST _prepare_list = {{NULL, NULL, 0}, NULL};
 static CURSORLIST _cursor_list = {0, NULL, NULL, NULL, 0, 0, 0, NULL, NULL};
 static SQLVARLIST *_sql_var_lists = NULL;
+static SQLVARLIST *_sql_var_lists_last = NULL;
 static SQLVARLIST *_sql_res_var_lists = NULL;
+static SQLVARLIST *_sql_res_var_lists_last = NULL;
 static int _var_lists_length = 0;
 static int _res_var_lists_length = 0;
 static int _occurs_length = 0;
@@ -2321,15 +2323,17 @@ init_sql_var_list(void){
 	}
 	reset_sql_var_list();
 
-	if((_sql_var_lists = new_sql_var_list()) == NULL){
+	if((_sql_var_lists_last = new_sql_var_list()) == NULL){
 		ERRLOG("cannot initialize SQLVARLIST\n");
 		return;
 	}
+	_sql_var_lists = _sql_var_lists_last;
 
-	if((_sql_res_var_lists = new_sql_var_list()) == NULL){
+	if((_sql_res_var_lists_last = new_sql_var_list()) == NULL){
 		ERRLOG("cannot initialize SQLVARLIST\n");
 		return;
 	}
+	_sql_res_var_lists = _sql_res_var_lists_last;
 
 	return;
 }
@@ -2345,8 +2349,8 @@ init_sql_var_list(void){
  */
 static void
 reset_sql_var_list(void){
-	_sql_var_lists = NULL;
-	_sql_res_var_lists = NULL;
+	_sql_var_lists = _sql_var_lists_last = NULL;
+	_sql_res_var_lists = _sql_res_var_lists_last = NULL;
 	_var_lists_length = 0;
 	_res_var_lists_length = 0;
 	_occurs_length = 0;
@@ -2387,18 +2391,14 @@ new_sql_var_list(void){
 static SQLVARLIST *
 add_sql_var_list(int type , int length, int power, void *addr){
 
-	SQLVARLIST *p = _sql_var_lists;
+	SQLVARLIST *p = _sql_var_lists_last;
 
-	if(_sql_var_lists == NULL){
-		ERRLOG("_sql_var_lists has not been initialized\n");
+	if(_sql_var_lists_last == NULL){
+		ERRLOG("_sql_var_lists_last has not been initialized\n");
 		return NULL;
 	}
 
-	while(p->next != NULL){
-		p = p->next;
-	}
-
-	if((p->next = new_sql_var_list()) == NULL){
+	if((_sql_var_lists_last = new_sql_var_list()) == NULL){
 		ERRLOG("cannot generate new SQLVARLIST\n");
 		return NULL;
 	}
@@ -2407,7 +2407,7 @@ add_sql_var_list(int type , int length, int power, void *addr){
 	p->sv.length = length;
 	p->sv.power = power;
 	p->sv.addr = addr;
-
+	p->next = _sql_var_lists_last;
 
 	create_realdata(&p->sv, 0);
 	_var_lists_length++;
@@ -2434,18 +2434,14 @@ add_sql_var_list(int type , int length, int power, void *addr){
  */
 static SQLVARLIST *
 add_sql_res_var_list(int type , int length, int power, void *addr){
-	SQLVARLIST *p = _sql_res_var_lists;
+	SQLVARLIST *p = _sql_res_var_lists_last;
 
-	if(_sql_res_var_lists == NULL){
-		ERRLOG("_sql_var_lists has not been initialized\n");
+	if(_sql_res_var_lists_last == NULL){
+		ERRLOG("_sql_res_var_lists_last has not been initialized\n");
 		return NULL;
 	}
 
-	while(p->next != NULL){
-		p = p->next;
-	}
-
-	if((p->next = new_sql_var_list()) == NULL){
+	if((_sql_res_var_lists_last = new_sql_var_list()) == NULL){
 		ERRLOG("cannot generate new SQLVARLIST\n");
 		return NULL;
 	}
@@ -2454,6 +2450,7 @@ add_sql_res_var_list(int type , int length, int power, void *addr){
 	p->sv.length = length;
 	p->sv.power = power;
 	p->sv.addr = addr;
+	p->next = _sql_res_var_lists_last;
 
 	_res_var_lists_length++;
 
