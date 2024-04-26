@@ -71,12 +71,12 @@ static SQLVARLIST *_sql_var_lists = NULL;
 static SQLVARLIST *_sql_var_lists_last = NULL;
 static SQLVARLIST *_sql_res_var_lists = NULL;
 static SQLVARLIST *_sql_res_var_lists_last = NULL;
+static SQLVARLIST *_pool_sql_var_list = NULL; // Pool of SQLVARLIST items
 static int _var_lists_length = 0;
 static int _res_var_lists_length = 0;
 static int _occurs_length = 0;
 static int _occurs_iter = 0;
 static int _occurs_is_parent = 0;
-
 
 static void sqlca_initialize(struct sqlca_t *);
 
@@ -2366,9 +2366,17 @@ reset_sql_var_list(void){
  * <Outline>
  *   埋め込みSQLリスト生成
  */
-static inline SQLVARLIST *
-new_sql_var_list(void){
-	return (SQLVARLIST *)calloc(1, sizeof(SQLVARLIST));
+
+static inline SQLVARLIST *new_sql_var_list(void) {
+    SQLVARLIST *new_item;
+    if (_pool_sql_var_list != NULL) {
+        new_item = _pool_sql_var_list;
+        _pool_sql_var_list = _pool_sql_var_list->next;
+        new_item->next = NULL; // Initialize the item
+    } else {
+        new_item = (SQLVARLIST *)calloc(1, sizeof(SQLVARLIST));
+    }
+    return new_item;
 }
 
 /*
@@ -3286,17 +3294,38 @@ static void show_sql_var_list(SQLVARLIST *p){
  * <Input>
  *   @SQLVARLIST *
  */
-static void
-clear_sql_var_list(SQLVARLIST *p){
-	if(p != NULL){
-		clear_sql_var_list(p->next);
-		if(p->sv.data)
-			free(p->sv.data);
-		if(p->sv.realdata)
-			free(p->sv.realdata);
-		free(p);
-	}
+static void clear_sql_var_list(SQLVARLIST *p) {
+    if (p == NULL)
+        return; // Nothing to clear
+
+    SQLVARLIST *temp = p;
+    SQLVARLIST *last_item = NULL;
+    while (temp != NULL) {
+        SQLVARLIST *next = temp->next;
+        if (temp->sv.data)
+            free(temp->sv.data);
+        if (temp->sv.realdata)
+            free(temp->sv.realdata);
+	// Initialize the item before returning it to the pool
+        memset(&temp->sv, 0, sizeof(SQLVAR));
+        last_item = temp;
+        temp = next;
+    }
+    // Return the entire list to the pool
+    last_item->next = _pool_sql_var_list;
+    _pool_sql_var_list = p;
 }
+
+#if 0
+/* free memory, this shoulkd be called at program exit, currently unused */
+static void cleanup_sql_var_pool(void) {
+    while (_pool_sql_var_list != NULL) {
+        SQLVARLIST *next = _pool_sql_var_list->next;
+        free(_pool_sql_var_list);
+        _pool_sql_var_list = next;
+    }
+}
+#endif
 
 static void
 _ocesqlReleaseConnection(int status, void *arg){
