@@ -2767,12 +2767,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
-
-		// fill zero
-		finalbuflen = sv->length + TERMINAL_LENGTH;
-		final = (char *)calloc(finalbuflen, sizeof(char));
+		char final[MAX_DIGITS + 1 + TERMINAL_LENGTH] = { 0 };
 
 		// before decimal point
 		int beforedp = 0;
@@ -2813,7 +2808,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_SIGNED_NUMBER_TC:
@@ -2824,13 +2818,8 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
+		char final[MAX_DIGITS + SIGN_LENGTH + 1 + TERMINAL_LENGTH] = {0};
 		int final_length;
-
-		// fill zero
-		finalbuflen = sv->length;
-		final = (char *)calloc(finalbuflen, sizeof(char));
 
 		if(retstr[0] == '-'){
 			is_negative = true;
@@ -2883,7 +2872,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_SIGNED_NUMBER_LS:
@@ -2893,12 +2881,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
-
-		// fill zero
-		finalbuflen = SIGN_LENGTH +  sv->length + TERMINAL_LENGTH;
-		final = (char *)calloc(finalbuflen, sizeof(char));
+		char final[MAX_DIGITS + SIGN_LENGTH + 1 + TERMINAL_LENGTH] = {0};
 
 		if(retstr[0] == '-'){
 			final[0] = '-';
@@ -2947,7 +2930,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length + SIGN_LENGTH);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_UNSIGNED_NUMBER_PD:
