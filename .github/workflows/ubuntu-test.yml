@@ -39,7 +39,7 @@ jobs:
         run: |
           apt update -y
           # Install dependencies of Open-COBOL-ESQL
-          apt install -y build-essential bison flex gettext texinfo automake autoconf curl libpq-dev
+          apt install -y build-essential bison flex gettext texinfo automake autoconf curl libtool libpq-dev pkgconf
           # Install dependencies of opensource COBOL
           apt install -y libgmp-dev
 
