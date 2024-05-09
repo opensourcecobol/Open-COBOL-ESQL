@@ -118,11 +118,16 @@ jobs:
           ./misc
           cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir *.log ../log/test
 
+      # Define the archive name
+      - name: Define the archive name
+        run: |
+          echo OCESQL_ARCHIVE_NAME=ocesql-${{ matrix.os }} | sed s/:/-/g >> $GITHUB_ENV
+
       # Upload test logs and the result of static checking
       - name: Archive Logs
         uses: actions/upload-artifact@v4
         with:
-          name: ubuntu-log
+          name: ${{ env.OCESQL_ARCHIVE_NAME }}.log
           path: Open-COBOL-ESQL/log/*
       
       # Workflow fails if one or more test cases failed
