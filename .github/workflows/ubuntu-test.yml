@@ -107,9 +107,9 @@ jobs:
         working-directory: Open-COBOL-ESQL/tests
         run: |
           make clean
-          cp ../.github/workflows/ubuntu-test-settings/atlocal atlocal
-          cp ../.github/workflows/ubuntu-test-settings/embed_db_info.sh embed_db_info.sh
-          cp ../.github/workflows/ubuntu-test-settings/cobol_runner.sh cobol_runner.sh
+          cp ../.github/workflows/test-settings/atlocal atlocal
+          cp ../.github/workflows/test-settings/embed_db_info.sh embed_db_info.sh
+          cp ../.github/workflows/test-settings/cobol_runner.sh cobol_runner.sh
           make
           ./basic
           ./cobol_data
