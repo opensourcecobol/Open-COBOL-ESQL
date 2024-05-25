@@ -1,4 +1,4 @@
-name: Open-COBOL-ESQL tests on Ubuntu
+name: Open-COBOL-ESQL tests
 
 on:
   push:
@@ -8,7 +8,12 @@ on:
 jobs:
   Open-COBOL-ESQL-tests:
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        os: ["ubuntu:24.04", "almalinux:9"]
+    container:
+      image: ${{ matrix.os }}
+
     # Start PostgreSQL server
     services:
       postgres:
@@ -27,13 +32,27 @@ jobs:
           --health-retries 5
 
     steps:
-      # Install dependencies
-      - name: Install dependencies
+
+      # Install dependencies (Ubuntu 24.04)
+      - name: Install dependencies on Ubuntu 24.04
+        if: matrix.os == 'ubuntu:24.04'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5 libncurses5-dev libgmp-dev bison flex gettext
-          sudo apt-get install -y libpq-dev postgresql postgresql-contrib
-      
+          apt update -y
+          # Install dependencies of Open-COBOL-ESQL
+          apt install -y build-essential bison flex gettext texinfo automake autoconf curl libtool libpq-dev pkgconf
+          # Install dependencies of opensource COBOL
+          apt install -y libgmp-dev
+
+      # Install dependencies (Almalinux 9)
+      - name: Install dependencies on AlmaLinux 9
+        if: matrix.os == 'almalinux:9'
+        run: |
+          dnf -y update
+          # Install dependencies of Open-COBOL-ESQL
+          dnf install -y gcc gcc-c++ make bison flex automake autoconf diffutils gettext libtool postgresql-devel
+          # Install dependencies of opensource COBOL
+          dnf install -y gmp-devel
+
       # Cache the directory 'opensource-cobol-1.5.2J'
       - name: Cache opnesource COBOL v1.5.2J
         id: opensource_cobol_cache_id
@@ -51,7 +70,7 @@ jobs:
           cd opensource-cobol-1.5.2J/vbisam
           ./configure --prefix=/usr/
           make
-          sudo make install
+          make install
           cd ../
           ./configure --prefix=/usr/ --with-vbisam
           make
@@ -60,9 +79,9 @@ jobs:
       - name: Install opensource COBOL v1.5.2J
         run: |
           cd opensource-cobol-1.5.2J/vbisam
-          sudo make install
+          make install
           cd ../
-          sudo make install
+          make install
 
       # Checkout Open-COBOL-ESQL
       - name: Checkout Open-COBOL-ESQL
@@ -76,7 +95,7 @@ jobs:
         run: |
           chmod +x ./autogen.sh && ./autogen.sh
           ./configure
-          sudo make install
+          make install
 
       # Create a log directory
       - name: Create a log directory
@@ -88,9 +107,9 @@ jobs:
         working-directory: Open-COBOL-ESQL/tests
         run: |
           make clean
-          cp ../.github/workflows/ubuntu-test-settings/atlocal atlocal
-          cp ../.github/workflows/ubuntu-test-settings/embed_db_info.sh embed_db_info.sh
-          cp ../.github/workflows/ubuntu-test-settings/cobol_runner.sh cobol_runner.sh
+          cp ../.github/workflows/test-settings/atlocal atlocal
+          cp ../.github/workflows/test-settings/embed_db_info.sh embed_db_info.sh
+          cp ../.github/workflows/test-settings/cobol_runner.sh cobol_runner.sh
           make
           ./basic
           ./cobol_data
@@ -99,11 +118,16 @@ jobs:
           ./misc
           cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir *.log ../log/test
 
+      # Define the archive name
+      - name: Define the archive name
+        run: |
+          echo OCESQL_ARCHIVE_NAME=ocesql-${{ matrix.os }} | sed s/:/-/g >> $GITHUB_ENV
+
       # Upload test logs and the result of static checking
       - name: Archive Logs
         uses: actions/upload-artifact@v4
         with:
-          name: ubuntu-log
+          name: ${{ env.OCESQL_ARCHIVE_NAME }}.log
           path: Open-COBOL-ESQL/log/*
       
       # Workflow fails if one or more test cases failed
