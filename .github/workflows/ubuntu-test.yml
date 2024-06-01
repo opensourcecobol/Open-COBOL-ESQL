@@ -9,7 +9,11 @@ permissions:
   contents: read
 
 jobs:
+  check-workflows:
+    uses: ./.github/workflows/check-workflows.yml
+
   Open-COBOL-ESQL-tests:
+    needs: check-workflows
     runs-on: ubuntu-latest
     strategy:
       matrix:
