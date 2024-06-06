@@ -9,7 +9,11 @@ permissions:
   contents: read
 
 jobs:
+  check-workflows:
+    uses: ./.github/workflows/check-workflows.yml
+
   Open-COBOL-ESQL-tests:
+    needs: check-workflows
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -119,12 +123,12 @@ jobs:
           ./sql_data
           ./sqlca
           ./misc
-          cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir *.log ../log/test
+          cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir ./*.log ../log/test
 
       # Define the archive name
       - name: Define the archive name
         run: |
-          echo OCESQL_ARCHIVE_NAME=ocesql-${{ matrix.os }} | sed s/:/-/g >> $GITHUB_ENV
+          echo "OCESQL_ARCHIVE_NAME=ocesql-${{ matrix.os }}" | sed s/:/-/g >> "$GITHUB_ENV"
 
       # Upload test logs and the result of static checking
       - name: Archive Logs
@@ -137,4 +141,4 @@ jobs:
       - name: Check test results
         run: |
           cat Open-COBOL-ESQL/tests/*.log
-          [ -z "$(cat Open-COBOL-ESQL/tests/*.log | grep 'Failed tests:')" ]
+          ! cat Open-COBOL-ESQL/tests/*.log | grep -q 'Failed tests:'
