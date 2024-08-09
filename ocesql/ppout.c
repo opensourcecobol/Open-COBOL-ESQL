@@ -1933,14 +1933,8 @@ void ppbuff(struct cb_exec_list *list){
 		outwrite();
 
 		com_strcpy(out,sizeof(out),"OCESQL ");
-
-		com_strcat(out, sizeof(out), "   ");
-		com_strcat(out, sizeof(out), strend);
-
-		outwrite();
-
-		com_strcpy(out,sizeof(out),"OCESQL ");
 		com_strcat(out,sizeof(out),"   ");
+		com_strcat(out, sizeof(out), strend);
 		if( l->period)
 			com_strcat(out,sizeof(out),".");
 		outwrite();
