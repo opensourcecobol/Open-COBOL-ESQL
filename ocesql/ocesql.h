@@ -182,6 +182,7 @@ extern int EOFflg;
 extern int EOFFLG;
 extern int pointflg;
 extern int lineNUM;
+extern int errmsgflg;
 
 extern int yylineno;
 extern int startlineno;

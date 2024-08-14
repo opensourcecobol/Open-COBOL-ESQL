@@ -95,6 +95,7 @@ int translate (struct filename *fn)
 	int ret;
 	char *tmpfile;
 
+	errmsgflg = 0;
 	tmpfile = gettmpname("tmp");
 
 	/* 1st: LOAD INCLUDE FILE */
@@ -129,6 +130,10 @@ int translate (struct filename *fn)
 	}
 
 	ppoutput(tmpfile, fn->translate, exec_list);
+
+	if(errmsgflg == 1){
+		return -1;
+	}
 
 	return 0;
 }

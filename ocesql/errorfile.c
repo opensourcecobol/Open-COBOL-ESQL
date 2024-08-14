@@ -37,6 +37,7 @@ static char errormsg[ERRORMSGNUM][128] = {
 	{"E999: unexpected error"}
 };
 static FILE *pfile;
+int errmsgflg;
 
 int openerrorfile(char *filename){
 	if( filename != NULL){
@@ -102,6 +103,8 @@ int printerrormsg(char *name, int line, char * code){
 	char buff[MAXBUFFSIZE];
 	int ilen ;
 	char *p;
+
+	errmsgflg = 1;
 
 	if( code == NULL || line <=0 || name == NULL)
 		return 0;
