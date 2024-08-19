@@ -1027,7 +1027,7 @@ void ppoutputprepare(struct cb_exec_list *list){
 		com_sprintf(buff,sizeof(buff), "E%03d",iret);
 		printerrormsg(list->host_list->hostreference, list->host_list->lineno, buff);
 		return;
-	} else if(l != HVARTYPE_GROUP){
+	} else if(l != HVARTYPE_GROUP && l != HVARTYPE_ALPHANUMERIC_VARYING && l != HVARTYPE_JAPANESE_VARYING){
 		memset(buff, 0, sizeof(buff));
 		com_sprintf(buff,sizeof(buff), "E%03d",ERR_PREPARE_ISNT_GROUP);
 		printerrormsg(list->host_list->hostreference, list->host_list->lineno, buff);
