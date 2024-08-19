@@ -79,6 +79,8 @@ INCFILE [A-Za-z0-9_\+\-]+
 FILENAME [A-Za-z0-9_\+\-\.]+
 STRVALUE ("\""[^\"]*"\""|"\'"[^\']*"\'")
 HEXVALUE "X"("\""[^\"]+"\""|"\'"[^\']+"\'")
+NVALUE "N"("\""[^\"]+"\""|"\'"[^\']+"\'")
+NCVALUE "NC"("\""[^\"]+"\""|"\'"[^\']+"\'")
 SELF [,()\[\].;\:\+\-\*\/\%\^\<\>\=]
 OP_CHARS [\~\!\@\#\^\&\|\`\?\+\-\*\/\%\<\>\=]
 OPERATOR {OP_CHARS}+
@@ -681,7 +683,7 @@ INT_CONSTANT {digit}+
          }
          "TIMES"  { return TIMES;}
          "ALL"  { return ALL ;}
-         {STRVALUE}|{HEXVALUE} { return CONST;}
+         {STRVALUE}|{HEXVALUE}|{NVALUE}|{NCVALUE} { return CONST;}
         ([A-Za-z\-0-9_]|{JPNWORD})+ {
                         yylval.s = com_strdup(yytext);
                         return WORD;
