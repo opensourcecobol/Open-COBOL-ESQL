@@ -112,11 +112,14 @@
 %token TIMES
 %token CONST
 %token WHERECURRENTOF
+%token SEMICOLON
 
 %type <l> token_list declaresql includesql incfile preparesql execsql
 %type <l> opensql selectintosql select insertsql insert updatesql
 %type <l> update deletesql delete disconnect disconnectsql othersql
 %type <s> host_reference expr dbid prepared_stname
+
+%nonassoc ';'
 
 %%
 sqlstate_list:
@@ -186,7 +189,7 @@ token_list END_EXEC
 
 insert:
 INSERT {$$ = cb_text_list_add (NULL, $1);}
-| insert INTO {$$ = cb_text_list_add ($1, $2);}
+| insert INTO ';' {$$ = cb_text_list_add ($1, $2);}
 
 
 

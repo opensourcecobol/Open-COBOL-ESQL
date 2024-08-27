@@ -103,7 +103,9 @@ int translate (struct filename *fn)
 		perror (fn->source);
 		return -1;
 	}
+	printf("dbg1: translate()\n");
 	ret =  yyparse ();
+	printf("dbg2: translate()\n");
 	fclose (yyin);
 	if (ret) {
 		return ret;
@@ -141,6 +143,7 @@ cb_text_list_add (struct cb_sql_list *list, char *text)
 	struct cb_sql_list *l;
 
 	p = malloc (sizeof (struct cb_sql_list));
+	printf("dbg: text=%s\n", text);
 	p->sqltext = com_strdup (text);
 
 	p->next = NULL;
