@@ -339,7 +339,6 @@ INT_CONSTANT {digit}+
 
 
 	[;]?(\r\n|\n)		{
-				ECHO;
 				}
 	"AT" {
 			if(flag_insqlstring || conn_use_other_db){
