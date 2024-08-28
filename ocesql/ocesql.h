@@ -31,6 +31,7 @@
 #define PICTYPEX  1
 #define PICTYPES  2
 
+#define PIC_GROUP				0x00
 #define PIC_ALPHABETIC 			0x01
 #define PIC_NUMERIC 			0x02
 #define PIC_NATIONAL			0x04
@@ -107,6 +108,7 @@ struct cb_sql_list {
 struct cb_hostreference_list {
 	char *hostreference;
 	int hostno;
+	int items;
 	int lineno;
 	struct cb_hostreference_list *next;
 };
@@ -210,10 +212,14 @@ extern struct cb_sql_list *
 cb_text_list_add (struct cb_sql_list *list, char *text);
 char *
 cb_host_list_add (struct cb_hostreference_list *list, char *text);
+int
+cb_host_filed_count (char *);
+void
+_cb_host_filed_count (struct cb_field *, int *);
 void
 cb_res_host_list_add (struct cb_res_hostreference_list *list, char *text);
 int
-cb_search_list(char *text);
+cb_search_list(char *text, int items);
 void
 cb_set_dbname(char *text);
 void
