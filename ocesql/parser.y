@@ -118,7 +118,6 @@
 %type <l> update deletesql delete disconnect disconnectsql othersql
 %type <s> host_reference expr dbid prepared_stname
 
-
 %%
 sqlstate_list:
 | sqlstate_list sqlstate;
@@ -187,7 +186,7 @@ token_list END_EXEC
 
 insert:
 INSERT {$$ = cb_text_list_add (NULL, $1);}
-| insert INTO ';' {$$ = cb_text_list_add ($1, $2);}
+| insert INTO {$$ = cb_text_list_add ($1, $2);}
 
 
 
