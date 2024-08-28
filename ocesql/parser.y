@@ -112,14 +112,12 @@
 %token TIMES
 %token CONST
 %token WHERECURRENTOF
-%token SEMICOLON
 
 %type <l> token_list declaresql includesql incfile preparesql execsql
 %type <l> opensql selectintosql select insertsql insert updatesql
 %type <l> update deletesql delete disconnect disconnectsql othersql
 %type <s> host_reference expr dbid prepared_stname
 
-%nonassoc ';'
 
 %%
 sqlstate_list:

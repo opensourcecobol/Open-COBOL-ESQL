@@ -2105,7 +2105,6 @@ void ppoutput(char *ppin,char *ppout,struct cb_exec_list *head){
 }
 
 void ppoutput_incfile(char *ppin,char *ppout,struct cb_exec_list *head){
-	printf("dbg: ppoutput_incfile\n");
 	FILE *readfile;
 	size_t len;
 
