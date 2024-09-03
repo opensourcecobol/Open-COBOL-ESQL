@@ -212,21 +212,14 @@ cb_host_filed_count (char *text) {
 	iret = gethostvarianttype(text, &type, &digits, &scale);
 	if(iret  != 0)
 	{
-		memset(buff, 0, sizeof(buff));
-		com_sprintf(buff,sizeof(buff), "E%03d",iret);
-		printerrormsg(text, 0, buff);
-		return -1;
+		return 1;
 	}
 	if (type == HVARTYPE_GROUP) {
 		struct cb_field *f;
 
 		f = getfieldbyname(text);
 		if(f == NULL){
-			printmsg("%s:%d\n", text, ERR_NOTDEF_WORKING);
-			memset(buff, 0, sizeof(buff));
-			com_sprintf(buff,sizeof(buff), "E%03d",ERR_NOTDEF_WORKING);
-			printerrormsg(text, 0, buff);
-			return -1;
+			return 1;
 		}
 		count = 0;
 		_cb_host_filed_count (f->children, &count);
