@@ -611,9 +611,9 @@ at_color=no
 at_format='?'
 # Description of all the test groups.
 at_help_all="1;empty-string.at:1;empty string test;;
-2;compile.at:1;Generate correct COBOL files;;
-3;compile.at:21;“N” in the VARYING clause;;
-4;compile.at:40;“NC” in the VARYING clause;;
+2;compile.at:1;generate-correct-files;;
+3;compile.at:21;varying-n;;
+4;compile.at:40;varying-nc;;
 "
 # List of the all the test groups.
 at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
@@ -2073,7 +2073,7 @@ read at_status <"$at_status_file"
 #AT_STOP_1
 #AT_START_2
 at_fn_group_banner 2 'compile.at:1' \
-  "Generate correct COBOL files" "                   "
+  "generate-correct-files" "                         "
 at_xfail=no
 (
   printf "%s\n" "2. $at_setup_line: testing $at_desc ..."
@@ -2129,7 +2129,7 @@ read at_status <"$at_status_file"
 #AT_STOP_2
 #AT_START_3
 at_fn_group_banner 3 'compile.at:21' \
-  "“N” in the VARYING clause" "                  "
+  "varying-n" "                                      "
 at_xfail=no
 (
   printf "%s\n" "3. $at_setup_line: testing $at_desc ..."
@@ -2172,7 +2172,7 @@ read at_status <"$at_status_file"
 #AT_STOP_3
 #AT_START_4
 at_fn_group_banner 4 'compile.at:40' \
-  "“NC” in the VARYING clause" "                 "
+  "varying-nc" "                                     "
 at_xfail=no
 (
   printf "%s\n" "4. $at_setup_line: testing $at_desc ..."

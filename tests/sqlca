@@ -613,7 +613,7 @@ at_format='?'
 at_help_all="1;connect-disconnect.at:1;connect-disconnect;;
 2;open-fetch-close.at:1;open-fetch-close;;
 3;prepare-execute.at:1;prepare-execute;;
-4;prepare-execute.at:69;Precompile error in PREPARE statement;;
+4;prepare-execute.at:69;prepare-precompile-error;;
 "
 # List of the all the test groups.
 at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
@@ -2533,7 +2533,7 @@ read at_status <"$at_status_file"
 #AT_STOP_3
 #AT_START_4
 at_fn_group_banner 4 'prepare-execute.at:69' \
-  "Precompile error in PREPARE statement" "          "
+  "prepare-precompile-error" "                       "
 at_xfail=no
 (
   printf "%s\n" "4. $at_setup_line: testing $at_desc ..."
