@@ -1,4 +1,4 @@
-AT_SETUP([Generate correct COBOL files])
+AT_SETUP([generate-correct-files])
 
 AT_DATA([prog.cbl], [
        IDENTIFICATION              DIVISION.
@@ -18,7 +18,7 @@ AT_CHECK([diff prog.cob prog.cbl], [0])
 
 AT_CLEANUP
 
-AT_SETUP([“N” in the VARYING clause])
+AT_SETUP([varying-n])
 
 AT_DATA([prog.cbl], [
        IDENTIFICATION              DIVISION.
@@ -37,7 +37,7 @@ AT_CHECK([ocesql prog.cbl prog.cob > /dev/null], [0])
 
 AT_CLEANUP
 
-AT_SETUP([“NC” in the VARYING clause])
+AT_SETUP([varying-nc])
 
 AT_DATA([prog.cbl], [
        IDENTIFICATION              DIVISION.
