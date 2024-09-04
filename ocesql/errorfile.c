@@ -104,8 +104,6 @@ int printerrormsg(char *name, int line, char * code){
 	int ilen ;
 	char *p;
 
-	errmsgflg = 1;
-
 	if( code == NULL || line <=0 || name == NULL)
 		return 0;
 	ilen = sizeof(buff);
@@ -123,6 +121,8 @@ int printerrormsg(char *name, int line, char * code){
 
 	fputs(buff, pfile);
 	fputs("\n", pfile);
+
+	errmsgflg = 1;
 
 	return 1;
 }

@@ -187,13 +187,68 @@ char *
 cb_host_list_add (struct cb_hostreference_list *list, char *text)
 {
 	int hostno;
+	int hostnum;
+	int i;
 	char temps[BUFFSIZE];
+	char temps_buf[BUFFSIZE];
 
-	hostno = cb_search_list(text);
-
-	com_sprintf(temps,sizeof(temps),"$%d",hostno);
+	hostnum = cb_host_filed_count(text);
+	hostno = cb_search_list(text, hostnum);
+	com_sprintf(temps, sizeof(temps), "$%d", hostno);
+	for (i = 1; i < hostnum; i++) {
+		com_sprintf(temps_buf, sizeof(temps_buf), ", $%d", hostno + i);
+		com_strcat(temps, sizeof(temps), temps_buf);
+	}
 	return com_strdup(temps);
 }
+
+int
+cb_host_filed_count (char *text) {
+	int type, digits, scale;
+	int iret;
+	int count;
+	char buff[256];
+
+	iret = gethostvarianttype(text, &type, &digits, &scale);
+	if(iret  != 0)
+	{
+		memset(buff, 0, sizeof(buff));
+		com_sprintf(buff,sizeof(buff), "E%03d",iret);
+		printerrormsg(text, 0, buff);
+		return -1;
+	}
+	if (type == HVARTYPE_GROUP) {
+		struct cb_field *f;
+
+		f = getfieldbyname(text);
+		if(f == NULL){
+			printmsg("%s:%d\n", text, ERR_NOTDEF_WORKING);
+			memset(buff, 0, sizeof(buff));
+			com_sprintf(buff,sizeof(buff), "E%03d",ERR_NOTDEF_WORKING);
+			printerrormsg(text, 0, buff);
+			return -1;
+		}
+		count = 0;
+		_cb_host_filed_count (f->children, &count);
+		return count;
+	} else {
+		return 1;
+	}
+}
+
+void
+_cb_host_filed_count (struct cb_field *f, int *count) {
+	if (f == NULL) {
+		return;	
+	}
+	_cb_host_filed_count (f->children, count);
+	_cb_host_filed_count (f->sister, count);
+	if (f->pictype != PIC_GROUP) {
+		*count += 1;
+	}
+	return;
+}
+
 
 void
 cb_res_host_list_add (struct cb_res_hostreference_list *list, char *text)
@@ -216,19 +271,27 @@ cb_res_host_list_add (struct cb_res_hostreference_list *list, char *text)
 }
 
 int
-cb_search_list(char *text)
+cb_search_list(char *text, int items)
 {
 	struct cb_hostreference_list *l = host_reference_list;
+	struct cb_hostreference_list *prev = NULL;
 	struct cb_hostreference_list *p;
 	int i = 0;
 
-	for(; l ; l = l->next) {
-		i++;
+	while (l) {
+		prev = l;
+		l = l->next;
 	}
 
 	p = malloc (sizeof (struct cb_hostreference_list));
 	p->hostreference = com_strdup (text);
-	p->hostno = i+1;
+	if (prev) {
+		p->hostno = prev->hostno + prev->items;
+	} else {
+		p->hostno = 1;
+	}
+
+	p->items = items;
 	p->lineno = hostlineno;
 	p->next = NULL;
 
@@ -240,7 +303,7 @@ cb_search_list(char *text)
 		l->next = p;
 	}
 
-	return i+1;
+	return p->hostno;
 }
 
 void
