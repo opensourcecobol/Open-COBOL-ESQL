@@ -18,7 +18,7 @@ AT_CHECK([diff prog.cob prog.cbl], [0])
 
 AT_CLEANUP
 
-AT_SETUP([varying-n])
+AT_SETUP([n-value])
 
 AT_DATA([prog.cbl], [
        IDENTIFICATION              DIVISION.
@@ -30,14 +30,14 @@ AT_DATA([prog.cbl], [
        WORKING-STORAGE             SECTION.
        01 VAL PIC N(5) VALUE N"あいうえお".
        PROCEDURE                   DIVISION.
-           DISPLAY "Hello".
+           DISPLAY VAL.
            STOP RUN.
 ])
 AT_CHECK([ocesql prog.cbl prog.cob > /dev/null], [0])
 
 AT_CLEANUP
 
-AT_SETUP([varying-nc])
+AT_SETUP([nc-value])
 
 AT_DATA([prog.cbl], [
        IDENTIFICATION              DIVISION.
@@ -49,7 +49,7 @@ AT_DATA([prog.cbl], [
        WORKING-STORAGE             SECTION.
        01 VAL PIC N(5) VALUE NC"あいうえお".
        PROCEDURE                   DIVISION.
-           DISPLAY "Hello".
+           DISPLAY VAL.
            STOP RUN.
 ])
 AT_CHECK([ocesql prog.cbl prog.cob > /dev/null], [0])

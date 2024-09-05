@@ -612,8 +612,8 @@ at_format='?'
 # Description of all the test groups.
 at_help_all="1;empty-string.at:1;empty string test;;
 2;compile.at:1;generate-correct-files;;
-3;compile.at:21;varying-n;;
-4;compile.at:40;varying-nc;;
+3;compile.at:21;n-value;;
+4;compile.at:40;nc-value;;
 "
 # List of the all the test groups.
 at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
@@ -2129,7 +2129,7 @@ read at_status <"$at_status_file"
 #AT_STOP_2
 #AT_START_3
 at_fn_group_banner 3 'compile.at:21' \
-  "varying-n" "                                      "
+  "n-value" "                                        "
 at_xfail=no
 (
   printf "%s\n" "3. $at_setup_line: testing $at_desc ..."
@@ -2147,7 +2147,7 @@ cat >prog.cbl <<'_ATEOF'
        WORKING-STORAGE             SECTION.
        01 VAL PIC N(5) VALUE N"あいうえお".
        PROCEDURE                   DIVISION.
-           DISPLAY "Hello".
+           DISPLAY VAL.
            STOP RUN.
 _ATEOF
 
@@ -2172,7 +2172,7 @@ read at_status <"$at_status_file"
 #AT_STOP_3
 #AT_START_4
 at_fn_group_banner 4 'compile.at:40' \
-  "varying-nc" "                                     "
+  "nc-value" "                                       "
 at_xfail=no
 (
   printf "%s\n" "4. $at_setup_line: testing $at_desc ..."
@@ -2190,7 +2190,7 @@ cat >prog.cbl <<'_ATEOF'
        WORKING-STORAGE             SECTION.
        01 VAL PIC N(5) VALUE NC"あいうえお".
        PROCEDURE                   DIVISION.
-           DISPLAY "Hello".
+           DISPLAY VAL.
            STOP RUN.
 _ATEOF
 
