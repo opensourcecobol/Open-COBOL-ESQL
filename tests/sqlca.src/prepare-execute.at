@@ -9,8 +9,6 @@ AT_DATA([prog.cbl], [
       ******************************************************************
        WORKING-STORAGE             SECTION.
        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
-       01  DATA-ID PIC 9(4).
-       01  DATA-V PIC X(5).
        01  DBNAME                  PIC  X(30) VALUE SPACE.
        01  USERNAME                PIC  X(30) VALUE SPACE.
        01  PASSWD                  PIC  X(10) VALUE SPACE.
