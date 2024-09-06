@@ -613,7 +613,7 @@ at_format='?'
 at_help_all="1;connect-disconnect.at:1;connect-disconnect;;
 2;open-fetch-close.at:1;open-fetch-close;;
 3;prepare-execute.at:1;prepare-execute;;
-4;prepare-execute.at:69;prepare-precompile-exit1;;
+4;prepare-execute.at:67;prepare-precompile-return-errorcode;;
 "
 # List of the all the test groups.
 at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
@@ -2422,8 +2422,6 @@ cat >prog.cbl <<'_ATEOF'
       ******************************************************************
        WORKING-STORAGE             SECTION.
        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
-       01  DATA-ID PIC 9(4).
-       01  DATA-V PIC X(5).
        01  DBNAME                  PIC  X(30) VALUE SPACE.
        01  USERNAME                PIC  X(30) VALUE SPACE.
        01  PASSWD                  PIC  X(10) VALUE SPACE.
@@ -2474,9 +2472,35 @@ _ATEOF
 
 
 { set +x
-printf "%s\n" "$at_srcdir/prepare-execute.at:62: ocesql prog.cbl prog.cob > /dev/null"
-at_fn_check_prepare_trace "prepare-execute.at:62"
+printf "%s\n" "$at_srcdir/prepare-execute.at:60: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "prepare-execute.at:60"
 ( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/prepare-execute.at:60"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/prepare-execute.at:61: \${EMBED_DB_INFO} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "prepare-execute.at:61"
+( $at_check_trace; ${EMBED_DB_INFO} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/prepare-execute.at:61"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/prepare-execute.at:62: \${COMPILE_MODULE} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "prepare-execute.at:62"
+( $at_check_trace; ${COMPILE_MODULE} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2487,41 +2511,15 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-printf "%s\n" "$at_srcdir/prepare-execute.at:63: \${EMBED_DB_INFO} prog.cob"
+printf "%s\n" "$at_srcdir/prepare-execute.at:63: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "prepare-execute.at:63"
-( $at_check_trace; ${EMBED_DB_INFO} prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/prepare-execute.at:63"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-printf "%s\n" "$at_srcdir/prepare-execute.at:64: \${COMPILE_MODULE} prog.cob"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "prepare-execute.at:64"
-( $at_check_trace; ${COMPILE_MODULE} prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/prepare-execute.at:64"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-printf "%s\n" "$at_srcdir/prepare-execute.at:65: \${RUN_MODULE} prog 2> /dev/null"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "prepare-execute.at:65"
 ( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0  $at_status "$at_srcdir/prepare-execute.at:65"
+at_fn_check_status 0  $at_status "$at_srcdir/prepare-execute.at:63"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
@@ -2532,8 +2530,8 @@ $at_traceon; }
 read at_status <"$at_status_file"
 #AT_STOP_3
 #AT_START_4
-at_fn_group_banner 4 'prepare-execute.at:69' \
-  "prepare-precompile-exit1" "                       "
+at_fn_group_banner 4 'prepare-execute.at:67' \
+  "prepare-precompile-return-errorcode" "            "
 at_xfail=no
 (
   printf "%s\n" "4. $at_setup_line: testing $at_desc ..."
@@ -2599,8 +2597,8 @@ cat >prog.cbl <<'_ATEOF'
 _ATEOF
 
 { set +x
-printf "%s\n" "$at_srcdir/prepare-execute.at:127: ocesql prog.cbl prog.cob"
-at_fn_check_prepare_trace "prepare-execute.at:127"
+printf "%s\n" "$at_srcdir/prepare-execute.at:125: ocesql prog.cbl prog.cob"
+at_fn_check_prepare_trace "prepare-execute.at:125"
 ( $at_check_trace; ocesql prog.cbl prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
@@ -2618,7 +2616,7 @@ Generate:OCESQLDisconnect
 translate error
 " | \
   $at_diff - "$at_stdout" || at_failed=:
-at_fn_check_status 255 $at_status "$at_srcdir/prepare-execute.at:127"
+at_fn_check_status 255 $at_status "$at_srcdir/prepare-execute.at:125"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
