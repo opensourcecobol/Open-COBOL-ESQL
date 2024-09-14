@@ -1027,7 +1027,7 @@ void ppoutputprepare(struct cb_exec_list *list){
 		com_sprintf(buff,sizeof(buff), "E%03d",iret);
 		printerrormsg(list->host_list->hostreference, list->host_list->lineno, buff);
 		return;
-	} else if(l != HVARTYPE_GROUP){
+	} else if(l != HVARTYPE_GROUP && l != HVARTYPE_ALPHANUMERIC_VARYING && l != HVARTYPE_JAPANESE_VARYING){
 		memset(buff, 0, sizeof(buff));
 		com_sprintf(buff,sizeof(buff), "E%03d",ERR_PREPARE_ISNT_GROUP);
 		printerrormsg(list->host_list->hostreference, list->host_list->lineno, buff);
@@ -1933,14 +1933,8 @@ void ppbuff(struct cb_exec_list *list){
 		outwrite();
 
 		com_strcpy(out,sizeof(out),"OCESQL ");
-
-		com_strcat(out, sizeof(out), "   ");
-		com_strcat(out, sizeof(out), strend);
-
-		outwrite();
-
-		com_strcpy(out,sizeof(out),"OCESQL ");
 		com_strcat(out,sizeof(out),"   ");
+		com_strcat(out, sizeof(out), strend);
 		if( l->period)
 			com_strcat(out,sizeof(out),".");
 		outwrite();
@@ -2029,16 +2023,21 @@ void ppoutput(char *ppin,char *ppout,struct cb_exec_list *head){
 
 	EOFFLG = 0;
 	if (readfile && outfile){
-		for(;EOFflg != 1;){
+		while(EOFflg != 1){
 			com_readline(readfile, inbuff, &lineNUM, &EOFflg);
 			if(strstr(inbuff, INC_START_MARK) != NULL ||
 			strstr(inbuff, INC__END__MARK) != NULL){
 				continue;
 			}
+
 			if(head){
 				if (l->startLine<= lineNUM && l->endLine>=lineNUM){
 					if(strcmp(l->commandName,"WORKING_END")==0){
 						ppbuff(l);
+					}
+
+					if(EOFflg == 1){
+						break;
 					}
 
 					if(strcmp(l->commandName,"WORKING_BEGIN")!=0 &&
@@ -2055,7 +2054,6 @@ void ppoutput(char *ppin,char *ppout,struct cb_exec_list *head){
 					outbuff = inbuff;
 					len = strlen(outbuff);
 					fwrite (outbuff ,len, 1 , outfile );
-
 					if (EOFflg == 1){
 						fputc('\n',outfile);
 
@@ -2066,6 +2064,11 @@ void ppoutput(char *ppin,char *ppout,struct cb_exec_list *head){
 						if(strcmp(l->commandName,"WORKING_END")){
 							ppbuff(l);
 						}
+						
+						if(EOFflg == 1){
+							break;
+						}
+
 						if (l->next != NULL)
 							l = l->next;
 
@@ -2084,6 +2087,9 @@ void ppoutput(char *ppin,char *ppout,struct cb_exec_list *head){
 						len = strlen(outbuff);
 						fwrite (outbuff ,len, 1 , outfile );
 					}else{
+						if(EOFflg == 1){
+							break;
+						}
 						outbuff = inbuff;
 						len = strlen(outbuff);
 						fwrite (outbuff ,len, 1 , outfile );
@@ -2091,6 +2097,9 @@ void ppoutput(char *ppin,char *ppout,struct cb_exec_list *head){
 					}
 				}
 			}else{
+				if(EOFflg == 1){
+					break;
+				}
 				outbuff = inbuff;
 				len = strlen(outbuff);
 				fwrite (outbuff ,len, 1 , outfile );
@@ -2116,8 +2125,11 @@ void ppoutput_incfile(char *ppin,char *ppout,struct cb_exec_list *head){
 
 	EOFFLG = 0;
 	if (readfile && outfile){
-		for(;EOFflg != 1;){
+		while(1){
 			com_readline(readfile, inbuff, &lineNUM, &EOFflg);
+			if(EOFflg == 1){
+				break;
+			}
 			if(head){
 				if (l->startLine<= lineNUM && l->endLine>=lineNUM){
 					if (strcmp(l->commandName, "INCFILE") == 0){
@@ -2133,7 +2145,9 @@ void ppoutput_incfile(char *ppin,char *ppout,struct cb_exec_list *head){
 					outbuff = inbuff;
 					len = strlen(outbuff);
 					fwrite (outbuff ,len, 1 , outfile );
-
+					if(strstr(inbuff, "\n") == NULL){
+						fputc('\n',outfile);
+					}
 					if (EOFflg == 1){
 						fputc('\n',outfile);
 					}
@@ -2163,7 +2177,6 @@ void ppoutput_incfile(char *ppin,char *ppout,struct cb_exec_list *head){
 						outbuff = inbuff;
 						len = strlen(outbuff);
 						fwrite (outbuff ,len, 1 , outfile );
-
 					}
 				}
 			}else{
