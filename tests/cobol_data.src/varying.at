@@ -1,0 +1,404 @@
+AT_SETUP([varying])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01  TEST-DATA.
+         03 FILLER       PIC X(18) VALUE "0000A         9990".
+         03 FILLER       PIC X(18) VALUE "0001AB        9991".
+         03 FILLER       PIC X(18) VALUE "0002ABC       9992".
+         03 FILLER       PIC X(18) VALUE "0003ABCD      9993".
+         03 FILLER       PIC X(18) VALUE "0004ABCDE     9994".
+         03 FILLER       PIC X(18) VALUE "0005ABCDEF    9995".
+         03 FILLER       PIC X(18) VALUE "0006ABCDEFG   9996".
+         03 FILLER       PIC X(18) VALUE "0007ABCDEFGH  9997".
+         03 FILLER       PIC X(18) VALUE "0008ABCDEFGHI 9998".
+         03 FILLER       PIC X(18) VALUE "0009ABCDEFGHIJ9999".
+
+       01  TEST-DATA-R   REDEFINES TEST-DATA.
+         03  TEST-TBL    OCCURS  10.
+           05  TEST-NUM1           PIC  9(04).
+           05  TEST-NAME           PIC  X(10).
+           05  TEST-NUM2           PIC  9(04).
+       01  IDX                     PIC  9(02).
+       01 TEST-CASE-COUNT PIC 9999 VALUE 1.
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+
+       01  EMP-REC-VARS.
+         03  EMP-NUM1              PIC  9(4).
+         03  EMP-NAME              PIC  X(10) VARYING.
+         03  EMP-NUM2              PIC  9(4).
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           
+       PERFORM SETUP-DB.
+
+           EXEC SQL 
+               FETCH C1 INTO :EMP-NUM1, :EMP-NAME, :EMP-NUM2
+           END-EXEC.
+
+      *    PERFORM DISPLAY-TEST-RESULT.
+           PERFORM UNTIL SQLCODE NOT = ZERO
+              DISPLAY EMP-NAME-ARR
+              EXEC SQL 
+                  FETCH C1 INTO :EMP-NUM1, :EMP-NAME, :EMP-NUM2
+              END-EXEC
+      *        PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+
+       PERFORM CLEANUP-DB.
+
+      *    END
+           STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE EMP
+                (
+                    EMP_NUM1   NUMERIC(4, 0),
+                    EMP_NAME   VARCHAR(10),
+                    EMP_NUM2   NUMERIC(4, 0)
+                )
+           END-EXEC.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE TEST-NUM1(IDX)   TO  EMP-NUM1
+              MOVE TEST-NAME(IDX)   TO  EMP-NAME-ARR
+              MOVE TEST-NUM2(IDX)   TO  EMP-NUM2
+              MOVE IDX TO EMP-NAME-LEN
+              EXEC SQL
+                 INSERT INTO EMP VALUES
+                        (:EMP-NUM1, :EMP-NAME, :EMP-NUM2)
+              END-EXEC
+      *       PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+      *    DECLARE CURSOR
+           EXEC SQL 
+               DECLARE C1 CURSOR FOR
+               SELECT EMP_NUM1, EMP_NAME, EMP_NUM2
+                      FROM EMP
+                      ORDER BY EMP_NUM1
+           END-EXEC.
+
+      *    OPEN CURSOR
+           EXEC SQL
+               OPEN C1
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               CLOSE C1
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+      ******************************************************************
+       DISPLAY-TEST-RESULT.
+      ******************************************************************
+           IF  SQLCODE = ZERO
+             THEN
+
+               DISPLAY "<log> test case " TEST-CASE-COUNT ": success"
+               ADD 1 TO TEST-CASE-COUNT
+
+             ELSE
+               DISPLAY "*** SQL ERROR ***"
+               DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING
+               EVALUATE SQLCODE
+                  WHEN  +10
+                     DISPLAY "Record not found"
+                  WHEN  -01
+                     DISPLAY "Connection falied"
+                  WHEN  -20
+                     DISPLAY "Internal error"
+                  WHEN  -30
+                     DISPLAY "PostgreSQL error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+                  *> TO RESTART TRANSACTION, DO ROLLBACK.
+                     EXEC SQL
+                         ROLLBACK
+                     END-EXEC
+                  WHEN  OTHER
+                     DISPLAY "Undefined error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+               END-EVALUATE
+               STOP RUN.
+      ******************************************************************  
+])
+
+AT_CHECK([${EMBED_DB_INFO} prog.cbl])
+AT_CHECK([ocesql prog.cbl prog.cob], [0],
+[precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API            @&t@
+=======================================================
+Generate:OCESQLCursorFetchOne
+Generate:OCESQLCursorFetchOne
+Generate:OCESQLConnect
+Generate:OCESQLExec
+Generate:OCESQLExec
+Generate:OCESQLExecParams
+Generate:OCESQLCursorDeclare
+Generate:OCESQLCursorOpen
+Generate:OCESQLCursorClose
+Generate:OCESQLExec
+Generate:OCESQLDisconnect
+Generate:ROLLBACK
+=======================================================
+])
+AT_CHECK([${COMPILE_MODULE} prog.cob])
+AT_CHECK([${RUN_MODULE} prog], [0],
+[A         @&t@
+AB        @&t@
+ABC       @&t@
+ABCD      @&t@
+ABCDE     @&t@
+ABCDEF    @&t@
+ABCDEFG   @&t@
+ABCDEFGH  @&t@
+ABCDEFGHI @&t@
+ABCDEFGHIJ
+])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01  TEST-DATA.
+         03 FILLER       PIC X(10) VALUE "0".
+         03 FILLER       PIC X(10) VALUE "01".
+         03 FILLER       PIC X(10) VALUE "012".
+         03 FILLER       PIC X(10) VALUE "0123".
+         03 FILLER       PIC X(10) VALUE "01234".
+         03 FILLER       PIC X(10) VALUE "012345".
+         03 FILLER       PIC X(10) VALUE "0123456".
+         03 FILLER       PIC X(10) VALUE "01234567".
+         03 FILLER       PIC X(10) VALUE "012345678".
+         03 FILLER       PIC X(10) VALUE "0123456789".
+
+       01  TEST-DATA-R   REDEFINES TEST-DATA.
+         03  TEST-TBL    OCCURS  10.
+           05  TEST-NAME           PIC  X(10).
+       01  IDX                     PIC  9(02).
+       01 TEST-CASE-COUNT PIC 9999 VALUE 1.
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+
+       01  EMP-REC-VARS.
+         03  EMP-NAME              PIC  X(10) VARYING.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           
+       PERFORM SETUP-DB.
+
+           EXEC SQL 
+               FETCH C1 INTO :EMP-NAME
+           END-EXEC.
+
+      *    PERFORM DISPLAY-TEST-RESULT.
+           PERFORM UNTIL SQLCODE NOT = ZERO
+              DISPLAY EMP-NAME-ARR
+              EXEC SQL 
+                  FETCH C1 INTO :EMP-NAME
+              END-EXEC
+      *        PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+
+       PERFORM CLEANUP-DB.
+
+      *    END
+           STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE EMP
+                (
+                    EMP_NAME   VARCHAR(10)
+                )
+           END-EXEC.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE TEST-NAME(IDX)   TO  EMP-NAME-ARR
+              MOVE IDX TO EMP-NAME-LEN
+              EXEC SQL
+                 INSERT INTO EMP VALUES
+                        (:EMP-NAME)
+              END-EXEC
+      *       PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+      *    DECLARE CURSOR
+           EXEC SQL 
+               DECLARE C1 CURSOR FOR
+               SELECT EMP_NAME
+                      FROM EMP
+                      ORDER BY EMP_NAME
+           END-EXEC.
+
+      *    OPEN CURSOR
+           EXEC SQL
+               OPEN C1
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               CLOSE C1
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+      ******************************************************************
+       DISPLAY-TEST-RESULT.
+      ******************************************************************
+           IF  SQLCODE = ZERO
+             THEN
+
+               DISPLAY "<log> test case " TEST-CASE-COUNT ": success"
+               ADD 1 TO TEST-CASE-COUNT
+
+             ELSE
+               DISPLAY "*** SQL ERROR ***"
+               DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING
+               EVALUATE SQLCODE
+                  WHEN  +10
+                     DISPLAY "Record not found"
+                  WHEN  -01
+                     DISPLAY "Connection falied"
+                  WHEN  -20
+                     DISPLAY "Internal error"
+                  WHEN  -30
+                     DISPLAY "PostgreSQL error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+                  *> TO RESTART TRANSACTION, DO ROLLBACK.
+                     EXEC SQL
+                         ROLLBACK
+                     END-EXEC
+                  WHEN  OTHER
+                     DISPLAY "Undefined error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+               END-EVALUATE
+               STOP RUN.
+      ******************************************************************  
+
+])
+
+AT_CHECK([${EMBED_DB_INFO} prog.cbl])
+AT_CHECK([ocesql prog.cbl prog.cob], [0],
+[precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API            @&t@
+=======================================================
+Generate:OCESQLCursorFetchOne
+Generate:OCESQLCursorFetchOne
+Generate:OCESQLConnect
+Generate:OCESQLExec
+Generate:OCESQLExec
+Generate:OCESQLExecParams
+Generate:OCESQLCursorDeclare
+Generate:OCESQLCursorOpen
+Generate:OCESQLCursorClose
+Generate:OCESQLExec
+Generate:OCESQLDisconnect
+Generate:ROLLBACK
+=======================================================
+])
+AT_CHECK([${COMPILE_MODULE} prog.cob])
+AT_CHECK([${RUN_MODULE} prog], [0],
+[0         @&t@
+01        @&t@
+012       @&t@
+0123      @&t@
+01234     @&t@
+012345    @&t@
+0123456   @&t@
+01234567  @&t@
+012345678 @&t@
+0123456789
+])
+
+AT_CLEANUP
