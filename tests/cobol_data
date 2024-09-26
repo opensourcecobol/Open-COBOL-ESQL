@@ -1,7 +1,7 @@
 #! /bin/sh
-# Generated from cobol_data.at by GNU Autoconf 2.69.
+# Generated from cobol_data.at by GNU Autoconf 2.71.
 #
-# Copyright (C) 2009-2012 Free Software Foundation, Inc.
+# Copyright (C) 2009-2017, 2020-2021 Free Software Foundation, Inc.
 #
 # This test suite is free software; the Free Software Foundation gives
 # unlimited permission to copy, distribute and modify it.
@@ -11,14 +11,16 @@
 
 # Be more Bourne compatible
 DUALCASE=1; export DUALCASE # for MKS sh
-if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then :
+as_nop=:
+if test ${ZSH_VERSION+y} && (emulate sh) >/dev/null 2>&1
+then :
   emulate sh
   NULLCMD=:
   # Pre-4.2 versions of Zsh do word splitting on ${1+"$@"}, which
   # is contrary to our usage.  Disable this feature.
   alias -g '${1+"$@"}'='"$@"'
   setopt NO_GLOB_SUBST
-else
+else $as_nop
   case `(set -o) 2>/dev/null` in #(
   *posix*) :
     set -o posix ;; #(
@@ -28,46 +30,46 @@ esac
 fi
 
 
+
+# Reset variables that may have inherited troublesome values from
+# the environment.
+
+# IFS needs to be set, to space, tab, and newline, in precisely that order.
+# (If _AS_PATH_WALK were called with IFS unset, it would have the
+# side effect of setting IFS to empty, thus disabling word splitting.)
+# Quoting is to prevent editors from complaining about space-tab.
 as_nl='
 '
 export as_nl
-# Printing a long string crashes Solaris 7 /usr/bin/printf.
-as_echo='\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'
-as_echo=$as_echo$as_echo$as_echo$as_echo$as_echo
-as_echo=$as_echo$as_echo$as_echo$as_echo$as_echo$as_echo
-# Prefer a ksh shell builtin over an external printf program on Solaris,
-# but without wasting forks for bash or zsh.
-if test -z "$BASH_VERSION$ZSH_VERSION" \
-    && (test "X`print -r -- $as_echo`" = "X$as_echo") 2>/dev/null; then
-  as_echo='print -r --'
-  as_echo_n='print -rn --'
-elif (test "X`printf %s $as_echo`" = "X$as_echo") 2>/dev/null; then
-  as_echo='printf %s\n'
-  as_echo_n='printf %s'
-else
-  if test "X`(/usr/ucb/echo -n -n $as_echo) 2>/dev/null`" = "X-n $as_echo"; then
-    as_echo_body='eval /usr/ucb/echo -n "$1$as_nl"'
-    as_echo_n='/usr/ucb/echo -n'
-  else
-    as_echo_body='eval expr "X$1" : "X\\(.*\\)"'
-    as_echo_n_body='eval
-      arg=$1;
-      case $arg in #(
-      *"$as_nl"*)
-	expr "X$arg" : "X\\(.*\\)$as_nl";
-	arg=`expr "X$arg" : ".*$as_nl\\(.*\\)"`;;
-      esac;
-      expr "X$arg" : "X\\(.*\\)" | tr -d "$as_nl"
-    '
-    export as_echo_n_body
-    as_echo_n='sh -c $as_echo_n_body as_echo'
-  fi
-  export as_echo_body
-  as_echo='sh -c $as_echo_body as_echo'
-fi
+IFS=" ""	$as_nl"
+
+PS1='$ '
+PS2='> '
+PS4='+ '
+
+# Ensure predictable behavior from utilities with locale-dependent output.
+LC_ALL=C
+export LC_ALL
+LANGUAGE=C
+export LANGUAGE
+
+# We cannot yet rely on "unset" to work, but we need these variables
+# to be unset--not just set to an empty or harmless value--now, to
+# avoid bugs in old shells (e.g. pre-3.0 UWIN ksh).  This construct
+# also avoids known problems related to "unset" and subshell syntax
+# in other old shells (e.g. bash 2.01 and pdksh 5.2.14).
+for as_var in BASH_ENV ENV MAIL MAILPATH CDPATH
+do eval test \${$as_var+y} \
+  && ( (unset $as_var) || exit 1) >/dev/null 2>&1 && unset $as_var || :
+done
+
+# Ensure that fds 0, 1, and 2 are open.
+if (exec 3>&0) 2>/dev/null; then :; else exec 0</dev/null; fi
+if (exec 3>&1) 2>/dev/null; then :; else exec 1>/dev/null; fi
+if (exec 3>&2)            ; then :; else exec 2>/dev/null; fi
 
 # The user is always right.
-if test "${PATH_SEPARATOR+set}" != set; then
+if ${PATH_SEPARATOR+false} :; then
   PATH_SEPARATOR=:
   (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
     (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
@@ -75,13 +77,6 @@ if test "${PATH_SEPARATOR+set}" != set; then
   }
 fi
 
-
-# IFS
-# We need space, tab and new line, in precisely that order.  Quoting is
-# there to prevent editors from complaining about space-tab.
-# (If _AS_PATH_WALK were called with IFS unset, it would disable word
-# splitting by setting IFS to empty value.)
-IFS=" ""	$as_nl"
 
 # Find who we are.  Look in the path if we contain no directory separator.
 as_myself=
@@ -91,8 +86,12 @@ case $0 in #((
 for as_dir in $PATH
 do
   IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    test -r "$as_dir/$0" && as_myself=$as_dir/$0 && break
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    test -r "$as_dir$0" && as_myself=$as_dir$0 && break
   done
 IFS=$as_save_IFS
 
@@ -104,40 +103,22 @@ if test "x$as_myself" = x; then
   as_myself=$0
 fi
 if test ! -f "$as_myself"; then
-  $as_echo "$as_myself: error: cannot find myself; rerun with an absolute file name" >&2
+  printf "%s\n" "$as_myself: error: cannot find myself; rerun with an absolute file name" >&2
   exit 1
 fi
 
-# Unset variables that we do not need and which cause bugs (e.g. in
-# pre-3.0 UWIN ksh).  But do not cause bugs in bash 2.01; the "|| exit 1"
-# suppresses any "Segmentation fault" message there.  '((' could
-# trigger a bug in pdksh 5.2.14.
-for as_var in BASH_ENV ENV MAIL MAILPATH
-do eval test x\${$as_var+set} = xset \
-  && ( (unset $as_var) || exit 1) >/dev/null 2>&1 && unset $as_var || :
-done
-PS1='$ '
-PS2='> '
-PS4='+ '
-
-# NLS nuisances.
-LC_ALL=C
-export LC_ALL
-LANGUAGE=C
-export LANGUAGE
-
-# CDPATH.
-(unset CDPATH) >/dev/null 2>&1 && unset CDPATH
 
 if test "x$CONFIG_SHELL" = x; then
-  as_bourne_compatible="if test -n \"\${ZSH_VERSION+set}\" && (emulate sh) >/dev/null 2>&1; then :
+  as_bourne_compatible="as_nop=:
+if test \${ZSH_VERSION+y} && (emulate sh) >/dev/null 2>&1
+then :
   emulate sh
   NULLCMD=:
   # Pre-4.2 versions of Zsh do word splitting on \${1+\"\$@\"}, which
   # is contrary to our usage.  Disable this feature.
   alias -g '\${1+\"\$@\"}'='\"\$@\"'
   setopt NO_GLOB_SUBST
-else
+else \$as_nop
   case \`(set -o) 2>/dev/null\` in #(
   *posix*) :
     set -o posix ;; #(
@@ -157,42 +138,53 @@ as_fn_success || { exitcode=1; echo as_fn_success failed.; }
 as_fn_failure && { exitcode=1; echo as_fn_failure succeeded.; }
 as_fn_ret_success || { exitcode=1; echo as_fn_ret_success failed.; }
 as_fn_ret_failure && { exitcode=1; echo as_fn_ret_failure succeeded.; }
-if ( set x; as_fn_ret_success y && test x = \"\$1\" ); then :
+if ( set x; as_fn_ret_success y && test x = \"\$1\" )
+then :
 
-else
+else \$as_nop
   exitcode=1; echo positional parameters were not saved.
 fi
 test x\$exitcode = x0 || exit 1
+blah=\$(echo \$(echo blah))
+test x\"\$blah\" = xblah || exit 1
 test -x / || exit 1"
   as_suggested="  as_lineno_1=";as_suggested=$as_suggested$LINENO;as_suggested=$as_suggested" as_lineno_1a=\$LINENO
   as_lineno_2=";as_suggested=$as_suggested$LINENO;as_suggested=$as_suggested" as_lineno_2a=\$LINENO
   eval 'test \"x\$as_lineno_1'\$as_run'\" != \"x\$as_lineno_2'\$as_run'\" &&
   test \"x\`expr \$as_lineno_1'\$as_run' + 1\`\" = \"x\$as_lineno_2'\$as_run'\"' || exit 1
 test \$(( 1 + 1 )) = 2 || exit 1"
-  if (eval "$as_required") 2>/dev/null; then :
+  if (eval "$as_required") 2>/dev/null
+then :
   as_have_required=yes
-else
+else $as_nop
   as_have_required=no
 fi
-  if test x$as_have_required = xyes && (eval "$as_suggested") 2>/dev/null; then :
+  if test x$as_have_required = xyes && (eval "$as_suggested") 2>/dev/null
+then :
 
-else
+else $as_nop
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 as_found=false
 for as_dir in /bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
 do
   IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
   as_found=:
   case $as_dir in #(
 	 /*)
 	   for as_base in sh bash ksh sh5; do
 	     # Try only shells that exist, to save several forks.
-	     as_shell=$as_dir/$as_base
+	     as_shell=$as_dir$as_base
 	     if { test -f "$as_shell" || test -f "$as_shell.exe"; } &&
-		    { $as_echo "$as_bourne_compatible""$as_required" | as_run=a "$as_shell"; } 2>/dev/null; then :
+		    as_run=a "$as_shell" -c "$as_bourne_compatible""$as_required" 2>/dev/null
+then :
   CONFIG_SHELL=$as_shell as_have_required=yes
-		   if { $as_echo "$as_bourne_compatible""$as_suggested" | as_run=a "$as_shell"; } 2>/dev/null; then :
+		   if as_run=a "$as_shell" -c "$as_bourne_compatible""$as_suggested" 2>/dev/null
+then :
   break 2
 fi
 fi
@@ -200,14 +192,21 @@ fi
        esac
   as_found=false
 done
-$as_found || { if { test -f "$SHELL" || test -f "$SHELL.exe"; } &&
-	      { $as_echo "$as_bourne_compatible""$as_required" | as_run=a "$SHELL"; } 2>/dev/null; then :
-  CONFIG_SHELL=$SHELL as_have_required=yes
-fi; }
 IFS=$as_save_IFS
+if $as_found
+then :
+
+else $as_nop
+  if { test -f "$SHELL" || test -f "$SHELL.exe"; } &&
+	      as_run=a "$SHELL" -c "$as_bourne_compatible""$as_required" 2>/dev/null
+then :
+  CONFIG_SHELL=$SHELL as_have_required=yes
+fi
+fi
 
 
-      if test "x$CONFIG_SHELL" != x; then :
+      if test "x$CONFIG_SHELL" != x
+then :
   export CONFIG_SHELL
              # We cannot yet assume a decent shell, so we have to provide a
 # neutralization value for shells without unset; and this also
@@ -225,18 +224,19 @@ esac
 exec $CONFIG_SHELL $as_opts "$as_myself" ${1+"$@"}
 # Admittedly, this is quite paranoid, since all the known shells bail
 # out after a failed `exec'.
-$as_echo "$0: could not re-execute with $CONFIG_SHELL" >&2
+printf "%s\n" "$0: could not re-execute with $CONFIG_SHELL" >&2
 exit 255
 fi
 
-    if test x$as_have_required = xno; then :
-  $as_echo "$0: This script requires a shell more modern than all"
-  $as_echo "$0: the shells that I found on your system."
-  if test x${ZSH_VERSION+set} = xset ; then
-    $as_echo "$0: In particular, zsh $ZSH_VERSION has bugs and should"
-    $as_echo "$0: be upgraded to zsh 4.3.4 or later."
+    if test x$as_have_required = xno
+then :
+  printf "%s\n" "$0: This script requires a shell more modern than all"
+  printf "%s\n" "$0: the shells that I found on your system."
+  if test ${ZSH_VERSION+y} ; then
+    printf "%s\n" "$0: In particular, zsh $ZSH_VERSION has bugs and should"
+    printf "%s\n" "$0: be upgraded to zsh 4.3.4 or later."
   else
-    $as_echo "$0: Please tell bug-autoconf@gnu.org about your system,
+    printf "%s\n" "$0: Please tell bug-autoconf@gnu.org about your system,
 $0: including any error possibly output before this
 $0: message. Then install a modern shell, or manually run
 $0: the script under such a shell if you do have one."
@@ -263,6 +263,7 @@ as_fn_unset ()
 }
 as_unset=as_fn_unset
 
+
 # as_fn_set_status STATUS
 # -----------------------
 # Set $? to STATUS, without forking.
@@ -280,6 +281,14 @@ as_fn_exit ()
   as_fn_set_status $1
   exit $1
 } # as_fn_exit
+# as_fn_nop
+# ---------
+# Do nothing but, unlike ":", preserve the value of $?.
+as_fn_nop ()
+{
+  return $?
+}
+as_nop=as_fn_nop
 
 # as_fn_mkdir_p
 # -------------
@@ -294,7 +303,7 @@ as_fn_mkdir_p ()
     as_dirs=
     while :; do
       case $as_dir in #(
-      *\'*) as_qdir=`$as_echo "$as_dir" | sed "s/'/'\\\\\\\\''/g"`;; #'(
+      *\'*) as_qdir=`printf "%s\n" "$as_dir" | sed "s/'/'\\\\\\\\''/g"`;; #'(
       *) as_qdir=$as_dir;;
       esac
       as_dirs="'$as_qdir' $as_dirs"
@@ -303,7 +312,7 @@ $as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
 	 X"$as_dir" : 'X\(//\)[^/]' \| \
 	 X"$as_dir" : 'X\(//\)$' \| \
 	 X"$as_dir" : 'X\(/\)' \| . 2>/dev/null ||
-$as_echo X"$as_dir" |
+printf "%s\n" X"$as_dir" |
     sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{
 	    s//\1/
 	    q
@@ -342,12 +351,13 @@ as_fn_executable_p ()
 # advantage of any shell optimizations that allow amortized linear growth over
 # repeated appends, instead of the typical quadratic growth present in naive
 # implementations.
-if (eval "as_var=1; as_var+=2; test x\$as_var = x12") 2>/dev/null; then :
+if (eval "as_var=1; as_var+=2; test x\$as_var = x12") 2>/dev/null
+then :
   eval 'as_fn_append ()
   {
     eval $1+=\$2
   }'
-else
+else $as_nop
   as_fn_append ()
   {
     eval $1=\$$1\$2
@@ -359,12 +369,13 @@ fi # as_fn_append
 # Perform arithmetic evaluation on the ARGs, and store the result in the
 # global $as_val. Take advantage of shells that can avoid forks. The arguments
 # must be portable across $(()) and expr.
-if (eval "test \$(( 1 + 1 )) = 2") 2>/dev/null; then :
+if (eval "test \$(( 1 + 1 )) = 2") 2>/dev/null
+then :
   eval 'as_fn_arith ()
   {
     as_val=$(( $* ))
   }'
-else
+else $as_nop
   as_fn_arith ()
   {
     as_val=`expr "$@" || test $? -eq 1`
@@ -382,9 +393,9 @@ as_fn_error ()
   as_status=$1; test $as_status -eq 0 && as_status=1
   if test "$4"; then
     as_lineno=${as_lineno-"$3"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-    $as_echo "$as_me:${as_lineno-$LINENO}: error: $2" >&$4
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: $2" >&$4
   fi
-  $as_echo "$as_me: error: $2" >&2
+  printf "%s\n" "$as_me: error: $2" >&2
   as_fn_exit $as_status
 } # as_fn_error
 
@@ -405,7 +416,7 @@ as_me=`$as_basename -- "$0" ||
 $as_expr X/"$0" : '.*/\([^/][^/]*\)/*$' \| \
 	 X"$0" : 'X\(//\)$' \| \
 	 X"$0" : 'X\(/\)' \| . 2>/dev/null ||
-$as_echo X/"$0" |
+printf "%s\n" X/"$0" |
     sed '/^.*\/\([^/][^/]*\)\/*$/{
 	    s//\1/
 	    q
@@ -455,7 +466,7 @@ as_cr_alnum=$as_cr_Letters$as_cr_digits
       s/-\n.*//
     ' >$as_me.lineno &&
   chmod +x "$as_me.lineno" ||
-    { $as_echo "$as_me: error: cannot create $as_me.lineno; rerun with a POSIX shell" >&2; as_fn_exit 1; }
+    { printf "%s\n" "$as_me: error: cannot create $as_me.lineno; rerun with a POSIX shell" >&2; as_fn_exit 1; }
 
   # If we had to re-execute with $CONFIG_SHELL, we're ensured to have
   # already done that, so ensure we don't try to do so again and fall
@@ -469,6 +480,10 @@ as_cr_alnum=$as_cr_Letters$as_cr_digits
   exit
 }
 
+
+# Determine whether it's possible to make 'echo' print without a newline.
+# These variables are no longer used directly by Autoconf, but are AC_SUBSTed
+# for compatibility with existing Makefiles.
 ECHO_C= ECHO_N= ECHO_T=
 case `echo -n x` in #(((((
 -n*)
@@ -481,6 +496,13 @@ case `echo -n x` in #(((((
 *)
   ECHO_N='-n';;
 esac
+
+# For backward compatibility with old third-party macros, we provide
+# the shell variables $as_echo and $as_echo_n.  New code should use
+# AS_ECHO(["message"]) and AS_ECHO_N(["message"]), respectively.
+as_echo='printf %s\n'
+as_echo_n='printf %s'
+
 
 rm -f conf$$ conf$$.exe conf$$.file
 if test -d conf$$.dir; then
@@ -583,8 +605,6 @@ at_change_dir=false
 
 # Whether to enable colored test results.
 at_color=no
-# List of the tested programs.
-at_tested='ocesql'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
@@ -596,9 +616,10 @@ at_help_all="1;numeric_signed_v.at:1;numeric_signed_v;;
 4;comp5.at:1;COMP-5;;
 5;alphanumeric.at:1;alphanumeric;;
 6;japanese.at:1;japanese;;
+7;varying.at:1;varying;;
 "
 # List of the all the test groups.
-at_groups_all=`$as_echo "$at_help_all" | sed 's/;.*//'`
+at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
 
 # at_fn_validate_ranges NAME...
 # -----------------------------
@@ -609,8 +630,8 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 6; then
-      $as_echo "invalid test group: $at_value" >&2
+    if test $at_value -lt 1 || test $at_value -gt 7; then
+      printf "%s\n" "invalid test group: $at_value" >&2
       exit 1
     fi
     case $at_value in
@@ -623,6 +644,9 @@ at_fn_validate_ranges ()
     esac
   done
 }
+# List of the tested programs.
+at_tested='"ocesql"'
+
 
 at_prev=
 for at_option
@@ -637,8 +661,6 @@ do
   *=?*) at_optarg=`expr "X$at_option" : '[^=]*=\(.*\)'` ;;
   *)    at_optarg= ;;
   esac
-
-  # Accept the important Cygnus configure options, so we can diagnose typos.
 
   case $at_option in
     --help | -h )
@@ -698,7 +720,7 @@ do
     [0-9]- | [0-9][0-9]- | [0-9][0-9][0-9]- | [0-9][0-9][0-9][0-9]-)
 	at_range_start=`echo $at_option |tr -d X-`
 	at_fn_validate_ranges at_range_start
-	at_range=`$as_echo "$at_groups_all" | \
+	at_range=`printf "%s\n" "$at_groups_all" | \
 	  sed -ne '/^'$at_range_start'$/,$p'`
 	as_fn_append at_groups "$at_range$as_nl"
 	;;
@@ -706,7 +728,7 @@ do
     -[0-9] | -[0-9][0-9] | -[0-9][0-9][0-9] | -[0-9][0-9][0-9][0-9])
 	at_range_end=`echo $at_option |tr -d X-`
 	at_fn_validate_ranges at_range_end
-	at_range=`$as_echo "$at_groups_all" | \
+	at_range=`printf "%s\n" "$at_groups_all" | \
 	  sed -ne '1,/^'$at_range_end'$/p'`
 	as_fn_append at_groups "$at_range$as_nl"
 	;;
@@ -725,7 +747,7 @@ do
 	  at_range_start=$at_tmp
 	fi
 	at_fn_validate_ranges at_range_start at_range_end
-	at_range=`$as_echo "$at_groups_all" | \
+	at_range=`printf "%s\n" "$at_groups_all" | \
 	  sed -ne '/^'$at_range_start'$/,/^'$at_range_end'$/p'`
 	as_fn_append at_groups "$at_range$as_nl"
 	;;
@@ -779,11 +801,11 @@ do
 	    ;;
 	  esac
 	  # It is on purpose that we match the test group titles too.
-	  at_groups_selected=`$as_echo "$at_groups_selected" |
+	  at_groups_selected=`printf "%s\n" "$at_groups_selected" |
 	      grep -i $at_invert "^[1-9][^;]*;.*[; ]$at_keyword[ ;]"`
 	done
 	# Smash the keywords.
-	at_groups_selected=`$as_echo "$at_groups_selected" | sed 's/;.*//'`
+	at_groups_selected=`printf "%s\n" "$at_groups_selected" | sed 's/;.*//'`
 	as_fn_append at_groups "$at_groups_selected$as_nl"
 	;;
     --recheck)
@@ -797,21 +819,22 @@ do
 	  '' | [0-9]* | *[!_$as_cr_alnum]* )
 	    as_fn_error $? "invalid variable name: \`$at_envvar'" ;;
 	esac
-	at_value=`$as_echo "$at_optarg" | sed "s/'/'\\\\\\\\''/g"`
+	at_value=`printf "%s\n" "$at_optarg" | sed "s/'/'\\\\\\\\''/g"`
 	# Export now, but save eval for later and for debug scripts.
 	export $at_envvar
 	as_fn_append at_debug_args " $at_envvar='$at_value'"
 	;;
 
-     *) $as_echo "$as_me: invalid option: $at_option" >&2
-	$as_echo "Try \`$0 --help' for more information." >&2
+     *) printf "%s\n" "$as_me: invalid option: $at_option" >&2
+	printf "%s\n" "Try \`$0 --help' for more information." >&2
 	exit 1
 	;;
   esac
 done
 
 # Verify our last option didn't require an argument
-if test -n "$at_prev"; then :
+if test -n "$at_prev"
+then :
   as_fn_error $? "\`$at_prev' requires an argument"
 fi
 
@@ -835,7 +858,7 @@ else
     as_fn_append at_groups "$at_oldfails$as_nl"
   fi
   # Sort the tests, removing duplicates.
-  at_groups=`$as_echo "$at_groups" | sort -nu | sed '/^$/d'`
+  at_groups=`printf "%s\n" "$at_groups" | sort -nu | sed '/^$/d'`
 fi
 
 if test x"$at_color" = xalways \
@@ -914,7 +937,7 @@ Open-COBOL-ESQL-1.2 test suite: cobol data test test groups:
 
 _ATEOF
   # Pass an empty line as separator between selected groups and help.
-  $as_echo "$at_groups$as_nl$as_nl$at_help_all" |
+  printf "%s\n" "$at_groups$as_nl$as_nl$at_help_all" |
     awk 'NF == 1 && FS != ";" {
 	   selected[$ 1] = 1
 	   next
@@ -948,10 +971,10 @@ _ATEOF
   exit $at_write_fail
 fi
 if $at_version_p; then
-  $as_echo "$as_me (Open-COBOL-ESQL-1.2)" &&
+  printf "%s\n" "$as_me (Open-COBOL-ESQL-1.2)" &&
   cat <<\_ATEOF || at_write_fail=1
 
-Copyright (C) 2012 Free Software Foundation, Inc.
+Copyright (C) 2021 Free Software Foundation, Inc.
 This test suite is free software; the Free Software Foundation gives
 unlimited permission to copy, distribute and modify it.
 _ATEOF
@@ -1058,13 +1081,17 @@ fi
 # For embedded test suites, AUTOTEST_PATH is relative to the top level
 # of the package.  Then expand it into build/src parts, since users
 # may create executables in both places.
-AUTOTEST_PATH=`$as_echo "$AUTOTEST_PATH" | sed "s|:|$PATH_SEPARATOR|g"`
+AUTOTEST_PATH=`printf "%s\n" "$AUTOTEST_PATH" | sed "s|:|$PATH_SEPARATOR|g"`
 at_path=
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $AUTOTEST_PATH $PATH
 do
   IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
     test -n "$at_path" && as_fn_append at_path $PATH_SEPARATOR
 case $as_dir in
   [\\/]* | ?:[\\/]* )
@@ -1094,7 +1121,11 @@ as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $at_path
 do
   IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
     test -d "$as_dir" || continue
 case $as_dir in
   [\\/]* | ?:[\\/]* ) ;;
@@ -1124,23 +1155,23 @@ fi
 exec 5>>"$at_suite_log"
 
 # Banners and logs.
-$as_echo "## ------------------------------------------------ ##
+printf "%s\n" "## ------------------------------------------------ ##
 ## Open-COBOL-ESQL-1.2 test suite: cobol data test. ##
 ## ------------------------------------------------ ##"
 {
-  $as_echo "## ------------------------------------------------ ##
+  printf "%s\n" "## ------------------------------------------------ ##
 ## Open-COBOL-ESQL-1.2 test suite: cobol data test. ##
 ## ------------------------------------------------ ##"
   echo
 
-  $as_echo "$as_me: command line was:"
-  $as_echo "  \$ $0 $at_cli_args"
+  printf "%s\n" "$as_me: command line was:"
+  printf "%s\n" "  \$ $0 $at_cli_args"
   echo
 
   # If ChangeLog exists, list a few lines in case it might help determining
   # the exact version.
   if test -n "$at_top_srcdir" && test -f "$at_top_srcdir/ChangeLog"; then
-    $as_echo "## ---------- ##
+    printf "%s\n" "## ---------- ##
 ## ChangeLog. ##
 ## ---------- ##"
     echo
@@ -1177,8 +1208,12 @@ as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
 do
   IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    $as_echo "PATH: $as_dir"
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    printf "%s\n" "PATH: $as_dir"
   done
 IFS=$as_save_IFS
 
@@ -1189,7 +1224,7 @@ IFS=$as_save_IFS
   for at_file in atconfig atlocal
   do
     test -r $at_file || continue
-    $as_echo "$as_me: $at_file:"
+    printf "%s\n" "$as_me: $at_file:"
     sed 's/^/| /' $at_file
     echo
   done
@@ -1213,7 +1248,7 @@ at_fn_banner ()
   if test -z "$at_banner_text"; then
     $at_first || echo
   else
-    $as_echo "$as_nl$at_banner_text$as_nl"
+    printf "%s\n" "$as_nl$at_banner_text$as_nl"
   fi
 } # at_fn_banner
 
@@ -1224,7 +1259,7 @@ at_fn_banner ()
 at_fn_check_prepare_notrace ()
 {
   $at_trace_echo "Not enabling shell tracing (command contains $1)"
-  $as_echo "$2" >"$at_check_line_file"
+  printf "%s\n" "$2" >"$at_check_line_file"
   at_check_trace=: at_check_filter=:
   : >"$at_stdout"; : >"$at_stderr"
 }
@@ -1235,7 +1270,7 @@ at_fn_check_prepare_notrace ()
 # command.
 at_fn_check_prepare_trace ()
 {
-  $as_echo "$1" >"$at_check_line_file"
+  printf "%s\n" "$1" >"$at_check_line_file"
   at_check_trace=$at_traceon at_check_filter=$at_check_filter_trace
   : >"$at_stdout"; : >"$at_stderr"
 }
@@ -1272,7 +1307,7 @@ at_fn_filter_trace ()
 at_fn_log_failure ()
 {
   for file
-    do $as_echo "$file:"; sed 's/^/> /' "$file"; done
+    do printf "%s\n" "$file:"; sed 's/^/> /' "$file"; done
   echo 1 > "$at_status_file"
   exit 1
 }
@@ -1286,7 +1321,7 @@ at_fn_check_skip ()
 {
   case $1 in
     99) echo 99 > "$at_status_file"; at_failed=:
-	$as_echo "$2: hard failure"; exit 99;;
+	printf "%s\n" "$2: hard failure"; exit 99;;
     77) echo 77 > "$at_status_file"; exit 77;;
   esac
 }
@@ -1303,8 +1338,8 @@ at_fn_check_status ()
     $1 ) ;;
     77) echo 77 > "$at_status_file"; exit 77;;
     99) echo 99 > "$at_status_file"; at_failed=:
-	$as_echo "$3: hard failure"; exit 99;;
-    *) $as_echo "$3: exit code was $2, expected $1"
+	printf "%s\n" "$3: hard failure"; exit 99;;
+    *) printf "%s\n" "$3: exit code was $2, expected $1"
       at_failed=:;;
   esac
 }
@@ -1336,9 +1371,9 @@ at_fn_create_debugging_script ()
 {
   {
     echo "#! /bin/sh" &&
-    echo 'test "${ZSH_VERSION+set}" = set && alias -g '\''${1+"$@"}'\''='\''"$@"'\''' &&
-    $as_echo "cd '$at_dir'" &&
-    $as_echo "exec \${CONFIG_SHELL-$SHELL} \"$at_myself\" -v -d $at_debug_args $at_group \${1+\"\$@\"}" &&
+    echo 'test ${ZSH_VERSION+y} && alias -g '\''${1+"$@"}'\''='\''"$@"'\''' &&
+    printf "%s\n" "cd '$at_dir'" &&
+    printf "%s\n" "exec \${CONFIG_SHELL-$SHELL} \"$at_myself\" -v -d $at_debug_args $at_group \${1+\"\$@\"}" &&
     echo 'exit 1'
   } >"$at_group_dir/run" &&
   chmod +x "$at_group_dir/run"
@@ -1348,33 +1383,40 @@ at_fn_create_debugging_script ()
 ## End of autotest shell functions. ##
 ## -------------------------------- ##
 {
-  $as_echo "## ---------------- ##
+  printf "%s\n" "## ---------------- ##
 ## Tested programs. ##
 ## ---------------- ##"
   echo
 } >&5
 
 # Report what programs are being tested.
-for at_program in : $at_tested
+for at_program in : `eval echo $at_tested`
 do
-  test "$at_program" = : && continue
-  case $at_program in
-    [\\/]* | ?:[\\/]* ) $at_program_=$at_program ;;
-    * )
+  case $at_program in #(
+  :) :
+    continue ;; #(
+  [\\/]* | ?:[\\/]*) :
+    at_program_=$at_program ;; #(
+  *) :
     as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
 do
   IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    test -f "$as_dir/$at_program" && break
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    test -f "$as_dir$at_program" && break
   done
 IFS=$as_save_IFS
 
-    at_program_=$as_dir/$at_program ;;
-  esac
+    at_program_=$as_dir$at_program ;;
+esac
+
   if test -f "$at_program_"; then
     {
-      $as_echo "$at_srcdir/cobol_data.at:1: $at_program_ --version"
+      printf "%s\n" "$at_srcdir/cobol_data.at:1: $at_program_ --version"
       "$at_program_" --version </dev/null
       echo
     } >&5 2>&1
@@ -1384,14 +1426,14 @@ IFS=$as_save_IFS
 done
 
 {
-  $as_echo "## ------------------ ##
+  printf "%s\n" "## ------------------ ##
 ## Running the tests. ##
 ## ------------------ ##"
 } >&5
 
 at_start_date=`date`
 at_start_time=`date +%s 2>/dev/null`
-$as_echo "$as_me: starting at: $at_start_date" >&5
+printf "%s\n" "$as_me: starting at: $at_start_date" >&5
 
 # Create the master directory if it doesn't already exist.
 as_dir="$at_suite_dir"; as_fn_mkdir_p ||
@@ -1502,12 +1544,13 @@ at_fn_group_prepare ()
   # under the shell's notion of the current directory.
   at_group_dir=$at_suite_dir/$at_group_normalized
   at_group_log=$at_group_dir/$as_me.log
-  if test -d "$at_group_dir"; then
+  if test -d "$at_group_dir"
+then
   find "$at_group_dir" -type d ! -perm -700 -exec chmod u+rwx {} \;
   rm -fr "$at_group_dir"/* "$at_group_dir"/.[!.] "$at_group_dir"/.??*
 fi ||
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: test directory for $at_group_normalized could not be cleaned" >&5
-$as_echo "$as_me: WARNING: test directory for $at_group_normalized could not be cleaned" >&2;}
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: test directory for $at_group_normalized could not be cleaned" >&5
+printf "%s\n" "$as_me: WARNING: test directory for $at_group_normalized could not be cleaned" >&2;}
   # Be tolerant if the above `rm' was not able to remove the directory.
   as_dir="$at_group_dir"; as_fn_mkdir_p
 
@@ -1537,7 +1580,7 @@ at_fn_group_banner ()
     *)          at_desc_line="$1: "  ;;
   esac
   as_fn_append at_desc_line "$3$4"
-  $at_quiet $as_echo_n "$at_desc_line"
+  $at_quiet printf %s "$at_desc_line"
   echo "#                             -*- compilation -*-" >> "$at_group_log"
 }
 
@@ -1556,11 +1599,11 @@ at_fn_group_postprocess ()
       run. This means that test suite is improperly designed.  Please
       report this failure to <ws-opensource-cobol-contact@osscons.jp>.
 _ATEOF
-    $as_echo "$at_setup_line" >"$at_check_line_file"
+    printf "%s\n" "$at_setup_line" >"$at_check_line_file"
     at_status=99
   fi
-  $at_verbose $as_echo_n "$at_group. $at_setup_line: "
-  $as_echo_n "$at_group. $at_setup_line: " >> "$at_group_log"
+  $at_verbose printf %s "$at_group. $at_setup_line: "
+  printf %s "$at_group. $at_setup_line: " >> "$at_group_log"
   case $at_xfail:$at_status in
     yes:0)
 	at_msg="UNEXPECTED PASS"
@@ -1596,10 +1639,10 @@ _ATEOF
   echo "$at_res" > "$at_job_dir/$at_res"
   # In parallel mode, output the summary line only afterwards.
   if test $at_jobs -ne 1 && test -n "$at_verbose"; then
-    $as_echo "$at_desc_line $at_color$at_msg$at_std"
+    printf "%s\n" "$at_desc_line $at_color$at_msg$at_std"
   else
     # Make sure there is a separator even with long titles.
-    $as_echo " $at_color$at_msg$at_std"
+    printf "%s\n" " $at_color$at_msg$at_std"
   fi
   at_log_msg="$at_group. $at_desc ($at_setup_line): $at_msg"
   case $at_status in
@@ -1612,8 +1655,8 @@ _ATEOF
 	at_log_msg="$at_log_msg     ("`sed 1d "$at_times_file"`')'
 	rm -f "$at_times_file"
       fi
-      $as_echo "$at_log_msg" >> "$at_group_log"
-      $as_echo "$at_log_msg" >&5
+      printf "%s\n" "$at_log_msg" >> "$at_group_log"
+      printf "%s\n" "$at_log_msg" >&5
 
       # Cleanup the group directory, unless the user wants the files
       # or the success was unexpected.
@@ -1634,7 +1677,7 @@ _ATEOF
       # Upon failure, include the log into the testsuite's global
       # log.  The failure message is written in the group log.  It
       # is later included in the global log.
-      $as_echo "$at_log_msg" >> "$at_group_log"
+      printf "%s\n" "$at_log_msg" >> "$at_group_log"
 
       # Upon failure, keep the group directory for autopsy, and create
       # the debugging script.  With -e, do not start any further tests.
@@ -1677,8 +1720,8 @@ for at_signal in 1 2 15; do
 	at_signame=`kill -l $at_signal 2>&1 || echo $at_signal`
 	set x $at_signame
 	test 1 -gt 2 && at_signame=$at_signal
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: caught signal $at_signame, bailing out" >&5
-$as_echo "$as_me: WARNING: caught signal $at_signame, bailing out" >&2;}
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: caught signal $at_signame, bailing out" >&5
+printf "%s\n" "$as_me: WARNING: caught signal $at_signame, bailing out" >&2;}
 	as_fn_arith 128 + $at_signal && exit_status=$as_val
 	as_fn_exit $exit_status' $at_signal
 done
@@ -1699,7 +1742,7 @@ then
 	done
 	if test -n "$at_pids"; then
 	  at_sig=TSTP
-	  test "${TMOUT+set}" = set && at_sig=STOP
+	  test ${TMOUT+y} && at_sig=STOP
 	  kill -$at_sig $at_pids 2>/dev/null
 	fi
 	kill -STOP $$
@@ -1707,7 +1750,7 @@ then
 
   echo
   # Turn jobs into a list of numbers, starting from 1.
-  at_joblist=`$as_echo "$at_groups" | sed -n 1,${at_jobs}p`
+  at_joblist=`printf "%s\n" "$at_groups" | sed -n 1,${at_jobs}p`
 
   set X $at_joblist
   shift
@@ -1731,8 +1774,8 @@ then
 	 at_fn_test $at_group &&
 	 . "$at_test_source"
       then :; else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unable to parse test group: $at_group" >&5
-$as_echo "$as_me: WARNING: unable to parse test group: $at_group" >&2;}
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: unable to parse test group: $at_group" >&5
+printf "%s\n" "$as_me: WARNING: unable to parse test group: $at_group" >&2;}
 	at_failed=:
       fi
       at_fn_group_postprocess
@@ -1770,8 +1813,8 @@ else
     if cd "$at_group_dir" &&
        at_fn_test $at_group &&
        . "$at_test_source"; then :; else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unable to parse test group: $at_group" >&5
-$as_echo "$as_me: WARNING: unable to parse test group: $at_group" >&2;}
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: unable to parse test group: $at_group" >&5
+printf "%s\n" "$as_me: WARNING: unable to parse test group: $at_group" >&2;}
       at_failed=:
     fi
     at_fn_group_postprocess
@@ -1810,7 +1853,7 @@ rm -rf "$at_helper_dir"
 # Compute the duration of the suite.
 at_stop_date=`date`
 at_stop_time=`date +%s 2>/dev/null`
-$as_echo "$as_me: ending at: $at_stop_date" >&5
+printf "%s\n" "$as_me: ending at: $at_stop_date" >&5
 case $at_start_time,$at_stop_time in
   [0-9]*,[0-9]*)
     as_fn_arith $at_stop_time - $at_start_time && at_duration_s=$as_val
@@ -1819,18 +1862,18 @@ case $at_start_time,$at_stop_time in
     as_fn_arith $at_duration_s % 60 && at_duration_s=$as_val
     as_fn_arith $at_duration_m % 60 && at_duration_m=$as_val
     at_duration="${at_duration_h}h ${at_duration_m}m ${at_duration_s}s"
-    $as_echo "$as_me: test suite duration: $at_duration" >&5
+    printf "%s\n" "$as_me: test suite duration: $at_duration" >&5
     ;;
 esac
 
 echo
-$as_echo "## ------------- ##
+printf "%s\n" "## ------------- ##
 ## Test results. ##
 ## ------------- ##"
 echo
 {
   echo
-  $as_echo "## ------------- ##
+  printf "%s\n" "## ------------- ##
 ## Test results. ##
 ## ------------- ##"
   echo
@@ -1910,7 +1953,7 @@ else
   echo "ERROR: $at_result" >&5
   {
     echo
-    $as_echo "## ------------------------ ##
+    printf "%s\n" "## ------------------------ ##
 ## Summary of the failures. ##
 ## ------------------------ ##"
 
@@ -1931,7 +1974,7 @@ else
       echo
     fi
     if test $at_fail_count != 0; then
-      $as_echo "## ---------------------- ##
+      printf "%s\n" "## ---------------------- ##
 ## Detailed failed tests. ##
 ## ---------------------- ##"
       echo
@@ -1970,10 +2013,14 @@ _ASBOX
   else
     at_msg="\`${at_testdir+${at_testdir}/}$as_me.log'"
   fi
-  $as_echo "Please send $at_msg and all information you think might help:
+  at_msg1a=${at_xpass_list:+', '}
+  at_msg1=$at_fail_list${at_fail_list:+" failed$at_msg1a"}
+  at_msg2=$at_xpass_list${at_xpass_list:+" passed unexpectedly"}
+
+  printf "%s\n" "Please send $at_msg and all information you think might help:
 
    To: <ws-opensource-cobol-contact@osscons.jp>
-   Subject: [Open-COBOL-ESQL-1.2] $as_me: $at_fail_list${at_fail_list:+ failed${at_xpass_list:+, }}$at_xpass_list${at_xpass_list:+ passed unexpectedly}
+   Subject: [Open-COBOL-ESQL-1.2] $as_me: $at_msg1$at_msg2
 
 You may investigate any problem if you feel able to do so, in which
 case the test suite provides a good starting point.  Its output may
@@ -1992,7 +2039,7 @@ at_fn_group_banner 1 'numeric_signed_v.at:1' \
   "numeric_signed_v" "                               "
 at_xfail=no
 (
-  $as_echo "1. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "1. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -2223,7 +2270,7 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_v.at:227: ocesql prog.cbl prog.cob > /dev/null"
+printf "%s\n" "$at_srcdir/numeric_signed_v.at:227: ocesql prog.cbl prog.cob > /dev/null"
 at_fn_check_prepare_trace "numeric_signed_v.at:227"
 ( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2236,7 +2283,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_v.at:228: \${EMBED_DB_INFO} prog.cob"
+printf "%s\n" "$at_srcdir/numeric_signed_v.at:228: \${EMBED_DB_INFO} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_v.at:228"
 ( $at_check_trace; ${EMBED_DB_INFO} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2249,7 +2296,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_v.at:229: \${COMPILE_MODULE} prog.cob"
+printf "%s\n" "$at_srcdir/numeric_signed_v.at:229: \${COMPILE_MODULE} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_v.at:229"
 ( $at_check_trace; ${COMPILE_MODULE} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2262,14 +2309,14 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
+printf "%s\n" "$at_srcdir/numeric_signed_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_v.at:230"
 ( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "+0000.00
+echo >>"$at_stdout"; printf "%s\n" "+0000.00
 +0000.01
 -0000.01
 +0001.01
@@ -2316,7 +2363,7 @@ at_fn_group_banner 2 'numeric_signed_trailing_v.at:1' \
   "numeric_signed_trailing_v" "                      "
 at_xfail=no
 (
-  $as_echo "2. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "2. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -2547,7 +2594,7 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_trailing_v.at:227: ocesql prog.cbl prog.cob > /dev/null"
+printf "%s\n" "$at_srcdir/numeric_signed_trailing_v.at:227: ocesql prog.cbl prog.cob > /dev/null"
 at_fn_check_prepare_trace "numeric_signed_trailing_v.at:227"
 ( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2560,7 +2607,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_trailing_v.at:228: \${EMBED_DB_INFO} prog.cob"
+printf "%s\n" "$at_srcdir/numeric_signed_trailing_v.at:228: \${EMBED_DB_INFO} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_trailing_v.at:228"
 ( $at_check_trace; ${EMBED_DB_INFO} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2573,7 +2620,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_trailing_v.at:229: \${COMPILE_MODULE} prog.cob"
+printf "%s\n" "$at_srcdir/numeric_signed_trailing_v.at:229: \${COMPILE_MODULE} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_trailing_v.at:229"
 ( $at_check_trace; ${COMPILE_MODULE} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2586,14 +2633,14 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_signed_trailing_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
+printf "%s\n" "$at_srcdir/numeric_signed_trailing_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_signed_trailing_v.at:230"
 ( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "+0000.00
+echo >>"$at_stdout"; printf "%s\n" "+0000.00
 +0000.01
 -0000.01
 +0001.01
@@ -2640,7 +2687,7 @@ at_fn_group_banner 3 'numeric_v.at:1' \
   "numeric_v" "                                      "
 at_xfail=no
 (
-  $as_echo "3. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "3. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -2871,7 +2918,7 @@ cat >prog.cbl <<'_ATEOF'
 _ATEOF
 
 { set +x
-$as_echo "$at_srcdir/numeric_v.at:227: ocesql prog.cbl prog.cob > /dev/null"
+printf "%s\n" "$at_srcdir/numeric_v.at:227: ocesql prog.cbl prog.cob > /dev/null"
 at_fn_check_prepare_trace "numeric_v.at:227"
 ( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2884,7 +2931,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_v.at:228: \${EMBED_DB_INFO} prog.cob"
+printf "%s\n" "$at_srcdir/numeric_v.at:228: \${EMBED_DB_INFO} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_v.at:228"
 ( $at_check_trace; ${EMBED_DB_INFO} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2897,7 +2944,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_v.at:229: \${COMPILE_MODULE} prog.cob"
+printf "%s\n" "$at_srcdir/numeric_v.at:229: \${COMPILE_MODULE} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_v.at:229"
 ( $at_check_trace; ${COMPILE_MODULE} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -2910,14 +2957,14 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/numeric_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
+printf "%s\n" "$at_srcdir/numeric_v.at:230: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "numeric_v.at:230"
 ( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "0000.00
+echo >>"$at_stdout"; printf "%s\n" "0000.00
 0000.01
 0000.10
 0001.01
@@ -2964,7 +3011,7 @@ at_fn_group_banner 4 'comp5.at:1' \
   "COMP-5" "                                         "
 at_xfail=no
 (
-  $as_echo "4. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "4. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3127,14 +3174,14 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/comp5.at:157: ocesql prog.cbl prog.cob | grep EMP-NO"
+printf "%s\n" "$at_srcdir/comp5.at:157: ocesql prog.cbl prog.cob | grep EMP-NO"
 at_fn_check_prepare_notrace 'a shell pipeline' "comp5.at:157"
 ( $at_check_trace; ocesql prog.cbl prog.cob | grep EMP-NO
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "000055:E030:EMP-NO's usage option not supported.
+echo >>"$at_stdout"; printf "%s\n" "000055:E030:EMP-NO's usage option not supported.
 " | \
   $at_diff - "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/comp5.at:157"
@@ -3143,14 +3190,14 @@ $at_traceon; }
 
 
 { set +x
-$as_echo "$at_srcdir/comp5.at:161: ocesql prog2.cbl prog2.cob | tail -n +5"
+printf "%s\n" "$at_srcdir/comp5.at:161: ocesql prog2.cbl prog2.cob | tail -n +5"
 at_fn_check_prepare_notrace 'a shell pipeline' "comp5.at:161"
 ( $at_check_trace; ocesql prog2.cbl prog2.cob | tail -n +5
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "=======================================================
+echo >>"$at_stdout"; printf "%s\n" "=======================================================
 " | \
   $at_diff - "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/comp5.at:161"
@@ -3168,7 +3215,7 @@ at_fn_group_banner 5 'alphanumeric.at:1' \
   "alphanumeric" "                                   "
 at_xfail=no
 (
-  $as_echo "5. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "5. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3291,7 +3338,7 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/alphanumeric.at:119: ocesql prog.cbl prog.cob > /dev/null"
+printf "%s\n" "$at_srcdir/alphanumeric.at:119: ocesql prog.cbl prog.cob > /dev/null"
 at_fn_check_prepare_trace "alphanumeric.at:119"
 ( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -3304,7 +3351,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/alphanumeric.at:120: \${EMBED_DB_INFO} prog.cob"
+printf "%s\n" "$at_srcdir/alphanumeric.at:120: \${EMBED_DB_INFO} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "alphanumeric.at:120"
 ( $at_check_trace; ${EMBED_DB_INFO} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -3317,7 +3364,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/alphanumeric.at:121: \${COMPILE_MODULE} prog.cob"
+printf "%s\n" "$at_srcdir/alphanumeric.at:121: \${COMPILE_MODULE} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "alphanumeric.at:121"
 ( $at_check_trace; ${COMPILE_MODULE} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -3330,14 +3377,14 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/alphanumeric.at:122: \${RUN_MODULE} prog 2> /dev/null"
+printf "%s\n" "$at_srcdir/alphanumeric.at:122: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "alphanumeric.at:122"
 ( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "xxxxxxxxxx
+echo >>"$at_stdout"; printf "%s\n" "xxxxxxxxxx
 abcdefghij
 1234567890
 abc_______
@@ -3364,7 +3411,7 @@ at_fn_group_banner 6 'japanese.at:1' \
   "japanese" "                                       "
 at_xfail=no
 (
-  $as_echo "6. $at_setup_line: testing $at_desc ..."
+  printf "%s\n" "6. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3487,7 +3534,7 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/japanese.at:119: ocesql prog.cbl prog.cob > /dev/null"
+printf "%s\n" "$at_srcdir/japanese.at:119: ocesql prog.cbl prog.cob > /dev/null"
 at_fn_check_prepare_trace "japanese.at:119"
 ( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -3500,7 +3547,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/japanese.at:120: \${EMBED_DB_INFO} prog.cob"
+printf "%s\n" "$at_srcdir/japanese.at:120: \${EMBED_DB_INFO} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "japanese.at:120"
 ( $at_check_trace; ${EMBED_DB_INFO} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -3513,7 +3560,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/japanese.at:121: \${COMPILE_MODULE} prog.cob"
+printf "%s\n" "$at_srcdir/japanese.at:121: \${COMPILE_MODULE} prog.cob"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "japanese.at:121"
 ( $at_check_trace; ${COMPILE_MODULE} prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
@@ -3526,14 +3573,14 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/japanese.at:122: \${RUN_MODULE} prog 2> /dev/null"
+printf "%s\n" "$at_srcdir/japanese.at:122: \${RUN_MODULE} prog 2> /dev/null"
 at_fn_check_prepare_notrace 'a ${...} parameter expansion' "japanese.at:122"
 ( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "‚ ‚¢‚¤‚¦‚¨
+echo >>"$at_stdout"; printf "%s\n" "‚ ‚¢‚¤‚¦‚¨
 ‚‚‚‚ƒ‚„‚…
 ‚P‚Q‚R‚S‚T
 ƒvƒƒOƒ‰ƒ€
@@ -3555,3 +3602,518 @@ $at_traceon; }
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
 #AT_STOP_6
+#AT_START_7
+at_fn_group_banner 7 'varying.at:1' \
+  "varying" "                                        "
+at_xfail=no
+(
+  printf "%s\n" "7. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01  TEST-DATA.
+         03 FILLER       PIC X(18) VALUE "0000A         9990".
+         03 FILLER       PIC X(18) VALUE "0001AB        9991".
+         03 FILLER       PIC X(18) VALUE "0002ABC       9992".
+         03 FILLER       PIC X(18) VALUE "0003ABCD      9993".
+         03 FILLER       PIC X(18) VALUE "0004ABCDE     9994".
+         03 FILLER       PIC X(18) VALUE "0005ABCDEF    9995".
+         03 FILLER       PIC X(18) VALUE "0006ABCDEFG   9996".
+         03 FILLER       PIC X(18) VALUE "0007ABCDEFGH  9997".
+         03 FILLER       PIC X(18) VALUE "0008ABCDEFGHI 9998".
+         03 FILLER       PIC X(18) VALUE "0009ABCDEFGHIJ9999".
+
+       01  TEST-DATA-R   REDEFINES TEST-DATA.
+         03  TEST-TBL    OCCURS  10.
+           05  TEST-NUM1           PIC  9(04).
+           05  TEST-NAME           PIC  X(10).
+           05  TEST-NUM2           PIC  9(04).
+       01  IDX                     PIC  9(02).
+       01 TEST-CASE-COUNT PIC 9999 VALUE 1.
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+
+       01  EMP-REC-VARS.
+         03  EMP-NUM1              PIC  9(4).
+         03  EMP-NAME              PIC  X(10) VARYING.
+         03  EMP-NUM2              PIC  9(4).
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+
+       PERFORM SETUP-DB.
+
+           EXEC SQL
+               FETCH C1 INTO :EMP-NUM1, :EMP-NAME, :EMP-NUM2
+           END-EXEC.
+
+      *    PERFORM DISPLAY-TEST-RESULT.
+           PERFORM UNTIL SQLCODE NOT = ZERO
+              DISPLAY EMP-NAME-ARR
+              EXEC SQL
+                  FETCH C1 INTO :EMP-NUM1, :EMP-NAME, :EMP-NUM2
+              END-EXEC
+      *        PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+
+       PERFORM CLEANUP-DB.
+
+      *    END
+           STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE EMP
+                (
+                    EMP_NUM1   NUMERIC(4, 0),
+                    EMP_NAME   VARCHAR(10),
+                    EMP_NUM2   NUMERIC(4, 0)
+                )
+           END-EXEC.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE TEST-NUM1(IDX)   TO  EMP-NUM1
+              MOVE TEST-NAME(IDX)   TO  EMP-NAME-ARR
+              MOVE TEST-NUM2(IDX)   TO  EMP-NUM2
+              MOVE IDX TO EMP-NAME-LEN
+              EXEC SQL
+                 INSERT INTO EMP VALUES
+                        (:EMP-NUM1, :EMP-NAME, :EMP-NUM2)
+              END-EXEC
+      *       PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+      *    DECLARE CURSOR
+           EXEC SQL
+               DECLARE C1 CURSOR FOR
+               SELECT EMP_NUM1, EMP_NAME, EMP_NUM2
+                      FROM EMP
+                      ORDER BY EMP_NUM1
+           END-EXEC.
+
+      *    OPEN CURSOR
+           EXEC SQL
+               OPEN C1
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               CLOSE C1
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+      ******************************************************************
+       DISPLAY-TEST-RESULT.
+      ******************************************************************
+           IF  SQLCODE = ZERO
+             THEN
+
+               DISPLAY "<log> test case " TEST-CASE-COUNT ": success"
+               ADD 1 TO TEST-CASE-COUNT
+
+             ELSE
+               DISPLAY "*** SQL ERROR ***"
+               DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING
+               EVALUATE SQLCODE
+                  WHEN  +10
+                     DISPLAY "Record not found"
+                  WHEN  -01
+                     DISPLAY "Connection falied"
+                  WHEN  -20
+                     DISPLAY "Internal error"
+                  WHEN  -30
+                     DISPLAY "PostgreSQL error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+                  *> TO RESTART TRANSACTION, DO ROLLBACK.
+                     EXEC SQL
+                         ROLLBACK
+                     END-EXEC
+                  WHEN  OTHER
+                     DISPLAY "Undefined error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+               END-EVALUATE
+               STOP RUN.
+      ******************************************************************
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/varying.at:173: \${EMBED_DB_INFO} prog.cbl"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "varying.at:173"
+( $at_check_trace; ${EMBED_DB_INFO} prog.cbl
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/varying.at:173"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/varying.at:174: ocesql prog.cbl prog.cob"
+at_fn_check_prepare_trace "varying.at:174"
+( $at_check_trace; ocesql prog.cbl prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; printf "%s\n" "precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API            
+=======================================================
+Generate:OCESQLCursorFetchOne
+Generate:OCESQLCursorFetchOne
+Generate:OCESQLConnect
+Generate:OCESQLExec
+Generate:OCESQLExec
+Generate:OCESQLExecParams
+Generate:OCESQLCursorDeclare
+Generate:OCESQLCursorOpen
+Generate:OCESQLCursorClose
+Generate:OCESQLExec
+Generate:OCESQLDisconnect
+Generate:ROLLBACK
+=======================================================
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/varying.at:174"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/varying.at:193: \${COMPILE_MODULE} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "varying.at:193"
+( $at_check_trace; ${COMPILE_MODULE} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/varying.at:193"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/varying.at:194: \${RUN_MODULE} prog"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "varying.at:194"
+( $at_check_trace; ${RUN_MODULE} prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; printf "%s\n" "A         
+AB        
+ABC       
+ABCD      
+ABCDE     
+ABCDEF    
+ABCDEFG   
+ABCDEFGH  
+ABCDEFGHI 
+ABCDEFGHIJ
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/varying.at:194"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01  TEST-DATA.
+         03 FILLER       PIC X(10) VALUE "0".
+         03 FILLER       PIC X(10) VALUE "01".
+         03 FILLER       PIC X(10) VALUE "012".
+         03 FILLER       PIC X(10) VALUE "0123".
+         03 FILLER       PIC X(10) VALUE "01234".
+         03 FILLER       PIC X(10) VALUE "012345".
+         03 FILLER       PIC X(10) VALUE "0123456".
+         03 FILLER       PIC X(10) VALUE "01234567".
+         03 FILLER       PIC X(10) VALUE "012345678".
+         03 FILLER       PIC X(10) VALUE "0123456789".
+
+       01  TEST-DATA-R   REDEFINES TEST-DATA.
+         03  TEST-TBL    OCCURS  10.
+           05  TEST-NAME           PIC  X(10).
+       01  IDX                     PIC  9(02).
+       01 TEST-CASE-COUNT PIC 9999 VALUE 1.
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+
+       01  EMP-REC-VARS.
+         03  EMP-NAME              PIC  X(10) VARYING.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+
+       PERFORM SETUP-DB.
+
+           EXEC SQL
+               FETCH C1 INTO :EMP-NAME
+           END-EXEC.
+
+      *    PERFORM DISPLAY-TEST-RESULT.
+           PERFORM UNTIL SQLCODE NOT = ZERO
+              DISPLAY EMP-NAME-ARR
+              EXEC SQL
+                  FETCH C1 INTO :EMP-NAME
+              END-EXEC
+      *        PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+
+       PERFORM CLEANUP-DB.
+
+      *    END
+           STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE EMP
+                (
+                    EMP_NAME   VARCHAR(10)
+                )
+           END-EXEC.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE TEST-NAME(IDX)   TO  EMP-NAME-ARR
+              MOVE IDX TO EMP-NAME-LEN
+              EXEC SQL
+                 INSERT INTO EMP VALUES
+                        (:EMP-NAME)
+              END-EXEC
+      *       PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+      *    DECLARE CURSOR
+           EXEC SQL
+               DECLARE C1 CURSOR FOR
+               SELECT EMP_NAME
+                      FROM EMP
+                      ORDER BY EMP_NAME
+           END-EXEC.
+
+      *    OPEN CURSOR
+           EXEC SQL
+               OPEN C1
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               CLOSE C1
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+      ******************************************************************
+       DISPLAY-TEST-RESULT.
+      ******************************************************************
+           IF  SQLCODE = ZERO
+             THEN
+
+               DISPLAY "<log> test case " TEST-CASE-COUNT ": success"
+               ADD 1 TO TEST-CASE-COUNT
+
+             ELSE
+               DISPLAY "*** SQL ERROR ***"
+               DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING
+               EVALUATE SQLCODE
+                  WHEN  +10
+                     DISPLAY "Record not found"
+                  WHEN  -01
+                     DISPLAY "Connection falied"
+                  WHEN  -20
+                     DISPLAY "Internal error"
+                  WHEN  -30
+                     DISPLAY "PostgreSQL error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+                  *> TO RESTART TRANSACTION, DO ROLLBACK.
+                     EXEC SQL
+                         ROLLBACK
+                     END-EXEC
+                  WHEN  OTHER
+                     DISPLAY "Undefined error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+               END-EVALUATE
+               STOP RUN.
+      ******************************************************************
+
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/varying.at:370: \${EMBED_DB_INFO} prog.cbl"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "varying.at:370"
+( $at_check_trace; ${EMBED_DB_INFO} prog.cbl
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/varying.at:370"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/varying.at:371: ocesql prog.cbl prog.cob"
+at_fn_check_prepare_trace "varying.at:371"
+( $at_check_trace; ocesql prog.cbl prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; printf "%s\n" "precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API            
+=======================================================
+Generate:OCESQLCursorFetchOne
+Generate:OCESQLCursorFetchOne
+Generate:OCESQLConnect
+Generate:OCESQLExec
+Generate:OCESQLExec
+Generate:OCESQLExecParams
+Generate:OCESQLCursorDeclare
+Generate:OCESQLCursorOpen
+Generate:OCESQLCursorClose
+Generate:OCESQLExec
+Generate:OCESQLDisconnect
+Generate:ROLLBACK
+=======================================================
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/varying.at:371"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/varying.at:390: \${COMPILE_MODULE} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "varying.at:390"
+( $at_check_trace; ${COMPILE_MODULE} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/varying.at:390"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/varying.at:391: \${RUN_MODULE} prog"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "varying.at:391"
+( $at_check_trace; ${RUN_MODULE} prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; printf "%s\n" "0         
+01        
+012       
+0123      
+01234     
+012345    
+0123456   
+01234567  
+012345678 
+0123456789
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/varying.at:391"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_7
