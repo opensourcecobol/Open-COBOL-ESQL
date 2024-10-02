@@ -1,0 +1,197 @@
+AT_SETUP([use include variable])
+
+AT_DATA([VAL], [       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE "VAL" END-EXEC.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           EXEC SQL
+              INSERT INTO EMP VALUES
+                     (:EMP-NO,:EMP-NAME,:EMP-SALARY)
+           END-EXEC
+       MAIN-EXT.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+OCESQL*EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE "VAL" END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*EXEC SQL END DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+      ******************************************************************
+OCESQL*
+OCESQL 01  SQ0001.
+OCESQL     02  FILLER PIC X(037) VALUE "INSERT INTO EMP VALUES ( $1, $"
+OCESQL  &  "2, $3 )".
+OCESQL     02  FILLER PIC X(1) VALUE X"00".
+OCESQL*
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+OCESQL*    EXEC SQL
+OCESQL*       INSERT INTO EMP VALUES
+OCESQL*              (:EMP-NO,:EMP-NAME,:EMP-SALARY)
+OCESQL*    END-EXEC
+OCESQL     CALL "OCESQLStartSQL"
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 3
+OCESQL          BY VALUE 4
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-NO
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 16
+OCESQL          BY VALUE 20
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-NAME
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 3
+OCESQL          BY VALUE 4
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-SALARY
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLExecParams" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE SQ0001
+OCESQL          BY VALUE 3
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLEndSQL"
+OCESQL     END-CALL
+       MAIN-EXT.
+           STOP RUN.
+])
+
+AT_CHECK([ocesql --inc=. prog.cbl prog.cob > /dev/null],[0])
+AT_CHECK([diff prog.cob prog.txt], [0])
+
+AT_CLEANUP
+
+AT_SETUP([use include variable with gropu insert])
+
+AT_DATA([VAL], [       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE "VAL" END-EXEC.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           EXEC SQL
+              INSERT INTO EMP VALUES
+                     (:EMP-REC-VARS)
+           END-EXEC
+       MAIN-EXT.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+OCESQL*EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE "VAL" END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*EXEC SQL END DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+      ******************************************************************
+OCESQL*
+OCESQL 01  SQ0001.
+OCESQL     02  FILLER PIC X(037) VALUE "INSERT INTO EMP VALUES ( $1, $"
+OCESQL  &  "2, $3 )".
+OCESQL     02  FILLER PIC X(1) VALUE X"00".
+OCESQL*
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+OCESQL*    EXEC SQL
+OCESQL*       INSERT INTO EMP VALUES
+OCESQL*              (:EMP-REC-VARS)
+OCESQL*    END-EXEC
+OCESQL     CALL "OCESQLStartSQL"
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 3
+OCESQL          BY VALUE 4
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-NO
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 16
+OCESQL          BY VALUE 20
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-NAME
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 3
+OCESQL          BY VALUE 4
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-SALARY
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLExecParams" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE SQ0001
+OCESQL          BY VALUE 3
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLEndSQL"
+OCESQL     END-CALL
+       MAIN-EXT.
+           STOP RUN.
+])
+
+AT_CHECK([ocesql --inc=. prog.cbl prog.cob > /dev/null],[0])
+AT_CHECK([diff prog.cob prog.txt], [0])
+
+AT_CLEANUP
