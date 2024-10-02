@@ -1,5 +1,5 @@
 #! /bin/sh
-# Generated from basic.at by GNU Autoconf 2.69.
+# Generated from ../tests/basic.at by GNU Autoconf 2.69.
 #
 # Copyright (C) 2009-2012 Free Software Foundation, Inc.
 #
@@ -588,17 +588,20 @@ at_tested='ocesql'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
-at_format='?'
+at_format='??'
 # Description of all the test groups.
 at_help_all="1;connect-disconnect.at:1;connect and disconnect statement test;;
 2;declare.at:1;declare statement test;;
 3;open-close.at:1;open and close statement test;;
 4;insert.at:1;insert statement test;;
-5;fetch.at:1;fetch statement test;;
-6;delete.at:1;delete statement test;;
-7;commit-rollback.at:1;commit and rollback statement test;;
-8;select.at:1;select statement test;;
-9;update.at:1;update statement test;;
+5;insert.at:163;insert statement with group items test;;
+6;fetch.at:1;fetch statement test;;
+7;delete.at:1;delete statement test;;
+8;commit-rollback.at:1;commit and rollback statement test;;
+9;select.at:1;select statement test;;
+10;update.at:1;update statement test;;
+11;include.at:1;use include variable;;
+12;include.at:100;use include variable with gropu insert;;
 "
 # List of the all the test groups.
 at_groups_all=`$as_echo "$at_help_all" | sed 's/;.*//'`
@@ -612,7 +615,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 9; then
+    if test $at_value -lt 1 || test $at_value -gt 12; then
       $as_echo "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -2772,11 +2775,233 @@ $at_traceon; }
 read at_status <"$at_status_file"
 #AT_STOP_4
 #AT_START_5
-at_fn_group_banner 5 'fetch.at:1' \
-  "fetch statement test" "                           "
+at_fn_group_banner 5 'insert.at:163' \
+  "insert statement with group items test" "         "
 at_xfail=no
 (
   $as_echo "5. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01  TEST-DATA.
+         03 FILLER       PIC X(28) VALUE "0001北海　太郎          0400".
+         03 FILLER       PIC X(28) VALUE "0002青森　次郎          0350".
+         03 FILLER       PIC X(28) VALUE "0003秋田　三郎          0300".
+         03 FILLER       PIC X(28) VALUE "0004岩手　四郎          025p".
+         03 FILLER       PIC X(28) VALUE "0005宮城　五郎          020p".
+         03 FILLER       PIC X(28) VALUE "0006福島　六郎          0150".
+         03 FILLER       PIC X(28) VALUE "0007栃木　七郎          010p".
+         03 FILLER       PIC X(28) VALUE "0008茨城　八郎          0050".
+         03 FILLER       PIC X(28) VALUE "0009群馬　九郎          020p".
+         03 FILLER       PIC X(28) VALUE "0010埼玉　十郎          0350".
+
+       01  TEST-DATA-R   REDEFINES TEST-DATA.
+         03  TEST-TBL    OCCURS  10.
+           05  TEST-NO             PIC S9(04).
+           05  TEST-NAME           PIC  X(20) .
+           05  TEST-SALARY         PIC S9(04).
+       01  IDX                     PIC  9(02).
+       01 TEST-CASE-COUNT PIC 9999 VALUE 1.
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+
+       PERFORM SETUP-DB.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE TEST-NO(IDX)     TO  EMP-NO
+              MOVE TEST-NAME(IDX)   TO  EMP-NAME
+              MOVE TEST-SALARY(IDX) TO  EMP-SALARY
+              EXEC SQL
+                 INSERT INTO EMP VALUES
+                        (:EMP-REC-VARS)
+              END-EXEC
+              PERFORM DISPLAY-TEST-RESULT
+           END-PERFORM.
+
+       PERFORM CLEANUP-DB.
+
+      *    END
+           STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE EMP
+                (
+                    EMP_NO     NUMERIC(4,0) NOT NULL,
+                    EMP_NAME   CHAR(20),
+                    EMP_SALARY NUMERIC(4,0),
+                    CONSTRAINT IEMP_0 PRIMARY KEY (EMP_NO)
+                )
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+      ******************************************************************
+       DISPLAY-TEST-RESULT.
+      ******************************************************************
+           IF  SQLCODE = ZERO
+             THEN
+
+               DISPLAY "<log> test case " TEST-CASE-COUNT ": success"
+               ADD 1 TO TEST-CASE-COUNT
+
+             ELSE
+               DISPLAY "*** SQL ERROR ***"
+               DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING
+               EVALUATE SQLCODE
+                  WHEN  +10
+                     DISPLAY "Record not found"
+                  WHEN  -01
+                     DISPLAY "Connection falied"
+                  WHEN  -20
+                     DISPLAY "Internal error"
+                  WHEN  -30
+                     DISPLAY "PostgreSQL error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+                  *> TO RESTART TRANSACTION, DO ROLLBACK.
+                     EXEC SQL
+                         ROLLBACK
+                     END-EXEC
+                  WHEN  OTHER
+                     DISPLAY "Undefined error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+               END-EVALUATE
+               STOP RUN.
+      ******************************************************************
+
+
+_ATEOF
+
+{ set +x
+$as_echo "$at_srcdir/insert.at:307: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "insert.at:307"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/insert.at:307"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/insert.at:308: \${EMBED_DB_INFO} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "insert.at:308"
+( $at_check_trace; ${EMBED_DB_INFO} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/insert.at:308"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/insert.at:309: \${COMPILE_MODULE} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "insert.at:309"
+( $at_check_trace; ${COMPILE_MODULE} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/insert.at:309"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/insert.at:310: \${RUN_MODULE} prog 2> /dev/null"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "insert.at:310"
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; $as_echo "<log> test case 0001: success
+<log> test case 0002: success
+<log> test case 0003: success
+<log> test case 0004: success
+<log> test case 0005: success
+<log> test case 0006: success
+<log> test case 0007: success
+<log> test case 0008: success
+<log> test case 0009: success
+<log> test case 0010: success
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/insert.at:310"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_5
+#AT_START_6
+at_fn_group_banner 6 'fetch.at:1' \
+  "fetch statement test" "                           "
+at_xfail=no
+(
+  $as_echo "6. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3016,13 +3241,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_5
-#AT_START_6
-at_fn_group_banner 6 'delete.at:1' \
+#AT_STOP_6
+#AT_START_7
+at_fn_group_banner 7 'delete.at:1' \
   "delete statement test" "                          "
 at_xfail=no
 (
-  $as_echo "6. $at_setup_line: testing $at_desc ..."
+  $as_echo "7. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3272,13 +3497,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_6
-#AT_START_7
-at_fn_group_banner 7 'commit-rollback.at:1' \
+#AT_STOP_7
+#AT_START_8
+at_fn_group_banner 8 'commit-rollback.at:1' \
   "commit and rollback statement test" "             "
 at_xfail=no
 (
-  $as_echo "7. $at_setup_line: testing $at_desc ..."
+  $as_echo "8. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3543,13 +3768,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_7
-#AT_START_8
-at_fn_group_banner 8 'select.at:1' \
+#AT_STOP_8
+#AT_START_9
+at_fn_group_banner 9 'select.at:1' \
   "select statement test" "                          "
 at_xfail=no
 (
-  $as_echo "8. $at_setup_line: testing $at_desc ..."
+  $as_echo "9. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3791,13 +4016,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_8
-#AT_START_9
-at_fn_group_banner 9 'update.at:1' \
+#AT_STOP_9
+#AT_START_10
+at_fn_group_banner 10 'update.at:1' \
   "update statement test" "                          "
 at_xfail=no
 (
-  $as_echo "9. $at_setup_line: testing $at_desc ..."
+  $as_echo "10. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -4050,4 +4275,282 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_9
+#AT_STOP_10
+#AT_START_11
+at_fn_group_banner 11 'include.at:1' \
+  "use include variable" "                           "
+at_xfail=no
+(
+  $as_echo "11. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >VAL <<'_ATEOF'
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+_ATEOF
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE "VAL" END-EXEC.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           EXEC SQL
+              INSERT INTO EMP VALUES
+                     (:EMP-NO,:EMP-NAME,:EMP-SALARY)
+           END-EXEC
+       MAIN-EXT.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+OCESQL*EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE "VAL" END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*EXEC SQL END DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+      ******************************************************************
+OCESQL*
+OCESQL 01  SQ0001.
+OCESQL     02  FILLER PIC X(037) VALUE "INSERT INTO EMP VALUES ( $1, $"
+OCESQL  &  "2, $3 )".
+OCESQL     02  FILLER PIC X(1) VALUE X"00".
+OCESQL*
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+OCESQL*    EXEC SQL
+OCESQL*       INSERT INTO EMP VALUES
+OCESQL*              (:EMP-NO,:EMP-NAME,:EMP-SALARY)
+OCESQL*    END-EXEC
+OCESQL     CALL "OCESQLStartSQL"
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 3
+OCESQL          BY VALUE 4
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-NO
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 16
+OCESQL          BY VALUE 20
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-NAME
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 3
+OCESQL          BY VALUE 4
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-SALARY
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLExecParams" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE SQ0001
+OCESQL          BY VALUE 3
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLEndSQL"
+OCESQL     END-CALL
+       MAIN-EXT.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/include.at:95: ocesql --inc=. prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:95"
+( $at_check_trace; ocesql --inc=. prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:95"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/include.at:96: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:96"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:96"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_11
+#AT_START_12
+at_fn_group_banner 12 'include.at:100' \
+  "use include variable with gropu insert" "         "
+at_xfail=no
+(
+  $as_echo "12. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >VAL <<'_ATEOF'
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+_ATEOF
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE "VAL" END-EXEC.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           EXEC SQL
+              INSERT INTO EMP VALUES
+                     (:EMP-REC-VARS)
+           END-EXEC
+       MAIN-EXT.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+OCESQL*EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE "VAL" END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*EXEC SQL END DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+      ******************************************************************
+OCESQL*
+OCESQL 01  SQ0001.
+OCESQL     02  FILLER PIC X(037) VALUE "INSERT INTO EMP VALUES ( $1, $"
+OCESQL  &  "2, $3 )".
+OCESQL     02  FILLER PIC X(1) VALUE X"00".
+OCESQL*
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+OCESQL*    EXEC SQL
+OCESQL*       INSERT INTO EMP VALUES
+OCESQL*              (:EMP-REC-VARS)
+OCESQL*    END-EXEC
+OCESQL     CALL "OCESQLStartSQL"
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 3
+OCESQL          BY VALUE 4
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-NO
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 16
+OCESQL          BY VALUE 20
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-NAME
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 3
+OCESQL          BY VALUE 4
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE EMP-SALARY
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLExecParams" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE SQ0001
+OCESQL          BY VALUE 3
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLEndSQL"
+OCESQL     END-CALL
+       MAIN-EXT.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/include.at:194: ocesql --inc=. prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:194"
+( $at_check_trace; ocesql --inc=. prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:194"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/include.at:195: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:195"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:195"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_12
