@@ -1,5 +1,5 @@
 #! /bin/sh
-# Generated from sql_data.at by GNU Autoconf 2.69.
+# Generated from ../tests/sql_data.at by GNU Autoconf 2.69.
 #
 # Copyright (C) 2009-2012 Free Software Foundation, Inc.
 #
@@ -2435,7 +2435,7 @@ cat >prog.cbl <<'_ATEOF'
       ******************************************************************
 
 
-       *    END
+      *    END
        PERFORM CLEANUP-DB.
        STOP RUN.
 
