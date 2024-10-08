@@ -53,32 +53,62 @@ AT_DATA([prog.cbl], [
        EXEC SQL
          OPEN C
        END-EXEC.
-       PERFORM SHOW-STATUS.
+       IF SQLCODE NOT = 0 THEN
+         DISPLAY "OPEN SQLCODE:" SQLCODE
+       END-IF.
+       IF SQLSTATE NOT = "00000" THEN
+         DISPLAY "OPEN SQLSTATE:" SQLSTATE
+       END-IF.
 
        EXEC SQL
          OPEN CC
        END-EXEC.
-       PERFORM SHOW-STATUS.
+       IF SQLCODE NOT = -602 THEN
+         DISPLAY "OPEN CC SQLCODE:" SQLCODE
+       END-IF.
+       IF SQLSTATE NOT = "34000" THEN
+         DISPLAY "OPEN CC SQLSTATE:" SQLSTATE
+       END-IF.
 
        EXEC SQL
          FETCH C INTO :DATA-V
        END-EXEC.
-       PERFORM SHOW-STATUS.
+       IF SQLCODE NOT = 0 THEN
+         DISPLAY "FETCH SQLCODE:" SQLCODE
+       END-IF.
+       IF SQLSTATE NOT = "00000" THEN
+         DISPLAY "FETCH SQLSTATE:" SQLSTATE
+       END-IF.
 
        EXEC SQL
          FETCH CC INTO :DATA-V
        END-EXEC.
-       PERFORM SHOW-STATUS.
+       IF SQLCODE NOT = -602 THEN
+         DISPLAY "FETCH CC SQLCODE:" SQLCODE
+       END-IF.
+       IF SQLSTATE NOT = "34000" THEN
+         DISPLAY "FETCH CC SQLSTATE:" SQLSTATE
+       END-IF.
 
        EXEC SQL
          CLOSE C
        END-EXEC.
-       PERFORM SHOW-STATUS.
+       IF SQLCODE NOT = 0 THEN
+         DISPLAY "CLOSE SQLCODE:" SQLCODE
+       END-IF.
+       IF SQLSTATE NOT = "00000" THEN
+         DISPLAY "CLOSE SQLSTATE:" SQLSTATE
+       END-IF.
 
        EXEC SQL
          CLOSE CC
        END-EXEC.
-       PERFORM SHOW-STATUS.
+       IF SQLCODE NOT = -602 THEN
+         DISPLAY "CLOSE CC SQLCODE:" SQLCODE
+       END-IF.
+       IF SQLSTATE NOT = "34000" THEN
+         DISPLAY "CLOSE CC SQLSTATE:" SQLSTATE
+       END-IF.
 
        PERFORM CLEANUP-DB.
 
@@ -128,31 +158,11 @@ AT_DATA([prog.cbl], [
            EXEC SQL
                DISCONNECT ALL
            END-EXEC.
-
-      ******************************************************************
-       SHOW-STATUS.
-      ******************************************************************
-           DISPLAY SQLCODE.
-           DISPLAY SQLSTATE.
-
 ])
 
 AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
 AT_CHECK([${EMBED_DB_INFO} prog.cob])
 AT_CHECK([${COMPILE_MODULE} prog.cob])
-AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
-[+000000000
-00000
--000000602
-34000
-+000000000
-00000
--000000602
-34000
-+000000000
-00000
--000000602
-34000
-])
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0])
 
 AT_CLEANUP

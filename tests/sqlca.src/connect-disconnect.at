@@ -27,7 +27,12 @@ AT_DATA([prog.cbl], [
            EXEC SQL
                DISCONNECT ALL
            END-EXEC.
-           PERFORM SHOW-STATUS.
+           IF SQLCODE NOT = -220 THEN
+              DISPLAY "DISCONNECT ALL SQLCODE:" SQLCODE
+           END-IF.
+           IF SQLSTATE NOT = "08003" THEN
+              DISPLAY "DISCONNECT ALL SQLSTATE:" SQLSTATE
+           END-IF.
            
            MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
              TO DBNAME.
@@ -39,12 +44,22 @@ AT_DATA([prog.cbl], [
            EXEC SQL
                CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
            END-EXEC.
-           PERFORM SHOW-STATUS.
+           IF SQLCODE NOT = 0 THEN
+              DISPLAY "CONNECT SQLCODE:" SQLCODE
+           END-IF.
+           IF SQLSTATE NOT = "00000" THEN
+              DISPLAY "CONNECT SQLSTATE:" SQLSTATE
+           END-IF.
 
            EXEC SQL
                DISCONNECT ALL
            END-EXEC.
-           PERFORM SHOW-STATUS.
+           IF SQLCODE NOT = 0 THEN
+              DISPLAY "DISCONNECT ALL SQLCODE:" SQLCODE
+           END-IF.
+           IF SQLSTATE NOT = "00000" THEN
+              DISPLAY "DISCONNECT ALL SQLSTATE:" SQLSTATE
+           END-IF.
 
            MOVE  "invalid"
              TO DBNAME.
@@ -56,37 +71,30 @@ AT_DATA([prog.cbl], [
            EXEC SQL
                CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
            END-EXEC.
-           PERFORM SHOW-STATUS.
+           IF SQLCODE NOT = -402 THEN
+              DISPLAY "CONNECT invalid SQLCODE:" SQLCODE
+           END-IF.
+           IF SQLSTATE NOT = "08001" THEN
+              DISPLAY "CONNECT invalid SQLSTATE:" SQLSTATE
+           END-IF.
 
            EXEC SQL
                DISCONNECT ALL
            END-EXEC.
-           PERFORM SHOW-STATUS.
+           IF SQLCODE NOT = -220 THEN
+              DISPLAY "DISCONNECT ALL SQLCODE:" SQLCODE
+           END-IF.
+           IF SQLSTATE NOT = "08003" THEN
+              DISPLAY "DISCONNECT ALL SQLSTATE:" SQLSTATE
+           END-IF.
 
       *    END
            STOP RUN.
-      ******************************************************************
-       SHOW-STATUS.
-      ******************************************************************
-           DISPLAY SQLCODE.
-           DISPLAY SQLSTATE.
-
 ])
 
 AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
 AT_CHECK([${EMBED_DB_INFO} prog.cob])
 AT_CHECK([${COMPILE_MODULE} prog.cob])
-AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [1],
-[-000000220
-08003
-+000000000
-00000
-+000000000
-00000
--000000402
-08001
--000000220
-08003
-])
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [1])
 
 AT_CLEANUP

@@ -444,7 +444,7 @@ AT_DATA([prog.cbl], [
       ******************************************************************
 
 
-       *    END
+      *    END
        PERFORM CLEANUP-DB.
        STOP RUN.
 
