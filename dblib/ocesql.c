@@ -1,6 +1,6 @@
-﻿/*
+﻿﻿/*
  * Copyright (C) 2015, 2022 Tokyo System House Co.,Ltd.
- * Copyright (C) 2022, 2023 Simon Sobisch
+ * Copyright (C) 2022-2024 Simon Sobisch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,13 +68,15 @@ typedef struct cursor_list {
 static PREPARELIST _prepare_list = {{NULL, NULL, 0}, NULL};
 static CURSORLIST _cursor_list = {0, NULL, NULL, NULL, 0, 0, 0, NULL, NULL};
 static SQLVARLIST *_sql_var_lists = NULL;
+static SQLVARLIST *_sql_var_lists_last = NULL;
 static SQLVARLIST *_sql_res_var_lists = NULL;
+static SQLVARLIST *_sql_res_var_lists_last = NULL;
+static SQLVARLIST *_pool_sql_var_list = NULL; // Pool of SQLVARLIST items
 static int _var_lists_length = 0;
 static int _res_var_lists_length = 0;
 static int _occurs_length = 0;
 static int _occurs_iter = 0;
 static int _occurs_is_parent = 0;
-
 
 static void sqlca_initialize(struct sqlca_t *);
 
@@ -2321,15 +2323,17 @@ init_sql_var_list(void){
 	}
 	reset_sql_var_list();
 
-	if((_sql_var_lists = new_sql_var_list()) == NULL){
+	if((_sql_var_lists_last = new_sql_var_list()) == NULL){
 		ERRLOG("cannot initialize SQLVARLIST\n");
 		return;
 	}
+	_sql_var_lists = _sql_var_lists_last;
 
-	if((_sql_res_var_lists = new_sql_var_list()) == NULL){
+	if((_sql_res_var_lists_last = new_sql_var_list()) == NULL){
 		ERRLOG("cannot initialize SQLVARLIST\n");
 		return;
 	}
+	_sql_res_var_lists = _sql_res_var_lists_last;
 
 	return;
 }
@@ -2345,8 +2349,8 @@ init_sql_var_list(void){
  */
 static void
 reset_sql_var_list(void){
-	_sql_var_lists = NULL;
-	_sql_res_var_lists = NULL;
+	_sql_var_lists = _sql_var_lists_last = NULL;
+	_sql_res_var_lists = _sql_res_var_lists_last = NULL;
 	_var_lists_length = 0;
 	_res_var_lists_length = 0;
 	_occurs_length = 0;
@@ -2362,9 +2366,17 @@ reset_sql_var_list(void){
  * <Outline>
  *   埋め込みSQLリスト生成
  */
-static inline SQLVARLIST *
-new_sql_var_list(void){
-	return (SQLVARLIST *)calloc(1, sizeof(SQLVARLIST));
+
+static inline SQLVARLIST *new_sql_var_list(void) {
+    SQLVARLIST *new_item;
+    if (_pool_sql_var_list != NULL) {
+        new_item = _pool_sql_var_list;
+        _pool_sql_var_list = _pool_sql_var_list->next;
+        new_item->next = NULL; // Initialize the item
+    } else {
+        new_item = (SQLVARLIST *)calloc(1, sizeof(SQLVARLIST));
+    }
+    return new_item;
 }
 
 /*
@@ -2387,18 +2399,14 @@ new_sql_var_list(void){
 static SQLVARLIST *
 add_sql_var_list(int type , int length, int power, void *addr){
 
-	SQLVARLIST *p = _sql_var_lists;
+	SQLVARLIST *p = _sql_var_lists_last;
 
-	if(_sql_var_lists == NULL){
-		ERRLOG("_sql_var_lists has not been initialized\n");
+	if(_sql_var_lists_last == NULL){
+		ERRLOG("_sql_var_lists_last has not been initialized\n");
 		return NULL;
 	}
 
-	while(p->next != NULL){
-		p = p->next;
-	}
-
-	if((p->next = new_sql_var_list()) == NULL){
+	if((_sql_var_lists_last = new_sql_var_list()) == NULL){
 		ERRLOG("cannot generate new SQLVARLIST\n");
 		return NULL;
 	}
@@ -2407,7 +2415,7 @@ add_sql_var_list(int type , int length, int power, void *addr){
 	p->sv.length = length;
 	p->sv.power = power;
 	p->sv.addr = addr;
-
+	p->next = _sql_var_lists_last;
 
 	create_realdata(&p->sv, 0);
 	_var_lists_length++;
@@ -2434,18 +2442,14 @@ add_sql_var_list(int type , int length, int power, void *addr){
  */
 static SQLVARLIST *
 add_sql_res_var_list(int type , int length, int power, void *addr){
-	SQLVARLIST *p = _sql_res_var_lists;
+	SQLVARLIST *p = _sql_res_var_lists_last;
 
-	if(_sql_res_var_lists == NULL){
-		ERRLOG("_sql_var_lists has not been initialized\n");
+	if(_sql_res_var_lists_last == NULL){
+		ERRLOG("_sql_res_var_lists_last has not been initialized\n");
 		return NULL;
 	}
 
-	while(p->next != NULL){
-		p = p->next;
-	}
-
-	if((p->next = new_sql_var_list()) == NULL){
+	if((_sql_res_var_lists_last = new_sql_var_list()) == NULL){
 		ERRLOG("cannot generate new SQLVARLIST\n");
 		return NULL;
 	}
@@ -2454,6 +2458,7 @@ add_sql_res_var_list(int type , int length, int power, void *addr){
 	p->sv.length = length;
 	p->sv.power = power;
 	p->sv.addr = addr;
+	p->next = _sql_res_var_lists_last;
 
 	_res_var_lists_length++;
 
@@ -2762,12 +2767,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
-
-		// fill zero
-		finalbuflen = sv->length + TERMINAL_LENGTH;
-		final = (char *)calloc(finalbuflen, sizeof(char));
+		char final[MAX_DIGITS + 1 + TERMINAL_LENGTH] = { 0 };
 
 		// before decimal point
 		int beforedp = 0;
@@ -2808,7 +2808,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_SIGNED_NUMBER_TC:
@@ -2819,13 +2818,8 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
+		char final[MAX_DIGITS + SIGN_LENGTH + 1 + TERMINAL_LENGTH] = {0};
 		int final_length;
-
-		// fill zero
-		finalbuflen = sv->length;
-		final = (char *)calloc(finalbuflen, sizeof(char));
 
 		if(retstr[0] == '-'){
 			is_negative = true;
@@ -2878,7 +2872,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_SIGNED_NUMBER_LS:
@@ -2888,12 +2881,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
-
-		// fill zero
-		finalbuflen = SIGN_LENGTH +  sv->length + TERMINAL_LENGTH;
-		final = (char *)calloc(finalbuflen, sizeof(char));
+		char final[MAX_DIGITS + SIGN_LENGTH + 1 + TERMINAL_LENGTH] = {0};
 
 		if(retstr[0] == '-'){
 			final[0] = '-';
@@ -2942,7 +2930,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length + SIGN_LENGTH);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_UNSIGNED_NUMBER_PD:
@@ -3289,17 +3276,38 @@ static void show_sql_var_list(SQLVARLIST *p){
  * <Input>
  *   @SQLVARLIST *
  */
-static void
-clear_sql_var_list(SQLVARLIST *p){
-	if(p != NULL){
-		clear_sql_var_list(p->next);
-		if(p->sv.data)
-			free(p->sv.data);
-		if(p->sv.realdata)
-			free(p->sv.realdata);
-		free(p);
-	}
+static void clear_sql_var_list(SQLVARLIST *p) {
+    if (p == NULL)
+        return; // Nothing to clear
+
+    SQLVARLIST *temp = p;
+    SQLVARLIST *last_item = NULL;
+    while (temp != NULL) {
+        SQLVARLIST *next = temp->next;
+        if (temp->sv.data)
+            free(temp->sv.data);
+        if (temp->sv.realdata)
+            free(temp->sv.realdata);
+	// Initialize the item before returning it to the pool
+        memset(&temp->sv, 0, sizeof(SQLVAR));
+        last_item = temp;
+        temp = next;
+    }
+    // Return the entire list to the pool
+    last_item->next = _pool_sql_var_list;
+    _pool_sql_var_list = p;
 }
+
+#if 0
+/* free memory, this shoulkd be called at program exit, currently unused */
+static void cleanup_sql_var_pool(void) {
+    while (_pool_sql_var_list != NULL) {
+        SQLVARLIST *next = _pool_sql_var_list->next;
+        free(_pool_sql_var_list);
+        _pool_sql_var_list = next;
+    }
+}
+#endif
 
 static void
 _ocesqlReleaseConnection(int status, void *arg){
