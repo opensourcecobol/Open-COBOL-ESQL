@@ -1,6 +1,19 @@
 NEWS
 ****
 
+2024-10-04
+===========
+	Open Cobol ESQL (Ocesql) 1.4 released
+
+	<< New features >>
+	* Group items can be used as host variables in INSERT.
+	* Fixed a non-zero error code is returned as RETURN CODE when a compilation error occurs.
+	* Support for NATIONAL item or NATIONAL CHARACTER item.
+
+	<< Bug fixes >>
+	* Support for the precompilation of variable-length character strings (PIC X VARYING).
+	* Fixed problem with duplicated last line of program.
+
 2022-03-24
 ===========
 	Open Cobol ESQL (Ocesql) 1.3 released
