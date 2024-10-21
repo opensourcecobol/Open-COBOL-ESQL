@@ -3,7 +3,7 @@ image: gitpod/workspace-c
 
 tasks:
 
-- name: setup coding environment on Ubuntu 20.04
+- name: setup coding environment on Ubuntu 22.04
   before: |
     # note: sadly we need this to be done every time as only /workspace is kept, but linked
     #       against those dependencies; and also we do want to recompile after adjustments
@@ -17,7 +17,7 @@ tasks:
     gp sync-done system-prepare
     exit
 
-- name: setup test environment on Ubuntu 20.04
+- name: setup test environment on Ubuntu 22.04
   before: |
     gp sync-await system-prepare
     sudo apt install -y build-essential \
@@ -42,7 +42,7 @@ tasks:
     gp sync-await system-prepare
     ../autogen.sh
     ../configure --enable-debug
-    make --jobs=$(nproc)
+    bear -- make --jobs=$(nproc)
   command: |
     cd $GITPOD_REPO_ROOTS/build
     gp sync-done build-finish
