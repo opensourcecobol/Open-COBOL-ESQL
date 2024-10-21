@@ -26,6 +26,8 @@
 #include "ocdbutil.h"
 #include "ocesql.h"
 
+#define MAX_DIGITS 38
+
 typedef struct sql_var {
 	int type; // set OCDB_TYPE_*
 	int length; // size
@@ -2767,12 +2769,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
-
-		// fill zero
-		finalbuflen = sv->length + TERMINAL_LENGTH;
-		final = (char *)calloc(finalbuflen, sizeof(char));
+		char final[MAX_DIGITS + 1 + TERMINAL_LENGTH] = { 0 };
 
 		// before decimal point
 		int beforedp = 0;
@@ -2813,7 +2810,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_SIGNED_NUMBER_TC:
@@ -2824,13 +2820,8 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
+		char final[MAX_DIGITS + SIGN_LENGTH + 1 + TERMINAL_LENGTH] = {0};
 		int final_length;
-
-		// fill zero
-		finalbuflen = sv->length;
-		final = (char *)calloc(finalbuflen, sizeof(char));
 
 		if(retstr[0] == '-'){
 			is_negative = true;
@@ -2883,7 +2874,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_SIGNED_NUMBER_LS:
@@ -2893,12 +2883,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *final;
-		int finalbuflen;
-
-		// fill zero
-		finalbuflen = SIGN_LENGTH +  sv->length + TERMINAL_LENGTH;
-		final = (char *)calloc(finalbuflen, sizeof(char));
+		char final[MAX_DIGITS + SIGN_LENGTH + 1 + TERMINAL_LENGTH] = {0};
 
 		if(retstr[0] == '-'){
 			final[0] = '-';
@@ -2947,7 +2932,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		memcpy(addr, final, sv->length + SIGN_LENGTH);
-		free(final);
 		break;
 	}
 	case OCDB_TYPE_UNSIGNED_NUMBER_PD:
@@ -2958,9 +2942,9 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *pre_final;
-		int pre_final_len;
-		char *final;
+
+		char pre_final[MAX_DIGITS];
+		char final[(MAX_DIGITS + 1) / 2];
 
 		int i;
 		unsigned char ubit = 0xF0;
@@ -2968,9 +2952,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		const int dlength = (sv->length / 2) + 1;
 		const int skip_first = (sv->length + 1) % 2; // 1 -> skip first 4 bits
-
-		pre_final_len = sv->length + TERMINAL_LENGTH;
-		pre_final = (char *)calloc(pre_final_len, sizeof(char));
 
 		// before decimal point
 		int beforedp = 0;
@@ -3010,7 +2991,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		// format setting
-		final = (char *)calloc((int)dlength + TERMINAL_LENGTH, sizeof(char));
 		ptr = pre_final;
 		for(i=0; i<dlength; i++){
 			unsigned char vubit = 0x00;
@@ -3035,9 +3015,7 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 			final[i] = vubit | vlbit;
 		}
 
-		memcpy(addr, final, (int)dlength);
-		free(pre_final);
-		free(final);
+		memcpy(addr, final, dlength);
 		break;
 	}
 	case OCDB_TYPE_SIGNED_NUMBER_PD:
@@ -3048,9 +3026,9 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 
 		int fillzero;
 		int zcount;
-		char *pre_final;
-		int pre_final_len;
-		char *final;
+
+		char pre_final [MAX_DIGITS];
+		char final[(MAX_DIGITS + 1) / 2];
 
 		int i;
 		unsigned char ubit = 0xF0;
@@ -3065,9 +3043,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		} else {
 			value = retstr;
 		}
-
-		pre_final_len = (int)dlength + TERMINAL_LENGTH;
-		pre_final = (char *)calloc(pre_final_len, sizeof(char));
 
 		// before decimal point
 		int beforedp = 0;
@@ -3107,7 +3082,6 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 		}
 
 		// format setting
-		final = (char *)calloc((int)dlength + TERMINAL_LENGTH, sizeof(char));
 		ptr = pre_final;
 		for(i=0; i<dlength; i++){
 			unsigned char vubit = 0x00;
@@ -3136,65 +3110,75 @@ create_coboldata(SQLVAR *sv, int index, char *retstr){
 			final[i] = vubit | vlbit;
 		}
 
-		memcpy(addr, final, (int)dlength);
-		free(pre_final);
-		free(final);
+		memcpy(addr, final, dlength);
 		break;
 	}
-	case OCDB_TYPE_ALPHANUMERIC:
+	case OCDB_TYPE_ALPHANUMERIC: {
 		// 文字の長さだけメモリコピー
-		if(strlen(retstr) >= sv->length){
+		const size_t rlen = strlen(retstr);
+		if(rlen >= sv->length){
 			memcpy(addr, retstr, sv->length);
 		}else{
-			memset(addr,' ',sv->length);
-			memcpy(addr,retstr,strlen(retstr));
+			memcpy(addr,retstr,rlen);
+			memset(addr + rlen,' ',sv->length - rlen);
 		}
 		break;
-	case OCDB_TYPE_JAPANESE:
+	}
+	case OCDB_TYPE_JAPANESE: {
 		// 文字の長さだけメモリコピー
-		if(strlen(retstr) >= sv->length*2){
-			memcpy(addr, retstr, sv->length*2);
+		const size_t memlen = sv->length*2;
+		const size_t rlen = strlen(retstr);
+		if(rlen >= memlen){
+			memcpy(addr, retstr, memlen);
 		}else{
-			int i;
-			char *tmp = (char *)addr;
-			for(i=0;i+1<sv->length*2;i=i+2){
+			size_t i;
+			char *tmp;
+			memcpy(addr,retstr,rlen);
+			tmp = (char *)addr + rlen;
+			for(i=0;i+1<(memlen - rlen);i=i+2){
 				tmp[i] = 0x81;
 				tmp[i+1] = 0x40;
 			}
-			memcpy(addr,retstr,strlen(retstr));
 		}
 		break;
-	case OCDB_TYPE_ALPHANUMERIC_VARYING:
-		if(strlen(retstr) >= sv->length){
+	}
+	case OCDB_TYPE_ALPHANUMERIC_VARYING: {
+		const size_t rlen = strlen(retstr);
+		if(rlen >= sv->length){
 			tmp_len = sv->length;
 			memcpy(addr, &tmp_len, OCDB_VARCHAR_HEADER_BYTE);
 			memcpy((char *)addr + OCDB_VARCHAR_HEADER_BYTE, retstr, sv->length);
 		} else {
-			tmp_len = strlen(retstr);
+			tmp_len = rlen;
 			memcpy(addr, &tmp_len, OCDB_VARCHAR_HEADER_BYTE);
-			memset((char *)addr + OCDB_VARCHAR_HEADER_BYTE,' ',sv->length);
-			memcpy((char *)addr + OCDB_VARCHAR_HEADER_BYTE,retstr,strlen(retstr));
+			memcpy((char *)addr + OCDB_VARCHAR_HEADER_BYTE,retstr,rlen);
+			memset((char *)addr + OCDB_VARCHAR_HEADER_BYTE + rlen,' ',sv->length - rlen);
 		}
 		LOG("VARYING-LEN:%d\n",tmp_len);
 		break;
-	case OCDB_TYPE_JAPANESE_VARYING:
-		if(strlen(retstr) >= sv->length*2){
+	}
+	case OCDB_TYPE_JAPANESE_VARYING: {
+		const size_t memlen = sv->length*2;
+		const size_t rlen = strlen(retstr);
+		if(rlen >= memlen){
 			tmp_len = sv->length;
 			memcpy(addr, &tmp_len, OCDB_VARCHAR_HEADER_BYTE);
-			memcpy(addr, retstr, sv->length*2);
-		}else{
+			memcpy(addr, retstr, memlen);
+		} else {
 			int i;
-			char *tmp = (char *)((char *)addr+OCDB_VARCHAR_HEADER_BYTE);
-			for(i=0;i+1<sv->length*2;i=i+2){
+			char *tmp;
+			tmp_len = rlen/2;
+			memcpy(addr, &tmp_len, OCDB_VARCHAR_HEADER_BYTE);
+			memcpy((char *)addr + OCDB_VARCHAR_HEADER_BYTE + rlen,retstr,rlen);
+			tmp = (char *)((char *)addr+OCDB_VARCHAR_HEADER_BYTE+rlen);
+			for(i=0;i+1<(memlen-rlen);i=i+2){
 				tmp[i] = 0x81;
 				tmp[i+1] = 0x40;
 			}
-			tmp_len = strlen(retstr)/2;
-			memcpy(addr, &tmp_len, OCDB_VARCHAR_HEADER_BYTE);
-			memcpy((char *)addr + OCDB_VARCHAR_HEADER_BYTE,retstr,tmp_len*2);
 		}
 		LOG("VARYING-LEN:%d\n",tmp_len);
 		break;
+	}
 	default:
 		break;
 	}

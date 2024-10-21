@@ -1,4 +1,9 @@
 
+2024-04-26  Simon Sobisch <simonsobisch@gnu.org>
+
+	* ocesql.c (create_coboldata): prefer local buffers over temporary mallocs;
+	  only space-pad PIC X/PIC N instead of space-fill then overwrite
+
 2024-04-24  Simon Sobisch <simonsobisch@gnu.org>
 
 	* ocesql.c (init_sql_var_list, reset_sql_var_list, add_sql_var_list,
@@ -37,11 +42,16 @@
 	  to current working directory instead of D:\develop
 	* ocdbutil.c (com_sleep, com_strdup): inlined calculation
 
+2022-01-13  Simon Sobisch <simonsobisch@gnu.org>
+
+	* ocesql.c (create_coboldata): fixed buffer-overflows with COMP-3
+	  and signed DISPLAY
+
 2021-07-05  Simon Sobisch <simonsobisch@gnu.org>
 
 	* Makefile.am: added EXTRA_DIST to ship headers, necessary for make dist
 
-Copyright 2021 Simon Sobisch
+Copyright 2021,2022,2024 Simon Sobisch
 
 Copying and distribution of this file, with or without modification, are
 permitted provided the copyright notice and this notice are preserved.
