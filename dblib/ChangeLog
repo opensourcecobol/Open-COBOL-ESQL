@@ -7,6 +7,8 @@
 	  pointer of the last entry, leading to huge speedup for executing
 	  SQL with lots of bind variables (nearly all time for binding was
 	  spent here before)
+    * ocesql.c (new_sql_var_list): use pool of sql variables instead of
+	  recreating them each time (memset instead of free + malloc)
 
 2023-01-07  Simon Sobisch <simonsobisch@gnu.org>
 
