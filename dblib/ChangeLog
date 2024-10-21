@@ -1,10 +1,18 @@
 
+2024-04-24  Simon Sobisch <simonsobisch@gnu.org>
+
+	* ocesql.c (init_sql_var_list, reset_sql_var_list, add_sql_var_list,
+	  add_sql_res_var_list): remove the need to iterate over the complete
+	  SQLVARLIST of _sql_var_lists and _sql_res_var_lists by saving the
+	  pointer of the last entry, leading to huge speedup for executing
+	  SQL with lots of bind variables (nearly all time for binding was
+	  spent here before)
+
 2023-01-07  Simon Sobisch <simonsobisch@gnu.org>
 
 	* Makefile.am: use BUILT_SOURCES to ensure bison/flex generated
 	  sources are built first (and distributed and only deleted on
 	  make maintainer-clean)
-
 
 2022-02-02  Simon Sobisch <simonsobisch@gnu.org>
 
