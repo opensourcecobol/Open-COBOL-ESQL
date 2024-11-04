@@ -100,7 +100,7 @@ jobs:
       - name: Install Open-COBOL-ESQL
         working-directory: Open-COBOL-ESQL
         run: |
-          chmod +x ./autogen.sh && ./autogen.sh
+          ./autogen.sh
           ./configure
           make install
 
