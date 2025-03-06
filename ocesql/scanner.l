@@ -484,9 +484,15 @@ INT_CONSTANT {digit}+
 	}
 }
 
-"EXEC"[ ]+"SQL"[ ]+"INCLUDE" {
-        period = 0;
-	startlineno = yylineno;
+"EXEC"[ ]+"SQL"[ \r\n]+"INCLUDE" {
+    period = 0;
+	int newlines = 0;
+    for (char *p = yytext; *p != '\0'; p++) {
+        if (*p == '\n') {
+            newlines++;
+        }
+    }
+    startlineno = yylineno - newlines;
 	host_reference_list = NULL;
 	res_host_reference_list = NULL;
 	memset(dbname,0,sizeof(dbname));

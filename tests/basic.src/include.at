@@ -195,3 +195,42 @@ AT_CHECK([ocesql --inc=. prog.cbl prog.cob > /dev/null],[0])
 AT_CHECK([diff prog.cob prog.txt], [0])
 
 AT_CLEANUP
+
+
+AT_SETUP([use include with newline])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+       EXEC SQL 
+           INCLUDE SQLCA 
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+OCESQL*EXEC SQL 
+OCESQL*    INCLUDE SQLCA 
+OCESQL*END-EXEC.
+OCESQL     copy "sqlca.cbl".
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null],[0])
+AT_CHECK([diff prog.cob prog.txt], [0])
+
+AT_CLEANUP
