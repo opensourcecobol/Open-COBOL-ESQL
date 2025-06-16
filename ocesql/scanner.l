@@ -75,7 +75,7 @@ yyinput (char *buf, int max_size);
 JPNWORD [\xA0-\xDF]|([\x81-\x9F\xE0-\xFC][\x40-\x7E\x80-\xFC])
 DIGIT [0-9]
 WORD ([A-Za-z\+\-0-9_]|[(]|[)]|[\'])
-INCFILE [A-Za-z0-9_\+\-]+
+INCFILE [A-Za-z0-9_+\-]+(\.[A-Za-z0-9_+\-]+)?
 FILENAME [A-Za-z0-9_\+\-\.]+
 STRVALUE ("\""[^\"]*"\""|"\'"[^\']*"\'")
 HEXVALUE "X"("\""[^\"]+"\""|"\'"[^\']+"\'")
