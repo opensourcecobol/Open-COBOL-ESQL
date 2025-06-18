@@ -6,12 +6,6 @@ AT_DATA([VAL], [       01  EMP-REC-VARS.
          03  EMP-SALARY            PIC S9(04) VALUE ZERO.
 ])
 
-AT_DATA([VAL.inc], [       01  EMP-REC-VARS.
-         03  EMP-NO                PIC S9(04) VALUE ZERO.
-         03  EMP-NAME              PIC  X(20) .
-         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
-])
-
 AT_DATA([prog.cbl], [
        IDENTIFICATION              DIVISION.
       ******************************************************************
@@ -243,6 +237,12 @@ AT_CLEANUP
 
 AT_SETUP([use include with extension])
 
+AT_DATA([VAL.inc], [       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+])
+
 AT_DATA([prog.cbl], [
        IDENTIFICATION              DIVISION.
       ******************************************************************
@@ -264,10 +264,11 @@ AT_DATA([prog.txt], [
        DATA                        DIVISION.
       ******************************************************************
        WORKING-STORAGE SECTION. 
-OCESQL*EXEC SQL INCLUDE FOO.inc END-EXEC.
+OCESQL*EXEC SQL INCLUDE VAL.inc END-EXEC.
 OCESQL 01  EMP-REC-VARS.
 OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
 OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
 OCESQL*
        PROCEDURE DIVISION.
            STOP RUN.
