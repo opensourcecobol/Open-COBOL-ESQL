@@ -623,7 +623,9 @@ at_help_all="1;connect-disconnect.at:1;connect and disconnect statement test;;
 11;select.at:1;select statement test;;
 12;update.at:1;update statement test;;
 13;include.at:1;use include variable;;
-14;include.at:100;use include variable with gropu insert;;
+14;include.at:100;use include variable with group insert;;
+15;include.at:200;use include with newline;;
+16;include.at:238;use include with extension;;
 "
 # List of the all the test groups.
 at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
@@ -637,7 +639,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 14; then
+    if test $at_value -lt 1 || test $at_value -gt 16; then
       printf "%s\n" "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -4986,7 +4988,7 @@ read at_status <"$at_status_file"
 #AT_STOP_13
 #AT_START_14
 at_fn_group_banner 14 'include.at:100' \
-  "use include variable with gropu insert" "         "
+  "use include variable with group insert" "         "
 at_xfail=no
 (
   printf "%s\n" "14. $at_setup_line: testing $at_desc ..."
@@ -5123,3 +5125,163 @@ $at_traceon; }
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
 #AT_STOP_14
+#AT_START_15
+at_fn_group_banner 15 'include.at:200' \
+  "use include with newline" "                       "
+at_xfail=no
+(
+  printf "%s\n" "15. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL
+           INCLUDE SQLCA
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL
+OCESQL*    INCLUDE SQLCA
+OCESQL*END-EXEC.
+OCESQL     copy "sqlca.cbl".
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:233: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:233"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:233"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:234: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:234"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:234"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_15
+#AT_START_16
+at_fn_group_banner 16 'include.at:238' \
+  "use include with extension" "                     "
+at_xfail=no
+(
+  printf "%s\n" "16. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >VAL.inc <<'_ATEOF'
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+_ATEOF
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL INCLUDE VAL.inc END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL INCLUDE VAL.inc END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:277: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:277"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:277"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:278: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:278"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:278"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_16
