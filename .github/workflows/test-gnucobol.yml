@@ -24,7 +24,7 @@ jobs:
     # Start PostgreSQL server
     services:
       postgres:
-        image: postgres:9.6
+        image: postgres:16
         ports: 
           - 5432:5432
         env:
