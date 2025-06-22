@@ -235,7 +235,7 @@ AT_CHECK([diff prog.cob prog.txt], [0])
 
 AT_CLEANUP
 
-AT_SETUP([use include with extension])
+AT_SETUP([use include with extension(normal file)])
 
 AT_DATA([VAL.inc], [       01  EMP-REC-VARS.
          03  EMP-NO                PIC S9(04) VALUE ZERO.
@@ -279,3 +279,370 @@ AT_CHECK([diff prog.cob prog.txt], [0])
 
 AT_CLEANUP
 
+AT_SETUP([use include with extension(normal file: newline)])
+
+AT_DATA([VAL.inc], [       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+       EXEC SQL 
+            INCLUDE VAL.inc
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+OCESQL*EXEC SQL 
+OCESQL*     INCLUDE VAL.inc
+OCESQL*END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null], [0])
+AT_CHECK([diff prog.cob prog.txt], [0])
+
+AT_CLEANUP
+
+AT_SETUP([use include with extension(sqlca.cbl)])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+       EXEC SQL INCLUDE sqlca.cbl END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+OCESQL*EXEC SQL INCLUDE sqlca.cbl END-EXEC.
+OCESQL******************************************************************
+OCESQL*       SQLCA: SQL Communications Area for Ocesql                *
+OCESQL******************************************************************
+OCESQL 01  SQLCA GLOBAL.
+OCESQL     05  SQLCAID               PIC X(8).
+OCESQL     05  SQLCABC               PIC S9(9) COMP-5.
+OCESQL     05  SQLCODE               PIC S9(9) COMP-5.
+OCESQL     05  SQLERRM.
+OCESQL     49  SQLERRML              PIC S9(4) COMP-5.
+OCESQL     49  SQLERRMC              PIC X(70).
+OCESQL     05  SQLERRP               PIC X(8).                          *> not used
+OCESQL     05  SQLERRD OCCURS 6 TIMES                                   *> used only ERRD(3)
+OCESQL                               PIC S9(9) COMP-5.
+OCESQL     05  SQLWARN.                                                 *> not used
+OCESQL         10 SQLWARN0           PIC X(1).
+OCESQL         10 SQLWARN1           PIC X(1).
+OCESQL         10 SQLWARN2           PIC X(1).
+OCESQL         10 SQLWARN3           PIC X(1).
+OCESQL         10 SQLWARN4           PIC X(1).
+OCESQL         10 SQLWARN5           PIC X(1).
+OCESQL         10 SQLWARN6           PIC X(1).
+OCESQL         10 SQLWARN7           PIC X(1).
+OCESQL     05  SQLSTATE              PIC X(5).
+OCESQL******************************************************************
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_CLEANUP
+
+AT_SETUP([use include with extension(sqlca.cbl: newline)])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+       EXEC SQL
+            INCLUDE sqlca.cbl
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+OCESQL*EXEC SQL 
+OCESQL*     INCLUDE sqlca.cbl
+OCESQL*END-EXEC.
+OCESQL******************************************************************
+OCESQL*       SQLCA: SQL Communications Area for Ocesql                *
+OCESQL******************************************************************
+OCESQL 01  SQLCA GLOBAL.
+OCESQL     05  SQLCAID               PIC X(8).
+OCESQL     05  SQLCABC               PIC S9(9) COMP-5.
+OCESQL     05  SQLCODE               PIC S9(9) COMP-5.
+OCESQL     05  SQLERRM.
+OCESQL     49  SQLERRML              PIC S9(4) COMP-5.
+OCESQL     49  SQLERRMC              PIC X(70).
+OCESQL     05  SQLERRP               PIC X(8).                          *> not used
+OCESQL     05  SQLERRD OCCURS 6 TIMES                                   *> used only ERRD(3)
+OCESQL                               PIC S9(9) COMP-5.
+OCESQL     05  SQLWARN.                                                 *> not used
+OCESQL         10 SQLWARN0           PIC X(1).
+OCESQL         10 SQLWARN1           PIC X(1).
+OCESQL         10 SQLWARN2           PIC X(1).
+OCESQL         10 SQLWARN3           PIC X(1).
+OCESQL         10 SQLWARN4           PIC X(1).
+OCESQL         10 SQLWARN5           PIC X(1).
+OCESQL         10 SQLWARN6           PIC X(1).
+OCESQL         10 SQLWARN7           PIC X(1).
+OCESQL     05  SQLSTATE              PIC X(5).
+OCESQL******************************************************************
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_CLEANUP
+
+AT_SETUP([use include with extension(normal file: quoted)])
+
+AT_DATA([VAL.inc], [       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+       EXEC SQL INCLUDE "VAL.inc" END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+OCESQL*EXEC SQL INCLUDE "VAL.inc" END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null], [0])
+AT_CHECK([diff prog.cob prog.txt], [0])
+
+AT_CLEANUP
+
+AT_SETUP([use include with extension(normal file: quoted, newline)])
+
+AT_DATA([VAL.inc], [       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+       EXEC SQL
+            INCLUDE "VAL.inc"
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+OCESQL*EXEC SQL 
+OCESQL*     INCLUDE "VAL.inc"
+OCESQL*END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null], [0])
+AT_CHECK([diff prog.cob prog.txt], [0])
+
+AT_CLEANUP
+
+AT_SETUP([use include with extension(sqlca.cbl: quoted)])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+       EXEC SQL INCLUDE "sqlca.cbl" END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+OCESQL*EXEC SQL INCLUDE "sqlca.cbl" END-EXEC.
+OCESQL******************************************************************
+OCESQL*       SQLCA: SQL Communications Area for Ocesql                *
+OCESQL******************************************************************
+OCESQL 01  SQLCA GLOBAL.
+OCESQL     05  SQLCAID               PIC X(8).
+OCESQL     05  SQLCABC               PIC S9(9) COMP-5.
+OCESQL     05  SQLCODE               PIC S9(9) COMP-5.
+OCESQL     05  SQLERRM.
+OCESQL     49  SQLERRML              PIC S9(4) COMP-5.
+OCESQL     49  SQLERRMC              PIC X(70).
+OCESQL     05  SQLERRP               PIC X(8).                          *> not used
+OCESQL     05  SQLERRD OCCURS 6 TIMES                                   *> used only ERRD(3)
+OCESQL                               PIC S9(9) COMP-5.
+OCESQL     05  SQLWARN.                                                 *> not used
+OCESQL         10 SQLWARN0           PIC X(1).
+OCESQL         10 SQLWARN1           PIC X(1).
+OCESQL         10 SQLWARN2           PIC X(1).
+OCESQL         10 SQLWARN3           PIC X(1).
+OCESQL         10 SQLWARN4           PIC X(1).
+OCESQL         10 SQLWARN5           PIC X(1).
+OCESQL         10 SQLWARN6           PIC X(1).
+OCESQL         10 SQLWARN7           PIC X(1).
+OCESQL     05  SQLSTATE              PIC X(5).
+OCESQL******************************************************************
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_CLEANUP
+
+AT_SETUP([use include with extension(sqlca.cbl: quoted, newline)])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+       EXEC SQL 
+            INCLUDE "sqlca.cbl"
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION. 
+OCESQL*EXEC SQL 
+OCESQL*     INCLUDE "sqlca.cbl"
+OCESQL*END-EXEC.
+OCESQL******************************************************************
+OCESQL*       SQLCA: SQL Communications Area for Ocesql                *
+OCESQL******************************************************************
+OCESQL 01  SQLCA GLOBAL.
+OCESQL     05  SQLCAID               PIC X(8).
+OCESQL     05  SQLCABC               PIC S9(9) COMP-5.
+OCESQL     05  SQLCODE               PIC S9(9) COMP-5.
+OCESQL     05  SQLERRM.
+OCESQL     49  SQLERRML              PIC S9(4) COMP-5.
+OCESQL     49  SQLERRMC              PIC X(70).
+OCESQL     05  SQLERRP               PIC X(8).                          *> not used
+OCESQL     05  SQLERRD OCCURS 6 TIMES                                   *> used only ERRD(3)
+OCESQL                               PIC S9(9) COMP-5.
+OCESQL     05  SQLWARN.                                                 *> not used
+OCESQL         10 SQLWARN0           PIC X(1).
+OCESQL         10 SQLWARN1           PIC X(1).
+OCESQL         10 SQLWARN2           PIC X(1).
+OCESQL         10 SQLWARN3           PIC X(1).
+OCESQL         10 SQLWARN4           PIC X(1).
+OCESQL         10 SQLWARN5           PIC X(1).
+OCESQL         10 SQLWARN6           PIC X(1).
+OCESQL         10 SQLWARN7           PIC X(1).
+OCESQL     05  SQLSTATE              PIC X(5).
+OCESQL******************************************************************
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+])
+
+AT_CLEANUP
