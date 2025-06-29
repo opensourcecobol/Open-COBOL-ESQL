@@ -65,12 +65,12 @@ jobs:
           dnf makecache
           dnf install -y ncurses-devel gmp-devel help2man bison flex texinfo m4 libtool pkg-config gettext automake autoconf libxml2-devel gcc gcc-c++ make libdb-devel diffutils which wget
 
-      # Cache the directory 'gnucobol3.2-osscons-patch2b'
+      # Cache the directory 'gnucobol-osscons-patch-3.2patch2b'
       - name: Cache GnuCOBOL3.2-osscons-patch2b
         id: gnucobol_cache_id
         uses: actions/cache@v4
         with:
-          path: gnucobol3.2-osscons-patch2b
+          path: gnucobol-osscons-patch-3.2patch2b
           key: gnucobol3.2-osscons-patch2b-key
       
       # Build and Install VBISAM
@@ -92,6 +92,11 @@ jobs:
           cd gnucobol-osscons-patch-3.2patch2b
           ./configure --prefix=/usr/ --with-xml2 --with-cjson --with-vbisam
           make
+
+      # Install GnuCOBOL (always run to ensure it's installed)
+      - name: Install GnuCOBOL3.2-osscons-patch2b
+        run: |
+          cd gnucobol-osscons-patch-3.2patch2b
           make install
 
       # Checkout Open-COBOL-ESQL
