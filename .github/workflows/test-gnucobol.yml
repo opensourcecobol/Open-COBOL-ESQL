@@ -66,12 +66,12 @@ jobs:
           dnf install -y ncurses-devel gmp-devel help2man bison flex texinfo m4 libtool pkg-config gettext automake autoconf libxml2-devel gcc gcc-c++ make libdb-devel diffutils which wget
 
       # Cache the directory 'gnucobol-osscons-patch-3.2patch2b'
-      - name: Cache GnuCOBOL3.2-osscons-patch2b
+      - name: Cache GnuCOBOL-osscons-patch-3.2patch2b
         id: gnucobol_cache_id
         uses: actions/cache@v4
         with:
           path: gnucobol-osscons-patch-3.2patch2b
-          key: gnucobol3.2-osscons-patch2b-key
+          key: gnucobol-osscons-3.2patch2b-key
       
       # Build and Install VBISAM
       - name: Build and Install VBISAM
@@ -84,17 +84,17 @@ jobs:
           make install
 
       # Build and Install GnuCOBOL if the cache is not found
-      - name: Download and Build GnuCOBOL3.2-osscons-patch2b
+      - name: Download and Build GnuCOBOL-osscons-patch-3.2patch2b
         if: steps.gnucobol_cache_id.outputs.cache-hit != 'true'
         run: |
-          curl -L -o gnucobol3.2-osscons-patch2b.tar.gz https://github.com/opensourcecobol/gnucobol-osscons-patch/archive/refs/tags/3.2patch2b.tar.gz
-          tar zxf gnucobol3.2-osscons-patch2b.tar.gz
+          curl -L -o gnucobol-osscons-patch-3.2patch2b.tar.gz https://github.com/opensourcecobol/gnucobol-osscons-patch/archive/refs/tags/3.2patch2b.tar.gz
+          tar zxf gnucobol-osscons-patch-3.2patch2b.tar.gz
           cd gnucobol-osscons-patch-3.2patch2b
           ./configure --prefix=/usr/ --with-xml2 --with-cjson --with-vbisam
           make
 
-      # Install GnuCOBOL (always run to ensure it's installed)
-      - name: Install GnuCOBOL3.2-osscons-patch2b
+      # Install GnuCOBOL
+      - name: Install GnuCOBOL-osscons-patch-3.2patch2b
         run: |
           cd gnucobol-osscons-patch-3.2patch2b
           make install
