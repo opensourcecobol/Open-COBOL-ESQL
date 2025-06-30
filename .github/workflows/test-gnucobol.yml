@@ -1,0 +1,153 @@
+name: Open-COBOL-ESQL tests
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  check-workflows:
+    uses: ./.github/workflows/check-workflows.yml
+
+  Open-COBOL-ESQL-tests:
+    needs: check-workflows
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # os: ["ubuntu:24.04", "almalinux:9"]
+        os: ["almalinux:9"]
+    container:
+      image: ${{ matrix.os }}
+
+    # Start PostgreSQL server
+    services:
+      postgres:
+        image: postgres:16
+        ports: 
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: main_user
+          POSTGRES_DB: testdb
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+
+      # Install dependencies (Ubuntu 24.04)
+      # - name: Install dependencies on Ubuntu 24.04
+      #   if: matrix.os == 'ubuntu:24.04'
+      #   run: |
+      #     apt update -y
+      #     # Install dependencies of Open-COBOL-ESQL
+      #     apt install -y build-essential bison flex gettext texinfo automake autoconf curl libtool libpq-dev pkgconf
+      #     # Install dependencies of GnuCOBOL
+      #     apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev
+
+      # Install dependencies (Almalinux 9)
+      - name: Install dependencies on AlmaLinux 9
+        if: matrix.os == 'almalinux:9'
+        run: |
+          dnf -y update
+          # Install dependencies of Open-COBOL-ESQL
+          dnf install -y gcc gcc-c++ make bison flex automake autoconf diffutils gettext libtool postgresql-devel
+          # Install dependencies of GnuCOBOL
+          dnf install -y epel-release
+          dnf config-manager --set-enabled crb
+          dnf makecache
+          dnf install -y ncurses-devel gmp-devel help2man bison flex texinfo m4 libtool pkg-config gettext automake autoconf libxml2-devel gcc gcc-c++ make libdb-devel diffutils which wget
+
+      # Cache the directory 'gnucobol-osscons-patch-3.2patch2b'
+      - name: Cache GnuCOBOL-osscons-patch-3.2patch2b
+        id: gnucobol_cache_id
+        uses: actions/cache@v4
+        with:
+          path: gnucobol-osscons-patch-3.2patch2b
+          key: gnucobol-osscons-3.2patch2b-key
+      
+      # Build and Install VBISAM
+      - name: Build and Install VBISAM
+        run: |
+          curl -L -o vbisam-osscons-patch-2.0patch1.tar.gz https://github.com/opensourcecobol/vbisam-osscons-patch/archive/refs/tags/v2.0patch1.tar.gz
+          tar zxf vbisam-osscons-patch-2.0patch1.tar.gz
+          cd vbisam-osscons-patch-2.0patch1
+          ./configure --prefix=/usr/
+          make
+          make install
+
+      # Build and Install GnuCOBOL if the cache is not found
+      - name: Download and Build GnuCOBOL-osscons-patch-3.2patch2b
+        if: steps.gnucobol_cache_id.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o gnucobol-osscons-patch-3.2patch2b.tar.gz https://github.com/opensourcecobol/gnucobol-osscons-patch/archive/refs/tags/3.2patch2b.tar.gz
+          tar zxf gnucobol-osscons-patch-3.2patch2b.tar.gz
+          cd gnucobol-osscons-patch-3.2patch2b
+          ./configure --prefix=/usr/ --with-xml2 --with-cjson --with-vbisam
+          make
+
+      # Install GnuCOBOL
+      - name: Install GnuCOBOL-osscons-patch-3.2patch2b
+        run: |
+          cd gnucobol-osscons-patch-3.2patch2b
+          make install
+
+      # Checkout Open-COBOL-ESQL
+      - name: Checkout Open-COBOL-ESQL
+        uses: actions/checkout@v4
+        with:
+          path: Open-COBOL-ESQL
+
+      # Build and Install Open-COBOL-ESQL
+      - name: Install Open-COBOL-ESQL
+        working-directory: Open-COBOL-ESQL
+        run: |
+          chmod +x ./autogen.sh && ./autogen.sh
+          ./configure
+          make
+          make install
+
+      # Create a log directory
+      - name: Create a log directory
+        run: |
+          mkdir -p Open-COBOL-ESQL/log/test
+
+      # Run Autotest
+      - name: Run tests
+        working-directory: Open-COBOL-ESQL/tests
+        run: |
+          make clean
+          cp ../.github/workflows/test-settings/atlocal atlocal
+          cp ../.github/workflows/test-settings/embed_db_info.sh embed_db_info.sh
+          cp ../.github/workflows/test-settings/cobol_runner.sh cobol_runner.sh
+          make
+          ./basic
+          ./cobol_data
+          ./sql_data
+          ./sqlca
+          ./misc
+          cp -r basic.dir cobol_data.dir sql_data.dir sqlca.dir ./*.log ../log/test
+
+      # Define the archive name
+      - name: Define the archive name
+        run: |
+          echo "OCESQL_ARCHIVE_NAME=ocesql-${{ matrix.os }}" | sed s/:/-/g >> "$GITHUB_ENV"
+
+      # Upload test logs and the result of static checking
+      - name: Archive Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.OCESQL_ARCHIVE_NAME }}.log
+          path: Open-COBOL-ESQL/log/*
+      
+      # Workflow fails if one or more test cases failed
+      - name: Check test results
+        run: |
+          cat Open-COBOL-ESQL/tests/*.log
+          ! cat Open-COBOL-ESQL/tests/*.log | grep -q 'Failed tests:'
