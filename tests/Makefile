@@ -19,6 +19,7 @@ basic_DEPENDENCIES = \
 	basic.src/declare.at \
 	basic.src/delete.at \
 	basic.src/fetch.at \
+	basic.src/include.at \
 	basic.src/insert.at \
 	basic.src/open-close.at \
 	basic.src/sample.at \

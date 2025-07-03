@@ -623,7 +623,16 @@ at_help_all="1;connect-disconnect.at:1;connect and disconnect statement test;;
 11;select.at:1;select statement test;;
 12;update.at:1;update statement test;;
 13;include.at:1;use include variable;;
-14;include.at:100;use include variable with gropu insert;;
+14;include.at:100;use include variable with group insert;;
+15;include.at:200;use include with newline;;
+16;include.at:238;use include with extension(normal file);;
+17;include.at:282;use include with extension(normal file: newline);;
+18;include.at:330;use include with extension(sqlca.cbl);;
+19;include.at:385;use include with extension(sqlca.cbl: newline);;
+20;include.at:444;use include with extension(normal file: quoted);;
+21;include.at:488;use include with extension(normal file: quoted, newline);;
+22;include.at:536;use include with extension(sqlca.cbl: quoted);;
+23;include.at:591;use include with extension(sqlca.cbl: quoted, newline);;
 "
 # List of the all the test groups.
 at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
@@ -637,7 +646,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 14; then
+    if test $at_value -lt 1 || test $at_value -gt 23; then
       printf "%s\n" "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -4986,7 +4995,7 @@ read at_status <"$at_status_file"
 #AT_STOP_13
 #AT_START_14
 at_fn_group_banner 14 'include.at:100' \
-  "use include variable with gropu insert" "         "
+  "use include variable with group insert" "         "
 at_xfail=no
 (
   printf "%s\n" "14. $at_setup_line: testing $at_desc ..."
@@ -5123,3 +5132,711 @@ $at_traceon; }
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
 #AT_STOP_14
+#AT_START_15
+at_fn_group_banner 15 'include.at:200' \
+  "use include with newline" "                       "
+at_xfail=no
+(
+  printf "%s\n" "15. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL
+           INCLUDE SQLCA
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL
+OCESQL*    INCLUDE SQLCA
+OCESQL*END-EXEC.
+OCESQL     copy "sqlca.cbl".
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:233: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:233"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:233"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:234: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:234"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:234"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_15
+#AT_START_16
+at_fn_group_banner 16 'include.at:238' \
+  "use include with extension(normal file)" "        "
+at_xfail=no
+(
+  printf "%s\n" "16. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >VAL.inc <<'_ATEOF'
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+_ATEOF
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL INCLUDE VAL.inc END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL INCLUDE VAL.inc END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:277: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:277"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:277"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:278: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:278"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:278"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_16
+#AT_START_17
+at_fn_group_banner 17 'include.at:282' \
+  "use include with extension(normal file: newline)" ""
+at_xfail=no
+(
+  printf "%s\n" "17. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >VAL.inc <<'_ATEOF'
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+_ATEOF
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL
+            INCLUDE VAL.inc
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL
+OCESQL*     INCLUDE VAL.inc
+OCESQL*END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:325: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:325"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:325"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:326: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:326"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:326"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_17
+#AT_START_18
+at_fn_group_banner 18 'include.at:330' \
+  "use include with extension(sqlca.cbl)" "          "
+at_xfail=no
+(
+  printf "%s\n" "18. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL INCLUDE sqlca.cbl END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL INCLUDE sqlca.cbl END-EXEC.
+OCESQL******************************************************************
+OCESQL*       SQLCA: SQL Communications Area for Ocesql                *
+OCESQL******************************************************************
+OCESQL 01  SQLCA GLOBAL.
+OCESQL     05  SQLCAID               PIC X(8).
+OCESQL     05  SQLCABC               PIC S9(9) COMP-5.
+OCESQL     05  SQLCODE               PIC S9(9) COMP-5.
+OCESQL     05  SQLERRM.
+OCESQL     49  SQLERRML              PIC S9(4) COMP-5.
+OCESQL     49  SQLERRMC              PIC X(70).
+OCESQL     05  SQLERRP               PIC X(8).                          *> not used
+OCESQL     05  SQLERRD OCCURS 6 TIMES                                   *> used only ERRD(3)
+OCESQL                               PIC S9(9) COMP-5.
+OCESQL     05  SQLWARN.                                                 *> not used
+OCESQL         10 SQLWARN0           PIC X(1).
+OCESQL         10 SQLWARN1           PIC X(1).
+OCESQL         10 SQLWARN2           PIC X(1).
+OCESQL         10 SQLWARN3           PIC X(1).
+OCESQL         10 SQLWARN4           PIC X(1).
+OCESQL         10 SQLWARN5           PIC X(1).
+OCESQL         10 SQLWARN6           PIC X(1).
+OCESQL         10 SQLWARN7           PIC X(1).
+OCESQL     05  SQLSTATE              PIC X(5).
+OCESQL******************************************************************
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+printf "%s\n" "$at_setup_line" >"$at_check_line_file"
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_18
+#AT_START_19
+at_fn_group_banner 19 'include.at:385' \
+  "use include with extension(sqlca.cbl: newline)" " "
+at_xfail=no
+(
+  printf "%s\n" "19. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL
+            INCLUDE sqlca.cbl
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL
+OCESQL*     INCLUDE sqlca.cbl
+OCESQL*END-EXEC.
+OCESQL******************************************************************
+OCESQL*       SQLCA: SQL Communications Area for Ocesql                *
+OCESQL******************************************************************
+OCESQL 01  SQLCA GLOBAL.
+OCESQL     05  SQLCAID               PIC X(8).
+OCESQL     05  SQLCABC               PIC S9(9) COMP-5.
+OCESQL     05  SQLCODE               PIC S9(9) COMP-5.
+OCESQL     05  SQLERRM.
+OCESQL     49  SQLERRML              PIC S9(4) COMP-5.
+OCESQL     49  SQLERRMC              PIC X(70).
+OCESQL     05  SQLERRP               PIC X(8).                          *> not used
+OCESQL     05  SQLERRD OCCURS 6 TIMES                                   *> used only ERRD(3)
+OCESQL                               PIC S9(9) COMP-5.
+OCESQL     05  SQLWARN.                                                 *> not used
+OCESQL         10 SQLWARN0           PIC X(1).
+OCESQL         10 SQLWARN1           PIC X(1).
+OCESQL         10 SQLWARN2           PIC X(1).
+OCESQL         10 SQLWARN3           PIC X(1).
+OCESQL         10 SQLWARN4           PIC X(1).
+OCESQL         10 SQLWARN5           PIC X(1).
+OCESQL         10 SQLWARN6           PIC X(1).
+OCESQL         10 SQLWARN7           PIC X(1).
+OCESQL     05  SQLSTATE              PIC X(5).
+OCESQL******************************************************************
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+printf "%s\n" "$at_setup_line" >"$at_check_line_file"
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_19
+#AT_START_20
+at_fn_group_banner 20 'include.at:444' \
+  "use include with extension(normal file: quoted)" ""
+at_xfail=no
+(
+  printf "%s\n" "20. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >VAL.inc <<'_ATEOF'
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+_ATEOF
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL INCLUDE "VAL.inc" END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL INCLUDE "VAL.inc" END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:483: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:483"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:483"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:484: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:484"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:484"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_20
+#AT_START_21
+at_fn_group_banner 21 'include.at:488' \
+  "use include with extension(normal file: quoted, newline)" ""
+at_xfail=no
+(
+  printf "%s\n" "21. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >VAL.inc <<'_ATEOF'
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(20) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+_ATEOF
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL
+            INCLUDE "VAL.inc"
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL
+OCESQL*     INCLUDE "VAL.inc"
+OCESQL*END-EXEC.
+OCESQL 01  EMP-REC-VARS.
+OCESQL   03  EMP-NO                PIC S9(04) VALUE ZERO.
+OCESQL   03  EMP-NAME              PIC  X(20) .
+OCESQL   03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:531: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:531"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:531"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:532: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:532"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:532"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_21
+#AT_START_22
+at_fn_group_banner 22 'include.at:536' \
+  "use include with extension(sqlca.cbl: quoted)" "  "
+at_xfail=no
+(
+  printf "%s\n" "22. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL INCLUDE "sqlca.cbl" END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL INCLUDE "sqlca.cbl" END-EXEC.
+OCESQL******************************************************************
+OCESQL*       SQLCA: SQL Communications Area for Ocesql                *
+OCESQL******************************************************************
+OCESQL 01  SQLCA GLOBAL.
+OCESQL     05  SQLCAID               PIC X(8).
+OCESQL     05  SQLCABC               PIC S9(9) COMP-5.
+OCESQL     05  SQLCODE               PIC S9(9) COMP-5.
+OCESQL     05  SQLERRM.
+OCESQL     49  SQLERRML              PIC S9(4) COMP-5.
+OCESQL     49  SQLERRMC              PIC X(70).
+OCESQL     05  SQLERRP               PIC X(8).                          *> not used
+OCESQL     05  SQLERRD OCCURS 6 TIMES                                   *> used only ERRD(3)
+OCESQL                               PIC S9(9) COMP-5.
+OCESQL     05  SQLWARN.                                                 *> not used
+OCESQL         10 SQLWARN0           PIC X(1).
+OCESQL         10 SQLWARN1           PIC X(1).
+OCESQL         10 SQLWARN2           PIC X(1).
+OCESQL         10 SQLWARN3           PIC X(1).
+OCESQL         10 SQLWARN4           PIC X(1).
+OCESQL         10 SQLWARN5           PIC X(1).
+OCESQL         10 SQLWARN6           PIC X(1).
+OCESQL         10 SQLWARN7           PIC X(1).
+OCESQL     05  SQLSTATE              PIC X(5).
+OCESQL******************************************************************
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+printf "%s\n" "$at_setup_line" >"$at_check_line_file"
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_22
+#AT_START_23
+at_fn_group_banner 23 'include.at:591' \
+  "use include with extension(sqlca.cbl: quoted, newline)" ""
+at_xfail=no
+(
+  printf "%s\n" "23. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL
+            INCLUDE "sqlca.cbl"
+       END-EXEC.
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL
+OCESQL*     INCLUDE "sqlca.cbl"
+OCESQL*END-EXEC.
+OCESQL******************************************************************
+OCESQL*       SQLCA: SQL Communications Area for Ocesql                *
+OCESQL******************************************************************
+OCESQL 01  SQLCA GLOBAL.
+OCESQL     05  SQLCAID               PIC X(8).
+OCESQL     05  SQLCABC               PIC S9(9) COMP-5.
+OCESQL     05  SQLCODE               PIC S9(9) COMP-5.
+OCESQL     05  SQLERRM.
+OCESQL     49  SQLERRML              PIC S9(4) COMP-5.
+OCESQL     49  SQLERRMC              PIC X(70).
+OCESQL     05  SQLERRP               PIC X(8).                          *> not used
+OCESQL     05  SQLERRD OCCURS 6 TIMES                                   *> used only ERRD(3)
+OCESQL                               PIC S9(9) COMP-5.
+OCESQL     05  SQLWARN.                                                 *> not used
+OCESQL         10 SQLWARN0           PIC X(1).
+OCESQL         10 SQLWARN1           PIC X(1).
+OCESQL         10 SQLWARN2           PIC X(1).
+OCESQL         10 SQLWARN3           PIC X(1).
+OCESQL         10 SQLWARN4           PIC X(1).
+OCESQL         10 SQLWARN5           PIC X(1).
+OCESQL         10 SQLWARN6           PIC X(1).
+OCESQL         10 SQLWARN7           PIC X(1).
+OCESQL     05  SQLSTATE              PIC X(5).
+OCESQL******************************************************************
+OCESQL*
+       PROCEDURE DIVISION.
+           STOP RUN.
+_ATEOF
+
+
+printf "%s\n" "$at_setup_line" >"$at_check_line_file"
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_23
