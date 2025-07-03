@@ -3,7 +3,7 @@ name: Open-COBOL-ESQL tests
 on:
   push:
   pull_request:
-    types: [opened, reopened, review_requested, synchronize]
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read
