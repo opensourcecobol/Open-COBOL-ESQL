@@ -63,7 +63,7 @@ jobs:
       # Cache the directory 'opensource-cobol-1.5.2J'
       - name: Cache opnesource COBOL v1.5.2J
         id: opensource_cobol_cache_id
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: opensource-cobol-1.5.2J
           key: opensource-cobol-1.5.2J-key
