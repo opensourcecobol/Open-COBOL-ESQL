@@ -92,7 +92,7 @@ jobs:
 
       # Checkout Open-COBOL-ESQL
       - name: Checkout Open-COBOL-ESQL
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: Open-COBOL-ESQL
 
