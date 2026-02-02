@@ -132,7 +132,7 @@ jobs:
 
       # Upload test logs and the result of static checking
       - name: Archive Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ env.OCESQL_ARCHIVE_NAME }}.log
           path: Open-COBOL-ESQL/log/*
