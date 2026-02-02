@@ -63,7 +63,7 @@ jobs:
       # Cache the directory 'opensource-cobol-1.5.2J'
       - name: Cache opnesource COBOL v1.5.2J
         id: opensource_cobol_cache_id
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: opensource-cobol-1.5.2J
           key: opensource-cobol-1.5.2J-key
@@ -92,7 +92,7 @@ jobs:
 
       # Checkout Open-COBOL-ESQL
       - name: Checkout Open-COBOL-ESQL
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: Open-COBOL-ESQL
 
@@ -132,7 +132,7 @@ jobs:
 
       # Upload test logs and the result of static checking
       - name: Archive Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.OCESQL_ARCHIVE_NAME }}.log
           path: Open-COBOL-ESQL/log/*
