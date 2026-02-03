@@ -695,7 +695,7 @@ OCDB_PGGetParamType(int ocdb_type){
 	case OCDB_TYPE_ALPHANUMERIC_VARYING:
 	case OCDB_TYPE_JAPANESE_VARYING:
 		// varchar
-		return 1043;
+		return 0;
 	default:
 		return 0;
 	}
