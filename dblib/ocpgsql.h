@@ -149,4 +149,5 @@ static char state_buf[] = "     ";
 int OCDB_PGSetResultStatus(unsigned long, struct sqlca_t *);
 int OCDB_PGSetLibErrorStatus(struct sqlca_t *, int);
 
+int OCDB_PGGetParamType(int);
 #endif

@@ -783,6 +783,7 @@ static void
 _ocesqlExecParams(struct sqlca_t *st, int id, char *query, int nParams){
 	int i;
 	char **arr;
+	int *types;
 	SQLVARLIST *p = _sql_var_lists;
 
 	sqlca_initialize(st);
@@ -807,15 +808,24 @@ _ocesqlExecParams(struct sqlca_t *st, int id, char *query, int nParams){
 		return;
 	}
 
+	types = NULL;
+	if((types = (int *)malloc(sizeof(int) * nParams)) == NULL){
+		OCDBSetLibErrorStatus(st,OCDB_OUT_OF_MEMORY);
+		free(arr);
+		return;
+	}
+
 	// set parameters
 	for(i=0; i<_var_lists_length; i++, p=p->next){
 		arr[i] = p->sv.realdata;
+		types[i] = OCDBGetParamType(p->sv.type);
 	}
 
-	OCDBExecParams(id, query, nParams, NULL,
+	OCDBExecParams(id, query, nParams, types,
 				   (const char * const *)arr, NULL, NULL, 0);
 	if(arr != NULL){
 		free(arr);
+		free(types);
 	}
 
 	if(OCDBSetResultStatus(id,st) != RESULT_SUCCESS){
@@ -1380,6 +1390,7 @@ OCESQLCursorOpen(struct sqlca_t *st, char *cname){
 	// DECLARE CURSOR
 	if(cursor->nParams > 0){
 		int i;
+		int *types;
 		char **arr;
 		SQLVARLIST *p = cursor->plist;
 
@@ -1389,17 +1400,26 @@ OCESQLCursorOpen(struct sqlca_t *st, char *cname){
 			return 1;
 		}
 
+		if((types = (int *)malloc(sizeof(int) * cursor->nParams)) == NULL){
+			free(arr);
+			ERRLOG("memory allocation failed.\n");
+			OCDBSetLibErrorStatus(st,OCDB_OUT_OF_MEMORY);
+			return 1;
+		}
+
 		// set parameters
 		for(i=0; i<cursor->nParams; i++, p=p->next){
 			create_realdata(&p->sv,0);
 			arr[i] = p->sv.realdata;
+			types[i] = OCDBGetParamType(p->sv.type);
 			LOG("params[%d]:#%s#\n",i, p->sv.realdata);
 		}
 
 		OCDBCursorDeclareParams(cursor->connid, cursor->cname, cursor->query,
-					cursor->nParams, NULL, (const char * const *)arr,
+					cursor->nParams, types, (const char * const *)arr,
 					NULL, NULL, 0, OCDB_CURSOR_WITH_HOLD_OFF);
 		free(arr);
+		free(types);
 	} else if(cursor->sp){
 		LOG("with prepare: sname:%s, query:%s\n",cursor->sp->sq.pname, cursor->sp->sq.query);
 		OCDBCursorDeclare(cursor->connid, cursor->cname,
@@ -1480,6 +1500,7 @@ OCESQLCursorOpenParams(struct sqlca_t *st, char *cname, int nParams){
 
 	int i;
 	char **arr;
+	int *types;
 	SQLVARLIST *p = _sql_var_lists;
 
 	if((arr = (char **)malloc(sizeof(char *) * nParams)) == NULL){
@@ -1488,17 +1509,26 @@ OCESQLCursorOpenParams(struct sqlca_t *st, char *cname, int nParams){
 		return 1;
 	}
 
+	if((types = (int *)malloc(sizeof(int) * nParams)) == NULL){
+		free(arr);
+		ERRLOG("memory allocation failed.\n");
+		OCDBSetLibErrorStatus(st,OCDB_OUT_OF_MEMORY);
+		return 1;
+	}
+
 	// set parameters
 	for(i=0; i<_var_lists_length; i++, p=p->next){
 		arr[i] = p->sv.realdata;
+		types[i] = OCDBGetParamType(p->sv.type);
 		LOG("params[%d]:#%s#\n",i, p->sv.realdata);
 	}
 	LOG("with prepare: sname:%s, query:%s\n",cursor->sp->sq.pname, cursor->sp->sq.query);
 	OCDBCursorDeclareParams(cursor->connid, cursor->cname, cursor->sp->sq.query,
-			cursor->sp->sq.nParams, NULL, (const char * const *)arr,
+			cursor->sp->sq.nParams, types, (const char * const *)arr,
 					NULL, NULL, 0, OCDB_CURSOR_WITH_HOLD_OFF);
 
 	free(arr);
+	free(types);
 	if(OCDBSetResultStatus(cursor->connid,st) != RESULT_SUCCESS){
 		return 1;
 	}
