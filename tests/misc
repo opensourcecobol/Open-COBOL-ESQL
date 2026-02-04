@@ -2720,7 +2720,7 @@ cat >prog.cbl <<'_ATEOF'
                   WHEN  +10
                      DISPLAY "Record not found"
                   WHEN  -01
-                     DISPLAY "Connection falied"
+                     DISPLAY "Connection failed"
                   WHEN  -20
                      DISPLAY "Internal error"
                   WHEN  -30
