@@ -47,7 +47,8 @@ sqlca_DEPENDENCIES = \
 misc_DEPENDENCIES = \
 	misc.src/compile.at \
 	misc.src/empty-string.at \
-	misc.src/quiet.at
+	misc.src/quiet.at \
+	misc.src/cursorname.at
 
 .PHONY: clean distclean all help $(MODULES_RUN) check
 
