@@ -320,7 +320,9 @@ void
 cb_set_prepname(char *text)
 {
 	memset(prepname,0,sizeof(prepname));
-	com_strcpy(prepname,sizeof(prepname),text);
+	com_strcpy(prepname,sizeof(prepname),filenameID);
+	com_strcat(prepname,sizeof(prepname),"_");
+	com_strcat(prepname,sizeof(prepname),text);
 }
 
 char *
