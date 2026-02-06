@@ -1,0 +1,662 @@
+AT_SETUP([long PREPARE name (PREPARE: over 47 chars / CURSOR: over 47 chars)])
+
+AT_DATA([prog.cbl], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+        01 ST    PIC  X(100) VARYING.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        PROCEDURE DIVISION.
+            EXEC SQL
+             PREPARE P1_12345678901234567890123456789012345678901234 
+             FROM :ST
+            END-EXEC.
+            
+            EXEC SQL
+             DECLARE C1_12345678901234567890123456789012345678901234
+             CURSOR FOR P1_12345678901234567890123456789012345678901234
+            END-EXEC.
+
+            STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+OCESQL* EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+OCESQL* 01 ST    PIC  X(100) VARYING.
+OCESQL  01 ST.
+OCESQL    02 ST-LEN PIC S9(8) COMP-5.
+OCESQL    02 ST-ARR PIC X(100).
+OCESQL* EXEC SQL END DECLARE SECTION END-EXEC.
+
+OCESQL* EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+        PROCEDURE DIVISION.
+OCESQL*     EXEC SQL
+OCESQL*      PREPARE P1_12345678901234567890123456789012345678901234 
+OCESQL*      FROM :ST
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPrepare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE 
+OCESQL     "prog_P1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE ST-ARR
+OCESQL          BY VALUE ST-LEN
+OCESQL     END-CALL.
+            
+OCESQL*     EXEC SQL
+OCESQL*      DECLARE C1_12345678901234567890123456789012345678901234
+OCESQL*      CURSOR FOR P1_12345678901234567890123456789012345678901234
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPreparedCursorDeclare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE 
+OCESQL     "prog_C1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE 
+OCESQL     "prog_P1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL     END-CALL.
+
+            STOP RUN.
+])
+
+AT_CHECK([${OCESQL} prog.cbl prog.cob > /dev/null])
+AT_CHECK([diff -w prog.txt prog.cob], [0])
+AT_CHECK([${COMPILE_MODULE} prog.cob], [0])
+
+AT_CLEANUP
+
+AT_SETUP([long PREPARE name (PREPARE: over 47 chars / CURSOR: over 55 chars)])
+
+AT_DATA([prog.cbl], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+        01 ST    PIC  X(100) VARYING.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        PROCEDURE DIVISION.
+            EXEC SQL
+             PREPARE P1_12345678901234567890123456789012345678901234 
+             FROM :ST
+            END-EXEC.
+            
+            EXEC SQL
+             DECLARE 
+              C1_1234567890123456789012345678901234567890123456789012
+              CURSOR FOR P1_12345678901234567890123456789012345678901234
+            END-EXEC.
+
+            STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+OCESQL* EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+OCESQL* 01 ST    PIC  X(100) VARYING.
+OCESQL  01 ST.
+OCESQL    02 ST-LEN PIC S9(8) COMP-5.
+OCESQL    02 ST-ARR PIC X(100).
+OCESQL* EXEC SQL END DECLARE SECTION END-EXEC.
+
+OCESQL* EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+        PROCEDURE DIVISION.
+OCESQL*     EXEC SQL
+OCESQL*      PREPARE P1_12345678901234567890123456789012345678901234 
+OCESQL*      FROM :ST
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPrepare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE 
+OCESQL     "prog_P1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE ST-ARR
+OCESQL          BY VALUE ST-LEN
+OCESQL     END-CALL.
+            
+OCESQL*     EXEC SQL
+OCESQL*      DECLARE 
+OCESQL*       C1_1234567890123456789012345678901234567890123456789012
+OCESQL*       CURSOR FOR P1_12345678901234567890123456789012345678901234
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPreparedCursorDeclare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE 
+OCESQL     "prog_C1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE 
+OCESQL     "prog_P1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL     END-CALL.
+
+            STOP RUN.
+])
+
+AT_DATA([out.txt], 
+[precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API            
+=======================================================
+Generate:OCESQLPrepare
+Generate:OCESQLPreparedCursorDeclare
+Warning: prog_C1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+=======================================================
+])
+
+AT_CHECK([${OCESQL} prog.cbl prog.cob > out.log], [0])
+AT_CHECK([diff -w prog.txt prog.cob], [0])
+AT_CHECK([diff -w out.txt out.log], [0])
+
+AT_CLEANUP
+
+AT_SETUP([long PREPARE name (PREPARE: over 55 chars / CURSOR: over 47 chars)])
+
+AT_DATA([prog.cbl], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+        01 ST    PIC  X(100) VARYING.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        PROCEDURE DIVISION.
+            EXEC SQL
+             PREPARE 
+             P1_1234567890123456789012345678901234567890123456789012 
+             FROM :ST
+            END-EXEC.
+            
+            EXEC SQL
+             DECLARE 
+              C1_12345678901234567890123456789012345678901234
+              CURSOR FOR 
+              P1_1234567890123456789012345678901234567890123456789012
+            END-EXEC.
+
+            STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+OCESQL* EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+OCESQL* 01 ST    PIC  X(100) VARYING.
+OCESQL  01 ST.
+OCESQL    02 ST-LEN PIC S9(8) COMP-5.
+OCESQL    02 ST-ARR PIC X(100).
+OCESQL* EXEC SQL END DECLARE SECTION END-EXEC.
+
+OCESQL* EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+        PROCEDURE DIVISION.
+OCESQL*     EXEC SQL
+OCESQL*      PREPARE 
+OCESQL*      P1_1234567890123456789012345678901234567890123456789012 
+OCESQL*      FROM :ST
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPrepare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE 
+OCESQL     "prog_P1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE ST-ARR
+OCESQL          BY VALUE ST-LEN
+OCESQL     END-CALL.
+            
+OCESQL*     EXEC SQL
+OCESQL*      DECLARE 
+OCESQL*       C1_12345678901234567890123456789012345678901234
+OCESQL*       CURSOR FOR 
+OCESQL*       P1_1234567890123456789012345678901234567890123456789012
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPreparedCursorDeclare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE 
+OCESQL     "prog_C1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE 
+OCESQL     "prog_P1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL     END-CALL.
+
+            STOP RUN.
+])
+
+AT_DATA([out.txt], 
+[precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API            
+=======================================================
+Generate:OCESQLPrepare
+Warning: prog_P1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+Generate:OCESQLPreparedCursorDeclare
+Warning: prog_P1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+=======================================================
+])
+
+AT_CHECK([${OCESQL} prog.cbl prog.cob > out.log], [0])
+AT_CHECK([diff -w prog.txt prog.cob], [0])
+AT_CHECK([diff -w out.txt out.log], [0])
+
+AT_CLEANUP
+
+AT_SETUP([long PREPARE name (PREPARE: over 55 chars / CURSOR: over 55 chars)])
+
+AT_DATA([prog.cbl], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+        01 ST    PIC  X(100) VARYING.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        PROCEDURE DIVISION.
+            EXEC SQL
+             PREPARE 
+             P1_1234567890123456789012345678901234567890123456789012 
+             FROM :ST
+            END-EXEC.
+            
+            EXEC SQL
+             DECLARE 
+              C1_1234567890123456789012345678901234567890123456789012
+              CURSOR FOR 
+              P1_1234567890123456789012345678901234567890123456789012
+            END-EXEC.
+
+            STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+OCESQL* EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+OCESQL* 01 ST    PIC  X(100) VARYING.
+OCESQL  01 ST.
+OCESQL    02 ST-LEN PIC S9(8) COMP-5.
+OCESQL    02 ST-ARR PIC X(100).
+OCESQL* EXEC SQL END DECLARE SECTION END-EXEC.
+
+OCESQL* EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+        PROCEDURE DIVISION.
+OCESQL*     EXEC SQL
+OCESQL*      PREPARE 
+OCESQL*      P1_1234567890123456789012345678901234567890123456789012 
+OCESQL*      FROM :ST
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPrepare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE 
+OCESQL     "prog_P1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE ST-ARR
+OCESQL          BY VALUE ST-LEN
+OCESQL     END-CALL.
+            
+OCESQL*     EXEC SQL
+OCESQL*      DECLARE 
+OCESQL*       C1_1234567890123456789012345678901234567890123456789012
+OCESQL*       CURSOR FOR 
+OCESQL*       P1_1234567890123456789012345678901234567890123456789012
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPreparedCursorDeclare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE 
+OCESQL     "prog_C1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE 
+OCESQL     "prog_P1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL     END-CALL.
+
+            STOP RUN.
+])
+
+AT_DATA([out.txt], 
+[precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API            
+=======================================================
+Generate:OCESQLPrepare
+Warning: prog_P1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+Generate:OCESQLPreparedCursorDeclare
+Warning: prog_C1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+Warning: prog_P1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+=======================================================
+])
+
+AT_CHECK([${OCESQL} prog.cbl prog.cob > out.log], [0])
+AT_CHECK([diff -w prog.txt prog.cob], [0])
+AT_CHECK([diff -w out.txt out.log], [0])
+
+AT_CLEANUP
+
+AT_SETUP([CALL sub programs])
+
+AT_DATA([prog.cbl], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01  DBNAME     PIC  X(30) VALUE SPACE.
+        01  USERNAME   PIC  X(30) VALUE SPACE.
+        01  PASSWD     PIC  X(10) VALUE SPACE.
+        01  A-REC-VARS.
+         03  COLA1            PIC S9(04) VALUE ZERO.
+         03  COLA2            PIC  X(5).
+         03  COLA3            PIC S9(04) VALUE ZERO.
+        01  B-REC-VARS.
+         03  COLB1            PIC S9(04) VALUE ZERO.
+         03  COLB2            PIC  X(5).
+         03  COLB3            PIC S9(04) VALUE ZERO.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+
+        PROCEDURE DIVISION.
+        MAIN-RTN.
+      *    CONNECT
+            MOVE "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>" 
+                TO DBNAME.
+            MOVE "<|DB_USER|>"
+                TO USERNAME.
+            MOVE "<|DB_PASSWORD|>" 
+                TO PASSWD.
+            EXEC SQL
+                CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
+            END-EXEC.
+      
+      *    DROP TABLE
+           EXEC SQL
+               DROP TABLE IF EXISTS TABLEA
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS TABLEB
+           END-EXEC.
+      
+      *    CREATE TABLE
+           EXEC SQL
+                CREATE TABLE TABLEA
+                (
+                    COLA1     NUMERIC(4,0) NOT NULL,
+                    COLA2     CHAR(5),
+                    COLA3     NUMERIC(4,0),
+                    CONSTRAINT ITA_0 PRIMARY KEY (COLA1)
+                )
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE TABLEB
+                (
+                    COLB1     NUMERIC(4,0) NOT NULL,
+                    COLB2     CHAR(5),
+                    COLB3     NUMERIC(4,0),
+                    CONSTRAINT ITB_0 PRIMARY KEY (COLB1)
+                )
+           END-EXEC.
+
+      *    INSERT ROWS
+      *    --- A ---
+           EXEC SQL
+                INSERT INTO TABLEA 
+                VALUES (1, 'ABCDE', 100)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEA 
+                VALUES (2, 'FGHIJ', 200)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEA 
+                VALUES (3, 'KLMNO', 300)
+           END-EXEC.
+      
+      *    --- B ---
+           EXEC SQL
+                INSERT INTO TABLEB 
+                VALUES (1, 'BCDEF', 111)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEB 
+                VALUES (2, 'GHIJK', 222)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEB 
+                VALUES (3, 'LMNOP', 333)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEB 
+                VALUES (4, 'LMNOP', 444)
+           END-EXEC.
+      
+      *    CALL sub1
+            CALL "sub1".
+
+            DISPLAY "---------------".
+
+      *    CALL sub2
+            CALL "sub2".
+
+            DISPLAY "---------------".
+
+      *    CALL sub1
+            CALL "sub1".
+
+      *    COMMIT
+            EXEC SQL COMMIT WORK END-EXEC.
+      
+      *    DISCONNECT
+            EXEC SQL DISCONNECT ALL END-EXEC.
+
+            STOP RUN.
+])
+
+AT_DATA([sub1.cbl], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. sub1.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  D-A-REC.
+           05  D-A-1          PIC  9(04).
+           05  FILLER         PIC  X.
+           05  D-A-2          PIC  X(5).
+           05  FILLER         PIC  X.
+           05  D-A-3          PIC  9(3).
+        01 CNT PIC 9(1) VALUE 1.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01  A-REC-VARS.
+         03  COLA1            PIC S9(04) VALUE ZERO.
+         03  COLA2            PIC  X(5).
+         03  COLA3            PIC S9(04) VALUE ZERO.
+        01 S     PIC X(100) VARYING.
+        01 S-PTR PIC 9(03).
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+
+        PROCEDURE DIVISION.
+        MAIN-RTN.
+           IF CNT = 1 THEN
+      *    PREPARE
+             ADD 1 TO CNT
+             MOVE  SPACE  TO  S-ARR
+             MOVE  1      TO  S-PTR
+                STRING
+                  "SELECT COLA1, COLA2, COLA3 "
+                  "FROM TABLEA "
+                  "WHERE COLA3 = 200"
+                  INTO S-ARR WITH POINTER S-PTR
+             MOVE  S-PTR       TO  S-LEN
+             EXEC SQL 
+                 PREPARE PSTMT 
+                 FROM :S
+             END-EXEC
+
+      *    DECLARE CURSOR
+           EXEC SQL 
+               DECLARE CUR CURSOR 
+               FOR PSTMT
+           END-EXEC
+           END-IF.
+      
+      *    OPEN CURSOR
+           EXEC SQL OPEN CUR END-EXEC.
+           
+      *    FETCH
+           EXEC SQL 
+               FETCH CUR 
+               INTO :COLA1, :COLA2, :COLA3
+           END-EXEC.
+
+           PERFORM UNTIL SQLCODE NOT = ZERO
+              MOVE  COLA1    TO    D-A-1
+              MOVE  COLA2    TO    D-A-2
+              MOVE  COLA3    TO    D-A-3
+              DISPLAY D-A-REC
+              EXEC SQL 
+                  FETCH CUR 
+                  INTO :COLA1, :COLA2, :COLA3
+              END-EXEC
+           END-PERFORM.
+           
+      *    CLOSE CURSOR
+           EXEC SQL CLOSE CUR END-EXEC.
+           
+      *    COMMIT
+           EXEC SQL COMMIT WORK END-EXEC.
+
+           GOBACK.
+])
+
+AT_DATA([sub2.cbl], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. sub2.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  D-B-REC.
+           05  D-B-1          PIC  9(04).
+           05  FILLER         PIC  X.
+           05  D-B-2          PIC  X(5).
+           05  FILLER         PIC  X.
+           05  D-B-3          PIC  9(3).
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01  B-REC-VARS.
+         03  COLB1            PIC S9(04) VALUE ZERO.
+         03  COLB2            PIC  X(5).
+         03  COLB3            PIC S9(04) VALUE ZERO.
+        01 S     PIC X(100) VARYING.
+        01 S-PTR PIC 9(03).
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+
+        PROCEDURE DIVISION.
+        MAIN-RTN.
+      *    PREPARE
+           MOVE  SPACE  TO  S-ARR.
+           MOVE  1      TO  S-PTR.
+              STRING
+                "SELECT COLB1, COLB2, COLB3 "
+                "FROM TABLEB "
+                "WHERE COLB2 = 'LMNOP'"
+                INTO S-ARR WITH POINTER S-PTR.
+           MOVE  S-PTR       TO  S-LEN.
+           EXEC SQL 
+               PREPARE PSTMT 
+               FROM :S
+           END-EXEC.
+           
+      *    DECLARE CURSOR
+           EXEC SQL 
+               DECLARE CUR CURSOR 
+               FOR PSTMT
+           END-EXEC.
+      
+      *    OPEN CURSOR
+           EXEC SQL OPEN CUR END-EXEC.
+           
+      *    FETCH
+           EXEC SQL 
+               FETCH CUR 
+               INTO :COLB1, :COLB2, :COLB3
+           END-EXEC.
+
+           PERFORM UNTIL SQLCODE NOT = ZERO
+              MOVE  COLB1    TO    D-B-1
+              MOVE  COLB2    TO    D-B-2
+              MOVE  COLB3    TO    D-B-3
+              DISPLAY D-B-REC
+              EXEC SQL 
+                  FETCH CUR 
+                  INTO :COLB1, :COLB2, :COLB3
+              END-EXEC
+           END-PERFORM.
+           
+      *    CLOSE CURSOR
+           EXEC SQL CLOSE CUR END-EXEC.
+           
+      *    COMMIT
+           EXEC SQL COMMIT WORK END-EXEC.
+
+           GOBACK.
+])
+
+AT_CHECK([${OCESQL} prog.cbl prog.cob > /dev/null], [0])
+AT_CHECK([${EMBED_DB_INFO} prog.cob], [0])
+AT_CHECK([${COMPILE_MODULE} prog.cob], [0])
+
+AT_CHECK([${OCESQL} sub1.cbl sub1.cob > /dev/null], [0])
+AT_CHECK([${COMPILE_MODULE} sub1.cob], [0])
+
+AT_CHECK([${OCESQL} sub2.cbl sub2.cob > /dev/null], [0])
+AT_CHECK([${COMPILE_MODULE} sub2.cob], [0])
+
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
+[0002 FGHIJ 200
+---------------
+0003 LMNOP 333
+0004 LMNOP 444
+---------------
+0002 FGHIJ 200
+])
+
+AT_CLEANUP
