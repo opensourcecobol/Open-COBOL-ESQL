@@ -265,6 +265,8 @@ int
 get_host_group_table_info(struct cb_field *field, int *iteration, int *length);
 void
 parameter_split(struct cb_field *vp_parent);
+void
+print_reference_name(const char *refname);
 
 extern int
 openerrorfile(char *filename);

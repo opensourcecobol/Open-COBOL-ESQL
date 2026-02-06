@@ -22,6 +22,10 @@
 #include "ocesql.h"
 #include "ocesqlutil.h"
 
+#define REF_NAME_MAXSIZE 59
+#define REF_NAME_MIDDLESIZE 51
+#define REF_NAME_SHORTSIZE 33
+
 char inbuff[256];
 char out[256];
 struct cb_exec_list *head;
@@ -344,14 +348,7 @@ void ppoutputopen(struct cb_exec_list *list){
 
 		if( list->cursorName == NULL)
 			return ;
-		com_strcpy(out,sizeof(out),"OCESQL ");
-		com_strcat(out,sizeof(out),"       ");
-		com_strcat(out,sizeof(out),strreference);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out),list->cursorName);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out)," & x\"00\"");
-		outwrite();
+		print_reference_name (list->cursorName);
 
 		com_strcpy(out,sizeof(out),"OCESQL ");
 		com_strcat(out,sizeof(out),"       ");
@@ -386,14 +383,7 @@ void ppoutputopen(struct cb_exec_list *list){
 
 		if( list->cursorName == NULL)
 			return ;
-		com_strcpy(out,sizeof(out),"OCESQL ");
-		com_strcat(out,sizeof(out),"       ");
-		com_strcat(out,sizeof(out),strreference);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out),list->cursorName);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out)," & x\"00\"");
-		outwrite();
+		print_reference_name (list->cursorName);
 	}
 
 	ppoutputendcall(list);
@@ -853,9 +843,7 @@ void ppoutputfetch(struct cb_exec_list *list){
 	if( list->cursorName == NULL )
 		return ;
 
-	memset(buff, 0, sizeof(buff));
-	com_sprintf(buff,sizeof(buff), "OCESQL%10sBY REFERENCE \"%s\" & x\"00\"\n"," ",list->cursorName);
-	fputs(buff, outfile);
+	print_reference_name (list->cursorName);
 
 	memset(buff, 0, sizeof(buff));
 	com_sprintf(buff,sizeof(buff), "OCESQL%5sEND-CALL\n", " ");
@@ -1598,14 +1586,7 @@ void ppbuff(struct cb_exec_list *list){
 			}
 
 			if(strlen(l->cursorName)>0){
-				com_strcpy(out,sizeof(out),"OCESQL ");
-				com_strcat(out,sizeof(out),"       ");
-				com_strcat(out,sizeof(out),strreference);
-				com_strcat(out,sizeof(out),"\"");
-				com_strcat(out,sizeof(out),l->cursorName);
-				com_strcat(out,sizeof(out),"\"");
-				com_strcat(out,sizeof(out)," & x\"00\"");
-				outwrite();
+				print_reference_name (l->cursorName);
 			}
 
 			com_strcpy(out,sizeof(out),"OCESQL ");
@@ -1881,14 +1862,7 @@ void ppbuff(struct cb_exec_list *list){
 			fputs(buff, outfile);
 		}
 
-		com_strcpy(out,sizeof(out),"OCESQL ");
-		com_strcat(out,sizeof(out),"       ");
-		com_strcat(out,sizeof(out),strreference);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out),l->cursorName);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out)," & x\"00\"");
-		outwrite();
+		print_reference_name (l->cursorName);
 
 		com_strcpy(out,sizeof(out),"OCESQL ");
 		com_strcat(out,sizeof(out),"       ");
@@ -1923,14 +1897,7 @@ void ppbuff(struct cb_exec_list *list){
 		com_strcat(out,sizeof(out),strsqlca);
 		outwrite();
 
-		com_strcpy(out,sizeof(out),"OCESQL ");
-		com_strcat(out,sizeof(out),"       ");
-		com_strcat(out,sizeof(out),strreference);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out),l->cursorName);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out)," & x\"00\"");
-		outwrite();
+		print_reference_name (l->cursorName);
 
 		com_strcpy(out,sizeof(out),"OCESQL ");
 		com_strcat(out,sizeof(out),"   ");
@@ -2306,7 +2273,34 @@ die_parameter_split:
 	return;
 }
 
-
+void print_reference_name (const char *refname){
+	int len;
+	if (refname == NULL) {
+		return;
+	}
+	len = strlen (refname);
+	if (len > REF_NAME_MAXSIZE) {
+		printmsg("Warning: %s is too long, so it may cause a compilation error.\n", refname);
+	}
+	com_strcpy (out, sizeof (out), "OCESQL ");
+	com_strcat (out, sizeof (out), "       ");
+	com_strcat (out, sizeof (out), strreference);
+	if (len > REF_NAME_SHORTSIZE) {
+		outwrite ();
+		com_strcpy (out, sizeof (out), "OCESQL ");
+		com_strcat (out, sizeof (out), "    ");
+	}
+	com_strcat (out, sizeof (out), "\"");
+	com_strcat (out, sizeof (out), refname);
+	com_strcat (out, sizeof (out), "\"");
+	if (len > REF_NAME_MIDDLESIZE) {
+		outwrite ();
+		com_strcpy (out, sizeof (out), "OCESQL ");
+		com_strcat (out, sizeof (out), "       ");
+	}
+	com_strcat (out, sizeof (out), " & x\"00\"");
+	outwrite ();
+}
 
 FILE* fopen_or_die(char *filename, const char *mode){
 	FILE* retval;
