@@ -633,6 +633,7 @@ at_help_all="1;connect-disconnect.at:1;connect and disconnect statement test;;
 21;include.at:488;use include with extension(normal file: quoted, newline);;
 22;include.at:536;use include with extension(sqlca.cbl: quoted);;
 23;include.at:591;use include with extension(sqlca.cbl: quoted, newline);;
+24;include.at:650;nested EXEC SQL;;
 "
 # List of the all the test groups.
 at_groups_all=`printf "%s\n" "$at_help_all" | sed 's/;.*//'`
@@ -646,7 +647,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 23; then
+    if test $at_value -lt 1 || test $at_value -gt 24; then
       printf "%s\n" "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -5840,3 +5841,126 @@ printf "%s\n" "$at_setup_line" >"$at_check_line_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
 #AT_STOP_23
+#AT_START_24
+at_fn_group_banner 24 'include.at:650' \
+  "nested EXEC SQL" "                                "
+at_xfail=no
+(
+  printf "%s\n" "24. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >A <<'_ATEOF'
+           EXEC SQL
+                INSERT INTO A (ID, NAME)
+                VALUES (:WS-ID, :WS-NAME)
+           END-EXEC.
+_ATEOF
+
+
+cat >prog.cbl <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01 WS-ID   PIC X(10).
+       01 WS-NAME PIC X(50).
+       EXEC SQL END DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE DIVISION.
+           EXEC SQL INCLUDE A END-EXEC.
+           STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01 WS-ID   PIC X(10).
+       01 WS-NAME PIC X(50).
+OCESQL*EXEC SQL END DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+      ******************************************************************
+OCESQL*
+OCESQL 01  SQ0001.
+OCESQL     02  FILLER PIC X(042) VALUE "INSERT INTO A (ID, NAME) VALUE"
+OCESQL  &  "S ( $1, $2 )".
+OCESQL     02  FILLER PIC X(1) VALUE X"00".
+OCESQL*
+       PROCEDURE DIVISION.
+OCESQL*    EXEC SQL INCLUDE A END-EXEC.
+OCESQL*    EXEC SQL
+OCESQL*         INSERT INTO A (ID, NAME)
+OCESQL*         VALUES (:WS-ID, :WS-NAME)
+OCESQL*    END-EXEC.
+OCESQL     CALL "OCESQLStartSQL"
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 16
+OCESQL          BY VALUE 10
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE WS-ID
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 16
+OCESQL          BY VALUE 50
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE WS-NAME
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLExecParams" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE SQ0001
+OCESQL          BY VALUE 2
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLEndSQL"
+OCESQL     END-CALL.
+           STOP RUN.
+_ATEOF
+
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:728: ocesql prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_trace "include.at:728"
+( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:728"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+printf "%s\n" "$at_srcdir/include.at:729: diff prog.cob prog.txt"
+at_fn_check_prepare_trace "include.at:729"
+( $at_check_trace; diff prog.cob prog.txt
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/include.at:729"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_24

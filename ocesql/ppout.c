@@ -2027,6 +2027,13 @@ void ppoutput(char *ppin,char *ppout,struct cb_exec_list *head){
 			com_readline(readfile, inbuff, &lineNUM, &EOFflg);
 			if(strstr(inbuff, INC_START_MARK) != NULL ||
 			strstr(inbuff, INC__END__MARK) != NULL){
+				if(head && l != NULL && lineNUM - l->endLine == 1) {
+					if(strcmp(l->commandName, "WORKING_END") != 0){
+						ppbuff(l);
+					}
+					if (l->next != NULL)
+						l = l->next;
+				}
 				continue;
 			}
 
