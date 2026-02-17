@@ -600,6 +600,29 @@ OCDBResolveCONNID(char *cid){
 
 /*
  * <Function name>
+ *   OCDBGetParamType
+ *
+ * <Outline>
+ *   OCESQL内のデータ型から、実行するDBのデータ型を取得する
+ *
+ * <Input>
+ *  ocdbtype : 対応するデータ型
+ *
+ * <Output>
+ *   データ型のID（int）
+ *   対応外DBの場合は常に0
+ */
+int
+OCDBGetParamType(int ocdbtype){
+#ifdef PGSQL_MODE_ON
+	return OCDB_PGGetParamType(ocdbtype);
+#else
+	return 0;
+#endif
+}
+
+/*
+ * <Function name>
  *   look_up_conn_lists
  *
  * <Outline>

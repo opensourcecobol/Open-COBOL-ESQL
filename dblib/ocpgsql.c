@@ -676,3 +676,27 @@ OCDB_PGSetLibErrorStatus(struct sqlca_t *st, int errorno){
 	return RESULT_SUCCESS;
 }
 
+int
+OCDB_PGGetParamType(int ocdb_type){
+	// pg_typeのOIDを返す
+	switch(ocdb_type){
+	case OCDB_TYPE_UNSIGNED_NUMBER:
+	case OCDB_TYPE_SIGNED_NUMBER_TC:
+	case OCDB_TYPE_SIGNED_NUMBER_LS:
+	case OCDB_TYPE_UNSIGNED_NUMBER_PD:
+	case OCDB_TYPE_SIGNED_NUMBER_PD:
+	case OCDB_TYPE_SINGED_BINARY_NATIVE:
+	case OCDB_TYPE_UNSINGED_BINARY_NATIVE:
+		// numeric
+		return 1700;
+	case OCDB_TYPE_ALPHANUMERIC:
+	case OCDB_TYPE_GROUP:
+	case OCDB_TYPE_JAPANESE:
+	case OCDB_TYPE_ALPHANUMERIC_VARYING:
+	case OCDB_TYPE_JAPANESE_VARYING:
+		// varchar
+		return 0;
+	default:
+		return 0;
+	}
+}
