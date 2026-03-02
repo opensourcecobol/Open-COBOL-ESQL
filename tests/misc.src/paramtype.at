@@ -1,0 +1,174 @@
+AT_SETUP([parameter type test])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE             SECTION.
+       01  TEST-DATA.
+         03 FILLER       PIC X(14) VALUE "0001NAME010400".
+         03 FILLER       PIC X(14) VALUE "0002NAME020350".
+         03 FILLER       PIC X(14) VALUE "0003NAME030300".
+         03 FILLER       PIC X(14) VALUE "0004NAME04025p".
+         03 FILLER       PIC X(14) VALUE "0005NAME05020p".
+         03 FILLER       PIC X(14) VALUE "0006NAME060150".
+         03 FILLER       PIC X(14) VALUE "0007NAME07010p".
+         03 FILLER       PIC X(14) VALUE "0008NAME080050".
+         03 FILLER       PIC X(14) VALUE "0009NAME09020p".
+         03 FILLER       PIC X(14) VALUE "0010NAME100350".
+
+       01  TEST-DATA-R   REDEFINES TEST-DATA.
+         03  TEST-TBL    OCCURS  10.
+           05  TEST-NO             PIC S9(04).
+           05  TEST-NAME           PIC  X(06) .
+           05  TEST-SALARY         PIC S9(04).
+       01  IDX                     PIC  9(02).
+       01 TEST-CASE-COUNT PIC 9999 VALUE 1.
+
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01  DBNAME                  PIC  X(30) VALUE SPACE.
+       01  USERNAME                PIC  X(30) VALUE SPACE.
+       01  PASSWD                  PIC  X(10) VALUE SPACE.
+
+       01  EMP-REC-VARS.
+         03  EMP-NO                PIC S9(04) VALUE ZERO.
+         03  EMP-NAME              PIC  X(06) .
+         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
+       EXEC SQL END DECLARE SECTION END-EXEC.
+
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE                   DIVISION.
+      ******************************************************************
+       MAIN-RTN.
+           
+       PERFORM SETUP-DB.
+
+          MOVE 300 TO EMP-SALARY.
+          EXEC SQL 
+              SELECT EMP_NO, EMP_NAME, EMP_SALARY
+              INTO :EMP-NO, :EMP-NAME, :EMP-SALARY
+              FROM EMP
+              WHERE 
+          TO_CHAR(EMP_SALARY, 'FM0000') = TO_CHAR(:EMP-SALARY, 'FM0000')
+          END-EXEC.
+          DISPLAY EMP-NO "," EMP-NAME "," EMP-SALARY.
+
+       PERFORM CLEANUP-DB.
+
+      *    END
+           STOP RUN.
+
+      ******************************************************************
+       SETUP-DB.
+      ******************************************************************
+
+      *    SERVER
+           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+             TO DBNAME.
+           MOVE  "<|DB_USER|>"
+             TO USERNAME.
+           MOVE  "<|DB_PASSWORD|>"
+             TO PASSWD.
+
+           EXEC SQL
+               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME 
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE EMP
+                (
+                    EMP_NO     NUMERIC(4,0) NOT NULL,
+                    EMP_NAME   CHAR(6),
+                    EMP_SALARY NUMERIC(4,0),
+                    CONSTRAINT IEMP_0 PRIMARY KEY (EMP_NO)
+                )
+           END-EXEC.
+
+      *    INSERT ROWS USING HOST VARIABLE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
+              MOVE TEST-NO(IDX)     TO  EMP-NO
+              MOVE TEST-NAME(IDX)   TO  EMP-NAME
+              MOVE TEST-SALARY(IDX) TO  EMP-SALARY
+              EXEC SQL
+                 INSERT INTO EMP VALUES
+                        (:EMP-NO,:EMP-NAME,:EMP-SALARY)
+              END-EXEC
+           END-PERFORM.
+      *    DECLARE CURSOR
+           EXEC SQL 
+               DECLARE C1 CURSOR FOR
+               SELECT EMP_NO, EMP_NAME, EMP_SALARY 
+                      FROM EMP
+                      ORDER BY EMP_NO
+           END-EXEC.
+      *    OPEN CURSOR
+           EXEC SQL
+               OPEN C1
+           END-EXEC.
+
+      ******************************************************************
+       CLEANUP-DB.
+      ******************************************************************
+           EXEC SQL
+               CLOSE C1
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS EMP
+           END-EXEC.
+
+           EXEC SQL
+               DISCONNECT ALL
+           END-EXEC.
+
+      ******************************************************************
+       DISPLAY-TEST-RESULT.
+      ******************************************************************
+           IF  SQLCODE = ZERO
+             THEN
+
+               DISPLAY "<log> test case " TEST-CASE-COUNT ": success"
+               ADD 1 TO TEST-CASE-COUNT
+
+             ELSE
+               DISPLAY "*** SQL ERROR ***"
+               DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING
+               EVALUATE SQLCODE
+                  WHEN  +10
+                     DISPLAY "Record not found"
+                  WHEN  -01
+                     DISPLAY "Connection failed"
+                  WHEN  -20
+                     DISPLAY "Internal error"
+                  WHEN  -30
+                     DISPLAY "PostgreSQL error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+                  *> TO RESTART TRANSACTION, DO ROLLBACK.
+                     EXEC SQL
+                         ROLLBACK
+                     END-EXEC
+                  WHEN  OTHER
+                     DISPLAY "Undefined error"
+                     DISPLAY "ERRCODE: "  SQLSTATE
+                     DISPLAY SQLERRMC
+               END-EVALUATE
+               STOP RUN.
+      ******************************************************************  
+])
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null])
+AT_CHECK([${EMBED_DB_INFO} prog.cob])
+AT_CHECK([${COMPILE_MODULE} prog.cob])
+AT_CHECK([${RUN_MODULE} prog 2> /dev/null], [0],
+[+0003,NAME03,+0300
+])
+
+AT_CLEANUP

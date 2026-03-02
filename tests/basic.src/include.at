@@ -646,3 +646,86 @@ OCESQL*
 ])
 
 AT_CLEANUP
+
+AT_SETUP([nested EXEC SQL])
+
+AT_DATA([A], [           EXEC SQL
+                INSERT INTO A (ID, NAME)
+                VALUES (:WS-ID, :WS-NAME)
+           END-EXEC.
+])
+
+AT_DATA([prog.cbl], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01 WS-ID   PIC X(10).
+       01 WS-NAME PIC X(50).
+       EXEC SQL END DECLARE SECTION END-EXEC.
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+      ******************************************************************
+       PROCEDURE DIVISION.
+           EXEC SQL INCLUDE A END-EXEC.
+           STOP RUN.
+])
+
+AT_DATA([prog.txt], [
+       IDENTIFICATION              DIVISION.
+      ******************************************************************
+       PROGRAM-ID.                 prog.
+      ******************************************************************
+       DATA                        DIVISION.
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+OCESQL*EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+       01 WS-ID   PIC X(10).
+       01 WS-NAME PIC X(50).
+OCESQL*EXEC SQL END DECLARE SECTION END-EXEC.
+OCESQL*EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+      ******************************************************************
+OCESQL*
+OCESQL 01  SQ0001.
+OCESQL     02  FILLER PIC X(042) VALUE "INSERT INTO A (ID, NAME) VALUE"
+OCESQL  &  "S ( $1, $2 )".
+OCESQL     02  FILLER PIC X(1) VALUE X"00".
+OCESQL*
+       PROCEDURE DIVISION.
+OCESQL*    EXEC SQL INCLUDE A END-EXEC.
+OCESQL*    EXEC SQL
+OCESQL*         INSERT INTO A (ID, NAME)
+OCESQL*         VALUES (:WS-ID, :WS-NAME)
+OCESQL*    END-EXEC.
+OCESQL     CALL "OCESQLStartSQL"
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 16
+OCESQL          BY VALUE 10
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE WS-ID
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLSetSQLParams" USING
+OCESQL          BY VALUE 16
+OCESQL          BY VALUE 50
+OCESQL          BY VALUE 0
+OCESQL          BY REFERENCE WS-NAME
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLExecParams" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE SQ0001
+OCESQL          BY VALUE 2
+OCESQL     END-CALL
+OCESQL     CALL "OCESQLEndSQL"
+OCESQL     END-CALL.
+           STOP RUN.
+])
+
+AT_CHECK([ocesql prog.cbl prog.cob > /dev/null], [0])
+AT_CHECK([diff prog.cob prog.txt], [0])
+
+AT_CLEANUP

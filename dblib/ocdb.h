@@ -278,6 +278,8 @@ int OCDBResolveCONNID(char *);
 int OCDBSetResultStatus(int id, struct sqlca_t *);
 int OCDBSetLibErrorStatus(struct sqlca_t *, int);
 
+int OCDBGetParamType(int);
+
 /* common APIs */
 char *_alloc(long);
 char *last_dir_separator(const char *);
