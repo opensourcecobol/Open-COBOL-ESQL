@@ -701,9 +701,7 @@ void ppoutputexecprepare(struct cb_exec_list *list){
 		fputs(buff, outfile);
 	}
 
-	memset(buff, 0, sizeof(buff));
-	com_sprintf(buff,sizeof(buff), "OCESQL%10sBY REFERENCE \"%s\" & x\"00\"\n"," ",list->prepareName);
-	fputs(buff, outfile);
+	print_reference_name (list->prepareName);
 
 	com_strcpy(out,sizeof(out),"OCESQL ");
 	com_strcat(out,sizeof(out),"       ");
@@ -1005,9 +1003,7 @@ void ppoutputprepare(struct cb_exec_list *list){
 
 	if( list->cursorName == NULL)
 		return ;
-	memset(buff, 0, sizeof(buff));
-	com_sprintf(buff,sizeof(buff), "OCESQL%10sBY REFERENCE \"%s\" & x\"00\"\n"," ",list->prepareName);
-	fputs(buff, outfile);
+	print_reference_name (list->prepareName);
 
 	iret = gethostvarianttype(list->host_list->hostreference,&l,&m,&n);
 	if(iret!= 0)
@@ -1863,15 +1859,7 @@ void ppbuff(struct cb_exec_list *list){
 		}
 
 		print_reference_name (l->cursorName);
-
-		com_strcpy(out,sizeof(out),"OCESQL ");
-		com_strcat(out,sizeof(out),"       ");
-		com_strcat(out,sizeof(out),strreference);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out),l->prepareName);
-		com_strcat(out,sizeof(out),"\"");
-		com_strcat(out,sizeof(out)," & x\"00\"");
-		outwrite();
+		print_reference_name (l->prepareName);
 
 		com_strcpy(out,sizeof(out),"OCESQL ");
 		com_strcat(out,sizeof(out),"   ");

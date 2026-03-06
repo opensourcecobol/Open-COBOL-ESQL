@@ -595,11 +595,15 @@ at_help_all="1;empty-string.at:1;empty string test;;
 3;compile.at:21;n-value;;
 4;compile.at:40;nc-value;;
 5;quiet.at:1;quiet option test;;
-6;paramtype.at:1;parameter type test;;
-7;cursorname.at:1;short cursor name;;
-8;cursorname.at:52;long cursor name( >= 29 chars);;
-9;cursorname.at:103;long cursor name( >= 47 chars);;
-10;cursorname.at:266;too long cursor name( >= 55 chars);;
+6;cursorname.at:1;short cursor name;;
+7;cursorname.at:52;long cursor name( >= 29 chars);;
+8;cursorname.at:103;long cursor name( >= 47 chars);;
+9;cursorname.at:266;too long cursor name( >= 55 chars);;
+10;preparename.at:1;long PREPARE name (PREPARE: over 47 chars / CURSOR: over 47 chars);;
+11;preparename.at:80;long PREPARE name (PREPARE: over 47 chars / CURSOR: over 55 chars);;
+12;preparename.at:172;long PREPARE name (PREPARE: over 55 chars / CURSOR: over 47 chars);;
+13;preparename.at:269;long PREPARE name (PREPARE: over 55 chars / CURSOR: over 55 chars);;
+14;preparename.at:367;CALL sub programs;;
 "
 # List of the all the test groups.
 at_groups_all=`$as_echo "$at_help_all" | sed 's/;.*//'`
@@ -613,7 +617,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 10; then
+    if test $at_value -lt 1 || test $at_value -gt 14; then
       $as_echo "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -2570,246 +2574,11 @@ $at_traceon; }
 read at_status <"$at_status_file"
 #AT_STOP_5
 #AT_START_6
-at_fn_group_banner 6 'paramtype.at:1' \
-  "parameter type test" "                            "
-at_xfail=no
-(
-  $as_echo "6. $at_setup_line: testing $at_desc ..."
-  $at_traceon
-
-
-cat >prog.cbl <<'_ATEOF'
-
-       IDENTIFICATION              DIVISION.
-      ******************************************************************
-       PROGRAM-ID.                 prog.
-      ******************************************************************
-       DATA                        DIVISION.
-      ******************************************************************
-       WORKING-STORAGE             SECTION.
-       01  TEST-DATA.
-         03 FILLER       PIC X(14) VALUE "0001NAME010400".
-         03 FILLER       PIC X(14) VALUE "0002NAME020350".
-         03 FILLER       PIC X(14) VALUE "0003NAME030300".
-         03 FILLER       PIC X(14) VALUE "0004NAME04025p".
-         03 FILLER       PIC X(14) VALUE "0005NAME05020p".
-         03 FILLER       PIC X(14) VALUE "0006NAME060150".
-         03 FILLER       PIC X(14) VALUE "0007NAME07010p".
-         03 FILLER       PIC X(14) VALUE "0008NAME080050".
-         03 FILLER       PIC X(14) VALUE "0009NAME09020p".
-         03 FILLER       PIC X(14) VALUE "0010NAME100350".
-
-       01  TEST-DATA-R   REDEFINES TEST-DATA.
-         03  TEST-TBL    OCCURS  10.
-           05  TEST-NO             PIC S9(04).
-           05  TEST-NAME           PIC  X(06) .
-           05  TEST-SALARY         PIC S9(04).
-       01  IDX                     PIC  9(02).
-       01 TEST-CASE-COUNT PIC 9999 VALUE 1.
-
-       EXEC SQL BEGIN DECLARE SECTION END-EXEC.
-       01  DBNAME                  PIC  X(30) VALUE SPACE.
-       01  USERNAME                PIC  X(30) VALUE SPACE.
-       01  PASSWD                  PIC  X(10) VALUE SPACE.
-
-       01  EMP-REC-VARS.
-         03  EMP-NO                PIC S9(04) VALUE ZERO.
-         03  EMP-NAME              PIC  X(06) .
-         03  EMP-SALARY            PIC S9(04) VALUE ZERO.
-       EXEC SQL END DECLARE SECTION END-EXEC.
-
-       EXEC SQL INCLUDE SQLCA END-EXEC.
-      ******************************************************************
-       PROCEDURE                   DIVISION.
-      ******************************************************************
-       MAIN-RTN.
-
-       PERFORM SETUP-DB.
-
-          MOVE 300 TO EMP-SALARY.
-          EXEC SQL
-              SELECT EMP_NO, EMP_NAME, EMP_SALARY
-              INTO :EMP-NO, :EMP-NAME, :EMP-SALARY
-              FROM EMP
-              WHERE
-          TO_CHAR(EMP_SALARY, 'FM0000') = TO_CHAR(:EMP-SALARY, 'FM0000')
-          END-EXEC.
-          DISPLAY EMP-NO "," EMP-NAME "," EMP-SALARY.
-
-       PERFORM CLEANUP-DB.
-
-      *    END
-           STOP RUN.
-
-      ******************************************************************
-       SETUP-DB.
-      ******************************************************************
-
-      *    SERVER
-           MOVE  "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
-             TO DBNAME.
-           MOVE  "<|DB_USER|>"
-             TO USERNAME.
-           MOVE  "<|DB_PASSWORD|>"
-             TO PASSWD.
-
-           EXEC SQL
-               CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
-           END-EXEC.
-
-           EXEC SQL
-               DROP TABLE IF EXISTS EMP
-           END-EXEC.
-
-           EXEC SQL
-                CREATE TABLE EMP
-                (
-                    EMP_NO     NUMERIC(4,0) NOT NULL,
-                    EMP_NAME   CHAR(6),
-                    EMP_SALARY NUMERIC(4,0),
-                    CONSTRAINT IEMP_0 PRIMARY KEY (EMP_NO)
-                )
-           END-EXEC.
-
-      *    INSERT ROWS USING HOST VARIABLE
-           PERFORM VARYING IDX FROM 1 BY 1 UNTIL IDX > 10
-              MOVE TEST-NO(IDX)     TO  EMP-NO
-              MOVE TEST-NAME(IDX)   TO  EMP-NAME
-              MOVE TEST-SALARY(IDX) TO  EMP-SALARY
-              EXEC SQL
-                 INSERT INTO EMP VALUES
-                        (:EMP-NO,:EMP-NAME,:EMP-SALARY)
-              END-EXEC
-           END-PERFORM.
-      *    DECLARE CURSOR
-           EXEC SQL
-               DECLARE C1 CURSOR FOR
-               SELECT EMP_NO, EMP_NAME, EMP_SALARY
-                      FROM EMP
-                      ORDER BY EMP_NO
-           END-EXEC.
-      *    OPEN CURSOR
-           EXEC SQL
-               OPEN C1
-           END-EXEC.
-
-      ******************************************************************
-       CLEANUP-DB.
-      ******************************************************************
-           EXEC SQL
-               CLOSE C1
-           END-EXEC.
-
-           EXEC SQL
-               DROP TABLE IF EXISTS EMP
-           END-EXEC.
-
-           EXEC SQL
-               DISCONNECT ALL
-           END-EXEC.
-
-      ******************************************************************
-       DISPLAY-TEST-RESULT.
-      ******************************************************************
-           IF  SQLCODE = ZERO
-             THEN
-
-               DISPLAY "<log> test case " TEST-CASE-COUNT ": success"
-               ADD 1 TO TEST-CASE-COUNT
-
-             ELSE
-               DISPLAY "*** SQL ERROR ***"
-               DISPLAY "SQLCODE: " SQLCODE " " NO ADVANCING
-               EVALUATE SQLCODE
-                  WHEN  +10
-                     DISPLAY "Record not found"
-                  WHEN  -01
-                     DISPLAY "Connection failed"
-                  WHEN  -20
-                     DISPLAY "Internal error"
-                  WHEN  -30
-                     DISPLAY "PostgreSQL error"
-                     DISPLAY "ERRCODE: "  SQLSTATE
-                     DISPLAY SQLERRMC
-                  *> TO RESTART TRANSACTION, DO ROLLBACK.
-                     EXEC SQL
-                         ROLLBACK
-                     END-EXEC
-                  WHEN  OTHER
-                     DISPLAY "Undefined error"
-                     DISPLAY "ERRCODE: "  SQLSTATE
-                     DISPLAY SQLERRMC
-               END-EVALUATE
-               STOP RUN.
-      ******************************************************************
-_ATEOF
-
-{ set +x
-$as_echo "$at_srcdir/paramtype.at:167: ocesql prog.cbl prog.cob > /dev/null"
-at_fn_check_prepare_trace "paramtype.at:167"
-( $at_check_trace; ocesql prog.cbl prog.cob > /dev/null
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/paramtype.at:167"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/paramtype.at:168: \${EMBED_DB_INFO} prog.cob"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "paramtype.at:168"
-( $at_check_trace; ${EMBED_DB_INFO} prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/paramtype.at:168"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/paramtype.at:169: \${COMPILE_MODULE} prog.cob"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "paramtype.at:169"
-( $at_check_trace; ${COMPILE_MODULE} prog.cob
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/paramtype.at:169"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-{ set +x
-$as_echo "$at_srcdir/paramtype.at:170: \${RUN_MODULE} prog 2> /dev/null"
-at_fn_check_prepare_notrace 'a ${...} parameter expansion' "paramtype.at:170"
-( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
-) >>"$at_stdout" 2>>"$at_stderr" 5>&-
-at_status=$? at_failed=false
-$at_check_filter
-at_fn_diff_devnull "$at_stderr" || at_failed=:
-echo >>"$at_stdout"; $as_echo "+0003,NAME03,+0300
-" | \
-  $at_diff - "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/paramtype.at:170"
-$at_failed && at_fn_log_failure
-$at_traceon; }
-
-
-  set +x
-  $at_times_p && times >"$at_times_file"
-) 5>&1 2>&1 7>&- | eval $at_tee_pipe
-read at_status <"$at_status_file"
-#AT_STOP_6
-#AT_START_7
-at_fn_group_banner 7 'cursorname.at:1' \
+at_fn_group_banner 6 'cursorname.at:1' \
   "short cursor name" "                              "
 at_xfail=no
 (
-  $as_echo "7. $at_setup_line: testing $at_desc ..."
+  $as_echo "6. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -2902,13 +2671,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_7
-#AT_START_8
-at_fn_group_banner 8 'cursorname.at:52' \
+#AT_STOP_6
+#AT_START_7
+at_fn_group_banner 7 'cursorname.at:52' \
   "long cursor name( >= 29 chars)" "                 "
 at_xfail=no
 (
-  $as_echo "8. $at_setup_line: testing $at_desc ..."
+  $as_echo "7. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3001,13 +2770,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_8
-#AT_START_9
-at_fn_group_banner 9 'cursorname.at:103' \
+#AT_STOP_7
+#AT_START_8
+at_fn_group_banner 8 'cursorname.at:103' \
   "long cursor name( >= 47 chars)" "                 "
 at_xfail=no
 (
-  $as_echo "9. $at_setup_line: testing $at_desc ..."
+  $as_echo "8. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3093,7 +2862,7 @@ OCESQL*      PREPARE P1 FROM :S1
 OCESQL*    END-EXEC.
 OCESQL     CALL "OCESQLPrepare" USING
 OCESQL          BY REFERENCE SQLCA
-OCESQL          BY REFERENCE "P1" & x"00"
+OCESQL          BY REFERENCE "prog_P1" & x"00"
 OCESQL          BY REFERENCE S1-ARR
 OCESQL          BY VALUE S1-LEN
 OCESQL     END-CALL.
@@ -3106,7 +2875,7 @@ OCESQL          BY REFERENCE SQLCA
 OCESQL          BY REFERENCE
 OCESQL     "prog_C1_12345678901234567890123456789012345678901234"
 OCESQL         & x"00"
-OCESQL          BY REFERENCE "P1" & x"00"
+OCESQL          BY REFERENCE "prog_P1" & x"00"
 OCESQL     END-CALL.
 OCESQL*    EXEC SQL
 OCESQL*      OPEN C1_12345678901234567890123456789012345678901234
@@ -3214,13 +2983,13 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_9
-#AT_START_10
-at_fn_group_banner 10 'cursorname.at:266' \
+#AT_STOP_8
+#AT_START_9
+at_fn_group_banner 9 'cursorname.at:266' \
   "too long cursor name( >= 55 chars)" "             "
 at_xfail=no
 (
-  $as_echo "10. $at_setup_line: testing $at_desc ..."
+  $as_echo "9. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
@@ -3324,4 +3093,982 @@ $at_traceon; }
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
+#AT_STOP_9
+#AT_START_10
+at_fn_group_banner 10 'preparename.at:1' \
+  "long PREPARE name (PREPARE: over 47 chars / CURSOR: over 47 chars)" ""
+at_xfail=no
+(
+  $as_echo "10. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+        01 ST    PIC  X(100) VARYING.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        PROCEDURE DIVISION.
+            EXEC SQL
+             PREPARE P1_12345678901234567890123456789012345678901234
+             FROM :ST
+            END-EXEC.
+
+            EXEC SQL
+             DECLARE C1_12345678901234567890123456789012345678901234
+             CURSOR FOR P1_12345678901234567890123456789012345678901234
+            END-EXEC.
+
+            STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+OCESQL* EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+OCESQL* 01 ST    PIC  X(100) VARYING.
+OCESQL  01 ST.
+OCESQL    02 ST-LEN PIC S9(8) COMP-5.
+OCESQL    02 ST-ARR PIC X(100).
+OCESQL* EXEC SQL END DECLARE SECTION END-EXEC.
+
+OCESQL* EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+        PROCEDURE DIVISION.
+OCESQL*     EXEC SQL
+OCESQL*      PREPARE P1_12345678901234567890123456789012345678901234
+OCESQL*      FROM :ST
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPrepare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE
+OCESQL     "prog_P1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE ST-ARR
+OCESQL          BY VALUE ST-LEN
+OCESQL     END-CALL.
+
+OCESQL*     EXEC SQL
+OCESQL*      DECLARE C1_12345678901234567890123456789012345678901234
+OCESQL*      CURSOR FOR P1_12345678901234567890123456789012345678901234
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPreparedCursorDeclare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE
+OCESQL     "prog_C1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE
+OCESQL     "prog_P1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL     END-CALL.
+
+            STOP RUN.
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:74: \${OCESQL} prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:74"
+( $at_check_trace; ${OCESQL} prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:74"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:75: diff -w prog.txt prog.cob"
+at_fn_check_prepare_trace "preparename.at:75"
+( $at_check_trace; diff -w prog.txt prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:75"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:76: \${COMPILE_MODULE} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:76"
+( $at_check_trace; ${COMPILE_MODULE} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:76"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
 #AT_STOP_10
+#AT_START_11
+at_fn_group_banner 11 'preparename.at:80' \
+  "long PREPARE name (PREPARE: over 47 chars / CURSOR: over 55 chars)" ""
+at_xfail=no
+(
+  $as_echo "11. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+        01 ST    PIC  X(100) VARYING.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        PROCEDURE DIVISION.
+            EXEC SQL
+             PREPARE P1_12345678901234567890123456789012345678901234
+             FROM :ST
+            END-EXEC.
+
+            EXEC SQL
+             DECLARE
+              C1_1234567890123456789012345678901234567890123456789012
+              CURSOR FOR P1_12345678901234567890123456789012345678901234
+            END-EXEC.
+
+            STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+OCESQL* EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+OCESQL* 01 ST    PIC  X(100) VARYING.
+OCESQL  01 ST.
+OCESQL    02 ST-LEN PIC S9(8) COMP-5.
+OCESQL    02 ST-ARR PIC X(100).
+OCESQL* EXEC SQL END DECLARE SECTION END-EXEC.
+
+OCESQL* EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+        PROCEDURE DIVISION.
+OCESQL*     EXEC SQL
+OCESQL*      PREPARE P1_12345678901234567890123456789012345678901234
+OCESQL*      FROM :ST
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPrepare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE
+OCESQL     "prog_P1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE ST-ARR
+OCESQL          BY VALUE ST-LEN
+OCESQL     END-CALL.
+
+OCESQL*     EXEC SQL
+OCESQL*      DECLARE
+OCESQL*       C1_1234567890123456789012345678901234567890123456789012
+OCESQL*       CURSOR FOR P1_12345678901234567890123456789012345678901234
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPreparedCursorDeclare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE
+OCESQL     "prog_C1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE
+OCESQL     "prog_P1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL     END-CALL.
+
+            STOP RUN.
+_ATEOF
+
+
+cat >out.txt <<'_ATEOF'
+precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API
+=======================================================
+Generate:OCESQLPrepare
+Generate:OCESQLPreparedCursorDeclare
+Warning: prog_C1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+=======================================================
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:166: \${OCESQL} prog.cbl prog.cob > out.log"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:166"
+( $at_check_trace; ${OCESQL} prog.cbl prog.cob > out.log
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:166"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:167: diff -w prog.txt prog.cob"
+at_fn_check_prepare_trace "preparename.at:167"
+( $at_check_trace; diff -w prog.txt prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:167"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:168: diff -w out.txt out.log"
+at_fn_check_prepare_trace "preparename.at:168"
+( $at_check_trace; diff -w out.txt out.log
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:168"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_11
+#AT_START_12
+at_fn_group_banner 12 'preparename.at:172' \
+  "long PREPARE name (PREPARE: over 55 chars / CURSOR: over 47 chars)" ""
+at_xfail=no
+(
+  $as_echo "12. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+        01 ST    PIC  X(100) VARYING.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        PROCEDURE DIVISION.
+            EXEC SQL
+             PREPARE
+             P1_1234567890123456789012345678901234567890123456789012
+             FROM :ST
+            END-EXEC.
+
+            EXEC SQL
+             DECLARE
+              C1_12345678901234567890123456789012345678901234
+              CURSOR FOR
+              P1_1234567890123456789012345678901234567890123456789012
+            END-EXEC.
+
+            STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+OCESQL* EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+OCESQL* 01 ST    PIC  X(100) VARYING.
+OCESQL  01 ST.
+OCESQL    02 ST-LEN PIC S9(8) COMP-5.
+OCESQL    02 ST-ARR PIC X(100).
+OCESQL* EXEC SQL END DECLARE SECTION END-EXEC.
+
+OCESQL* EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+        PROCEDURE DIVISION.
+OCESQL*     EXEC SQL
+OCESQL*      PREPARE
+OCESQL*      P1_1234567890123456789012345678901234567890123456789012
+OCESQL*      FROM :ST
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPrepare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE
+OCESQL     "prog_P1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE ST-ARR
+OCESQL          BY VALUE ST-LEN
+OCESQL     END-CALL.
+
+OCESQL*     EXEC SQL
+OCESQL*      DECLARE
+OCESQL*       C1_12345678901234567890123456789012345678901234
+OCESQL*       CURSOR FOR
+OCESQL*       P1_1234567890123456789012345678901234567890123456789012
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPreparedCursorDeclare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE
+OCESQL     "prog_C1_12345678901234567890123456789012345678901234"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE
+OCESQL     "prog_P1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL     END-CALL.
+
+            STOP RUN.
+_ATEOF
+
+
+cat >out.txt <<'_ATEOF'
+precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API
+=======================================================
+Generate:OCESQLPrepare
+Warning: prog_P1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+Generate:OCESQLPreparedCursorDeclare
+Warning: prog_P1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+=======================================================
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:263: \${OCESQL} prog.cbl prog.cob > out.log"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:263"
+( $at_check_trace; ${OCESQL} prog.cbl prog.cob > out.log
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:263"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:264: diff -w prog.txt prog.cob"
+at_fn_check_prepare_trace "preparename.at:264"
+( $at_check_trace; diff -w prog.txt prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:264"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:265: diff -w out.txt out.log"
+at_fn_check_prepare_trace "preparename.at:265"
+( $at_check_trace; diff -w out.txt out.log
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:265"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_12
+#AT_START_13
+at_fn_group_banner 13 'preparename.at:269' \
+  "long PREPARE name (PREPARE: over 55 chars / CURSOR: over 55 chars)" ""
+at_xfail=no
+(
+  $as_echo "13. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+        01 ST    PIC  X(100) VARYING.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        PROCEDURE DIVISION.
+            EXEC SQL
+             PREPARE
+             P1_1234567890123456789012345678901234567890123456789012
+             FROM :ST
+            END-EXEC.
+
+            EXEC SQL
+             DECLARE
+              C1_1234567890123456789012345678901234567890123456789012
+              CURSOR FOR
+              P1_1234567890123456789012345678901234567890123456789012
+            END-EXEC.
+
+            STOP RUN.
+_ATEOF
+
+
+cat >prog.txt <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+OCESQL* EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01 DATA1 PIC  X(10).
+OCESQL* 01 ST    PIC  X(100) VARYING.
+OCESQL  01 ST.
+OCESQL    02 ST-LEN PIC S9(8) COMP-5.
+OCESQL    02 ST-ARR PIC X(100).
+OCESQL* EXEC SQL END DECLARE SECTION END-EXEC.
+
+OCESQL* EXEC SQL INCLUDE SQLCA END-EXEC.
+OCESQL     copy "sqlca.cbl".
+        PROCEDURE DIVISION.
+OCESQL*     EXEC SQL
+OCESQL*      PREPARE
+OCESQL*      P1_1234567890123456789012345678901234567890123456789012
+OCESQL*      FROM :ST
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPrepare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE
+OCESQL     "prog_P1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE ST-ARR
+OCESQL          BY VALUE ST-LEN
+OCESQL     END-CALL.
+
+OCESQL*     EXEC SQL
+OCESQL*      DECLARE
+OCESQL*       C1_1234567890123456789012345678901234567890123456789012
+OCESQL*       CURSOR FOR
+OCESQL*       P1_1234567890123456789012345678901234567890123456789012
+OCESQL*     END-EXEC.
+OCESQL     CALL "OCESQLPreparedCursorDeclare" USING
+OCESQL          BY REFERENCE SQLCA
+OCESQL          BY REFERENCE
+OCESQL     "prog_C1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL          BY REFERENCE
+OCESQL     "prog_P1_1234567890123456789012345678901234567890123456789012"
+OCESQL         & x"00"
+OCESQL     END-CALL.
+
+            STOP RUN.
+_ATEOF
+
+
+cat >out.txt <<'_ATEOF'
+precompile start: prog.cbl
+=======================================================
+              LIST OF CALLED DB Library API
+=======================================================
+Generate:OCESQLPrepare
+Warning: prog_P1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+Generate:OCESQLPreparedCursorDeclare
+Warning: prog_C1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+Warning: prog_P1_1234567890123456789012345678901234567890123456789012 is too long, so it may cause a compilation error.
+=======================================================
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:361: \${OCESQL} prog.cbl prog.cob > out.log"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:361"
+( $at_check_trace; ${OCESQL} prog.cbl prog.cob > out.log
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:361"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:362: diff -w prog.txt prog.cob"
+at_fn_check_prepare_trace "preparename.at:362"
+( $at_check_trace; diff -w prog.txt prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:362"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:363: diff -w out.txt out.log"
+at_fn_check_prepare_trace "preparename.at:363"
+( $at_check_trace; diff -w out.txt out.log
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:363"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_13
+#AT_START_14
+at_fn_group_banner 14 'preparename.at:367' \
+  "CALL sub programs" "                              "
+at_xfail=no
+(
+  $as_echo "14. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+cat >prog.cbl <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01  DBNAME     PIC  X(30) VALUE SPACE.
+        01  USERNAME   PIC  X(30) VALUE SPACE.
+        01  PASSWD     PIC  X(10) VALUE SPACE.
+        01  A-REC-VARS.
+         03  COLA1            PIC S9(04) VALUE ZERO.
+         03  COLA2            PIC  X(5).
+         03  COLA3            PIC S9(04) VALUE ZERO.
+        01  B-REC-VARS.
+         03  COLB1            PIC S9(04) VALUE ZERO.
+         03  COLB2            PIC  X(5).
+         03  COLB3            PIC S9(04) VALUE ZERO.
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+
+        PROCEDURE DIVISION.
+        MAIN-RTN.
+      *    CONNECT
+            MOVE "<|DB_NAME|>@<|DB_HOST|>:<|DB_PORT|>"
+                TO DBNAME.
+            MOVE "<|DB_USER|>"
+                TO USERNAME.
+            MOVE "<|DB_PASSWORD|>"
+                TO PASSWD.
+            EXEC SQL
+                CONNECT :USERNAME IDENTIFIED BY :PASSWD USING :DBNAME
+            END-EXEC.
+
+      *    DROP TABLE
+           EXEC SQL
+               DROP TABLE IF EXISTS TABLEA
+           END-EXEC.
+
+           EXEC SQL
+               DROP TABLE IF EXISTS TABLEB
+           END-EXEC.
+
+      *    CREATE TABLE
+           EXEC SQL
+                CREATE TABLE TABLEA
+                (
+                    COLA1     NUMERIC(4,0) NOT NULL,
+                    COLA2     CHAR(5),
+                    COLA3     NUMERIC(4,0),
+                    CONSTRAINT ITA_0 PRIMARY KEY (COLA1)
+                )
+           END-EXEC.
+
+           EXEC SQL
+                CREATE TABLE TABLEB
+                (
+                    COLB1     NUMERIC(4,0) NOT NULL,
+                    COLB2     CHAR(5),
+                    COLB3     NUMERIC(4,0),
+                    CONSTRAINT ITB_0 PRIMARY KEY (COLB1)
+                )
+           END-EXEC.
+
+      *    INSERT ROWS
+      *    --- A ---
+           EXEC SQL
+                INSERT INTO TABLEA
+                VALUES (1, 'ABCDE', 100)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEA
+                VALUES (2, 'FGHIJ', 200)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEA
+                VALUES (3, 'KLMNO', 300)
+           END-EXEC.
+
+      *    --- B ---
+           EXEC SQL
+                INSERT INTO TABLEB
+                VALUES (1, 'BCDEF', 111)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEB
+                VALUES (2, 'GHIJK', 222)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEB
+                VALUES (3, 'LMNOP', 333)
+           END-EXEC.
+
+           EXEC SQL
+                INSERT INTO TABLEB
+                VALUES (4, 'LMNOP', 444)
+           END-EXEC.
+
+      *    CALL sub1
+            CALL "sub1".
+
+            DISPLAY "---------------".
+
+      *    CALL sub2
+            CALL "sub2".
+
+            DISPLAY "---------------".
+
+      *    CALL sub1
+            CALL "sub1".
+
+      *    COMMIT
+            EXEC SQL COMMIT WORK END-EXEC.
+
+      *    DISCONNECT
+            EXEC SQL DISCONNECT ALL END-EXEC.
+
+            STOP RUN.
+_ATEOF
+
+
+cat >sub1.cbl <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. sub1.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  D-A-REC.
+           05  D-A-1          PIC  9(04).
+           05  FILLER         PIC  X.
+           05  D-A-2          PIC  X(5).
+           05  FILLER         PIC  X.
+           05  D-A-3          PIC  9(3).
+        01 CNT PIC 9(1) VALUE 1.
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01  A-REC-VARS.
+         03  COLA1            PIC S9(04) VALUE ZERO.
+         03  COLA2            PIC  X(5).
+         03  COLA3            PIC S9(04) VALUE ZERO.
+        01 S     PIC X(100) VARYING.
+        01 S-PTR PIC 9(03).
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+
+        PROCEDURE DIVISION.
+        MAIN-RTN.
+           IF CNT = 1 THEN
+      *    PREPARE
+             ADD 1 TO CNT
+             MOVE  SPACE  TO  S-ARR
+             MOVE  1      TO  S-PTR
+                STRING
+                  "SELECT COLA1, COLA2, COLA3 "
+                  "FROM TABLEA "
+                  "WHERE COLA3 = 200"
+                  INTO S-ARR WITH POINTER S-PTR
+             MOVE  S-PTR       TO  S-LEN
+             EXEC SQL
+                 PREPARE PSTMT
+                 FROM :S
+             END-EXEC
+
+      *    DECLARE CURSOR
+           EXEC SQL
+               DECLARE CUR CURSOR
+               FOR PSTMT
+           END-EXEC
+           END-IF.
+
+      *    OPEN CURSOR
+           EXEC SQL OPEN CUR END-EXEC.
+
+      *    FETCH
+           EXEC SQL
+               FETCH CUR
+               INTO :COLA1, :COLA2, :COLA3
+           END-EXEC.
+
+           PERFORM UNTIL SQLCODE NOT = ZERO
+              MOVE  COLA1    TO    D-A-1
+              MOVE  COLA2    TO    D-A-2
+              MOVE  COLA3    TO    D-A-3
+              DISPLAY D-A-REC
+              EXEC SQL
+                  FETCH CUR
+                  INTO :COLA1, :COLA2, :COLA3
+              END-EXEC
+           END-PERFORM.
+
+      *    CLOSE CURSOR
+           EXEC SQL CLOSE CUR END-EXEC.
+
+      *    COMMIT
+           EXEC SQL COMMIT WORK END-EXEC.
+
+           GOBACK.
+_ATEOF
+
+
+cat >sub2.cbl <<'_ATEOF'
+
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. sub2.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  D-B-REC.
+           05  D-B-1          PIC  9(04).
+           05  FILLER         PIC  X.
+           05  D-B-2          PIC  X(5).
+           05  FILLER         PIC  X.
+           05  D-B-3          PIC  9(3).
+        EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+        01  B-REC-VARS.
+         03  COLB1            PIC S9(04) VALUE ZERO.
+         03  COLB2            PIC  X(5).
+         03  COLB3            PIC S9(04) VALUE ZERO.
+        01 S     PIC X(100) VARYING.
+        01 S-PTR PIC 9(03).
+        EXEC SQL END DECLARE SECTION END-EXEC.
+
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+
+        PROCEDURE DIVISION.
+        MAIN-RTN.
+      *    PREPARE
+           MOVE  SPACE  TO  S-ARR.
+           MOVE  1      TO  S-PTR.
+              STRING
+                "SELECT COLB1, COLB2, COLB3 "
+                "FROM TABLEB "
+                "WHERE COLB2 = 'LMNOP'"
+                INTO S-ARR WITH POINTER S-PTR.
+           MOVE  S-PTR       TO  S-LEN.
+           EXEC SQL
+               PREPARE PSTMT
+               FROM :S
+           END-EXEC.
+
+      *    DECLARE CURSOR
+           EXEC SQL
+               DECLARE CUR CURSOR
+               FOR PSTMT
+           END-EXEC.
+
+      *    OPEN CURSOR
+           EXEC SQL OPEN CUR END-EXEC.
+
+      *    FETCH
+           EXEC SQL
+               FETCH CUR
+               INTO :COLB1, :COLB2, :COLB3
+           END-EXEC.
+
+           PERFORM UNTIL SQLCODE NOT = ZERO
+              MOVE  COLB1    TO    D-B-1
+              MOVE  COLB2    TO    D-B-2
+              MOVE  COLB3    TO    D-B-3
+              DISPLAY D-B-REC
+              EXEC SQL
+                  FETCH CUR
+                  INTO :COLB1, :COLB2, :COLB3
+              END-EXEC
+           END-PERFORM.
+
+      *    CLOSE CURSOR
+           EXEC SQL CLOSE CUR END-EXEC.
+
+      *    COMMIT
+           EXEC SQL COMMIT WORK END-EXEC.
+
+           GOBACK.
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:643: \${OCESQL} prog.cbl prog.cob > /dev/null"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:643"
+( $at_check_trace; ${OCESQL} prog.cbl prog.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:643"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:644: \${EMBED_DB_INFO} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:644"
+( $at_check_trace; ${EMBED_DB_INFO} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:644"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:645: \${COMPILE_MODULE} prog.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:645"
+( $at_check_trace; ${COMPILE_MODULE} prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:645"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:647: \${OCESQL} sub1.cbl sub1.cob > /dev/null"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:647"
+( $at_check_trace; ${OCESQL} sub1.cbl sub1.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:647"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:648: \${COMPILE_MODULE} sub1.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:648"
+( $at_check_trace; ${COMPILE_MODULE} sub1.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:648"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:650: \${OCESQL} sub2.cbl sub2.cob > /dev/null"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:650"
+( $at_check_trace; ${OCESQL} sub2.cbl sub2.cob > /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:650"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:651: \${COMPILE_MODULE} sub2.cob"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:651"
+( $at_check_trace; ${COMPILE_MODULE} sub2.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:651"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+{ set +x
+$as_echo "$at_srcdir/preparename.at:653: \${RUN_MODULE} prog 2> /dev/null"
+at_fn_check_prepare_notrace 'a ${...} parameter expansion' "preparename.at:653"
+( $at_check_trace; ${RUN_MODULE} prog 2> /dev/null
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+echo >>"$at_stdout"; $as_echo "0002 FGHIJ 200
+---------------
+0003 LMNOP 333
+0004 LMNOP 444
+---------------
+0002 FGHIJ 200
+" | \
+  $at_diff - "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/preparename.at:653"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_14
